@@ -1,0 +1,263 @@
+<script>
+	import { db } from "./firebasePacientes";
+	import {
+		collection,
+		addDoc,
+		doc,
+		deleteDoc,
+		updateDoc,
+		getDocs,
+	} from "firebase/firestore";
+	import { onMount } from "svelte";
+	import SelectPlan from "./SelectPlan.svelte";
+	import Toastify from "toastify-js";
+	import Swal from "sweetalert2";
+	import "sweetalert2/src/sweetalert2.scss";
+
+	export let pacientes; //array que viene del unsub de Padre.svelte que trae toda la db pacientes
+
+	let optionsPlan = [];
+
+	let grupoButtonRadio = "";
+
+	onMount(async () => {
+		// Consulta la base de datos para obtener las opciones del select
+		const optionsCollection = collection(db, "planes");
+		const optionsSnapshot = await getDocs(optionsCollection);
+		optionsPlan = optionsSnapshot.docs.map((doc) => doc.data().plan);
+		optionsPlan.push("particular");
+		optionsPlan.sort();
+		grupoButtonRadio = "particular";
+	});
+
+	let prefix = "";
+	let nombre = "";
+	let apellido = "";
+	let nroSocio = "";
+	let planSeleccionado = "";
+	let createdAt = new Date();
+	let i = 0;
+
+	$: filteredPeople = prefix
+		? pacientes.filter((person) => {
+				const name = `${person.apellido}, ${person.nombre}`;
+				return name.toLowerCase().startsWith(prefix.toLowerCase());
+		  })
+		: pacientes.map((persona) => {
+				return {
+					nombre: persona.nombre,
+					apellido: persona.apellido,
+					plan: persona.plan,
+					nroSocio: persona.nroSocio,
+					id: persona.id,
+				};
+		  });
+
+	$: selected = filteredPeople[i];
+
+	$: console.log(pacientes);
+
+	$: reset_inputs(selected);
+
+	const reset_inputs = (person) => {
+		nombre = person ? person.nombre : "";
+		apellido = person ? person.apellido : "";
+		nroSocio = person ? person.nroSocio : "";
+		planSeleccionado = person ? person.plan : "";
+	};
+
+	const agregarPaciente = async (i) => {
+		try {
+			await addDoc(collection(db, "Pacientes"), {
+				...pacientes[i],
+				createdAt: new Date(),
+				planSeleccionado,
+				nroSocio,
+			});
+			console.log("paciente agregado");
+			Toastify({
+				text: "Nuevo paciente agregado",
+			}).showToast();
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
+	const create = () => {
+		pacientes = pacientes.concat({ nombre, apellido });
+		i = pacientes.length - 1;
+		agregarPaciente(i);
+		nombre = apellido = planSeleccionado = nroSocio = "";
+	};
+
+	const actualizarPaciente = async (selected) => {
+		console.log("selected justo antes de try catch", selected);
+		try {
+			await updateDoc(doc(db, "Pacientes", selected.id), selected);
+			Toastify({
+				text: `paciente ${selected.apellido}, ${selected.nombre} actualizado`,
+				style: {
+					background: "linear-gradient(to right, #00b09b, #96c93d)",
+				},
+			}).showToast();
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	const update = () => {
+		console.log("en function update al ppio selected", selected);
+		console.log(
+			"en function update al ppio planSeleccionado",
+			planSeleccionado
+		);
+		selected.nombre = nombre;
+		selected.apellido = apellido;
+		planSeleccionado = selected.plan;
+		selected.nroSocio = nroSocio;
+		selected = selected;
+		pacientes = pacientes;
+		console.log("en function update al final", selected);
+		console.log("pacientes en update", pacientes);
+		actualizarPaciente(selected);
+	};
+
+	const borrarConfirmado = async (selected) => {
+		console.log("borrar", selected.id);
+
+		try {
+			await deleteDoc(doc(db, "Pacientes", selected.id));
+			Toastify({
+				text: "Paciente eliminado",
+				style: {
+					background: "red",
+				},
+			}).showToast();
+		} catch (error) {
+			console.error(error);
+		}
+	};
+	const remove = () => {
+		// Remove selected person from the source array (pacientes), not the filtered array
+		const index = pacientes.indexOf(selected);
+		Swal.fire({
+			title: "Are you sure?",
+			text: "You won't be able to revert this!",
+			icon: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#3085d6",
+			cancelButtonColor: "#d33",
+			confirmButtonText: "Yes, delete it!",
+		}).then((result) => {
+			if (result.isConfirmed) {
+				Swal.fire("Deleted!", "Your file has been deleted.", "success");
+				borrarConfirmado(pacientes[i]);
+				pacientes = [
+					...pacientes.slice(0, index),
+					...pacientes.slice(index + 1),
+				];
+
+				nombre = apellido = nroSocio = planSeleccionado = "";
+				i = Math.min(i, filteredPeople.length - 2);
+			}
+		});
+	};
+
+	const handleOnClickSelectPlan = (event) => {
+		console.log(event.target.value);
+		planSeleccionado = event.target.value;
+		selected.plan = planSeleccionado;
+	};
+</script>
+
+<input class="" placeholder="filter prefix" bind:value={prefix} />
+
+<select bind:value={i} size={5}>
+	{#each filteredPeople as person, i}
+		<!-- <option value={i}>{person.apellido}, {person.nombre}</option> -->
+		<option value={i}
+			>{`${person.nroSocio}-${person.apellido}, ${person.nombre} plan ${person.plan}`}</option
+		>
+	{/each}
+</select>
+<div>
+	<label><input bind:value={nombre} placeholder="nombre" /></label>
+	<label><input bind:value={apellido} placeholder="apellido" /></label>
+	<label><input bind:value={nroSocio} placeholder="nro de Socio" /></label>
+	<label><input bind:value={planSeleccionado} placeholder="Plan" /></label>
+	<div class="contenedor-radioPlan">
+		{#each optionsPlan as optionPlan}
+			<div>
+				<input
+					class="selectorPlanes"
+					name="SelectPlan"
+					type="radio"
+					on:click={handleOnClickSelectPlan}
+					bind:group={grupoButtonRadio}
+					value={optionPlan}
+				/>
+				<label for="selectorPlanes" class="selectorPlanes">
+					{optionPlan}
+				</label>
+			</div>
+		{/each}
+	</div>
+</div>
+
+<div class="buttons mt-3 p-2 d-flex justify-content-center">
+	<button
+		on:click={create}
+		disabled={!nombre || !apellido || !planSeleccionado || !nroSocio}
+		>create</button
+	>
+	<button
+		on:click={update}
+		disabled={!nombre ||
+			!apellido ||
+			!planSeleccionado ||
+			!nroSocio ||
+			!selected}>update</button
+	>
+	<button on:click={remove} disabled={!selected}>delete</button>
+</div>
+
+<style>
+	* {
+		font-family: inherit;
+		font-size: inherit;
+	}
+
+	label {
+		display: block;
+		margin: 0 0 0.5em 0;
+	}
+	input {
+		display: block;
+		margin: 0 0 0.5em 0;
+	}
+
+	select {
+		float: left;
+		margin: 0 1em 1em 0;
+		width: 18em;
+	}
+	.contenedor-radioPlan{
+		border: 1px solid black;
+		text-align: left;
+		max-width: 50%;
+	}
+
+	.buttons {
+		clear: both;
+	}
+
+	.selectorPlanes {
+		font-size: 0.75em;
+		display: inline;
+		padding: 0.5em;
+		height: 1em;
+		width: 40%;
+		align-items: center;
+		text-align: left;
+	}
+</style>
