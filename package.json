@@ -6,11 +6,13 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "npx gh-pages -d dist"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.0.2",
     "@types/toastify-js": "^1.11.1",
+    "gh-pages": "^5.0.0",
     "sass": "^1.59.3",
     "svelte": "^3.55.1",
     "vite": "^4.1.0"
@@ -19,6 +21,7 @@
     "bootstrap": "^5.2.3",
     "bootswatch": "^5.2.3",
     "firebase": "^9.17.2",
+    "firebase-tools": "^11.25.1",
     "material-icons": "^1.13.2",
     "sweetalert2": "^11.4.8",
     "toastify-js": "^1.12.0"
