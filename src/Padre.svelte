@@ -1,76 +1,68 @@
 <script>
-    import FormularioSesiones from "./FormularioSesiones.svelte";
+    import CrudPacientes from "./CRUDPacientes.svelte";
+    import CRUDSesiones from "./CRUDSesiones.svelte";
+    //import FormularioSesiones from "./FormularioSesiones.svelte";
     import { onDestroy } from "svelte";
     import { db } from "./firebasePacientes";
     import { collection, onSnapshot, updateDoc, doc } from "firebase/firestore";
+    import SubscripcionPacientes from "./SubscripcionPacientes.svelte";
 
-    let arrayDeNombresDeClaves = [
-        // usado para hacer que todos los campos de la base de datos y el array pacioentes tengan todas las claves
-        "nombre",
-        "apellido",
-        "nroSocio",
-        "plan",
-        "createdAt",
-    ];
+    
+    
+    let sesiones = [];
+    let pacientes=[];
 
-    const agregarClavesFaltantes = (pacientes, arrayDeNombresDeClaves) => {
-        //funcion que agrega los nombres de las claves faltantes en caso de que las haya, en el array pacientes.
-        // Iterar por cada objeto en el array
-        pacientes.forEach((paciente) => {
-            // Iterar por cada nombre de clave en el array de nombres de claves
-            arrayDeNombresDeClaves.forEach((nombreDeClave) => {
-                // Verificar si la clave está presente en el objeto
-                if (!(nombreDeClave in paciente)) {
-                    // Si la clave no está presente, agregarla con un valor null
-                    paciente[nombreDeClave] = null;
-                }
-            });
-        });
-    };
-
-    const actualizaPaciente = async (selected) => {
-        try {
-            await updateDoc(doc(db, "Pacientes", selected.id), selected);
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
-    const unsub = onSnapshot(
-        collection(db, "Pacientes"),
+    const unsubSesiones = onSnapshot(
+        collection(db, "sesiones"),
         (querySnapshot) => {
-            pacientes = querySnapshot.docs.map((doc) => {
+            sesiones = querySnapshot.docs.map((doc) => {
                 return { ...doc.data(), id: doc.id };
             });
-            agregarClavesFaltantes(pacientes, arrayDeNombresDeClaves);
-            console.log("Desde Padre.svelte>unsub", pacientes);
-            pacientes.forEach((paciente) => {
-                actualizaPaciente(paciente);
-            });
+            console.log("desde Padre.svelte>unsubSesiones:", sesiones);
+            // agregarClavesFaltantes(sesiones, arrayDeNombresDeClaves);
+            // console.log("Desde Padre.svelte>unsub", sesiones);
+            // sesiones.forEach((sesiones) => {
+            //     actualizaSesiones(sesiones);
+            // });
         },
         (err) => {
             console.log(err);
         }
     );
 
-    onDestroy(unsub); // quita la suscripcion a la escucha al cambiar de pagina o destruir el componente
-    let pacientes = [];
+    onDestroy(unsubSesiones); // quita la suscripcion a la escucha al cambiar de pagina o destruir el componente
 </script>
 
-<main>
-    <div class="contenedor-padre">
-        <FormularioSesiones {pacientes} />
+
+    <div class="row">
+        <div class="contenedor-pacientes col-12 col-md-5">
+            <h5>CRUD Pacientes</h5>
+            <CrudPacientes {pacientes}/>
+            
+        </div>
+
+        <div class="col-12 col-md-6 contenedor-sesiones">
+            <CRUDSesiones {sesiones}/>
+        </div>
     </div>
-</main>
+
 
 <style>
-    .contenedor-padre{
-        text-align: left ;
+    .contenedor-sesiones {
+        text-align: left;
         box-sizing: border-box;
         padding: 0.5em;
-        border: 1em;
-        border-color: blue;
+        border: 0.2em solid black;
         background-color: cadetblue;
         display: inline-block;
+        margin: 0.2em;
+    }
+
+    .contenedor-pacientes {
+        align-items: start;
+        border: 0.2em solid black;
+        padding: 0.5em;
+        background-color: cornflowerblue;
+        margin: 0.2em;
     }
 </style>

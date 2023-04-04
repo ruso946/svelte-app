@@ -1,6 +1,8 @@
 <script>
+	import { onMount, onDestroy, createEventDispatcher } from "svelte";
 	import { db } from "./firebasePacientes";
 	import {
+		onSnapshot,
 		collection,
 		addDoc,
 		doc,
@@ -8,20 +10,75 @@
 		updateDoc,
 		getDocs,
 	} from "firebase/firestore";
-	import { onMount } from "svelte";
-	import SelectPlan from "./SelectPlan.svelte";
 	import Toastify from "toastify-js";
 	import Swal from "sweetalert2";
 	import "sweetalert2/src/sweetalert2.scss";
+	import { pacienteSeleccionado, apellidoSeleccionado, idPacienteSeleccionado, nombreSeleccionado } from "./store";
 
-	export let pacientes; //array que viene del unsub de Padre.svelte que trae toda la db pacientes
+	export let pacientes = []; //array que viene del unsub de Padre.svelte que trae toda la db pacientes
+
+	let arrayDeNombresDeClaves = [
+		// usado para hacer que todos los campos de la base de datos y el array pacientes tengan todas las claves
+		"nombre",
+		"apellido",
+		"nroSocio",
+		"plan",
+		"createdAt",
+	];
+
+	const agregarClavesFaltantes = (pacientes, arrayDeNombresDeClaves) => {
+		//funcion que agrega los nombres de las claves faltantes en caso de que las haya, en el array pacientes.
+		// Iterar por cada objeto en el array
+		pacientes.forEach((paciente) => {
+			// Iterar por cada nombre de clave en el array de nombres de claves
+			arrayDeNombresDeClaves.forEach((nombreDeClave) => {
+				// Verificar si la clave está presente en el objeto
+				if (!(nombreDeClave in paciente)) {
+					// Si la clave no está presente, agregarla con un valor null
+					paciente[nombreDeClave] = null;
+				}
+			});
+		});
+	};
+	//utilizada para agregar las claves faltantes al array pacientes
+	const actualizaPaciente = async (selected) => {
+		try {
+			await updateDoc(doc(db, "Pacientes", selected.id), selected);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	//esta funcion de subscripcion recien devuelve el array pacientes con los datos de firestore
+	//al terminar el map, no antes.
+	const unsubPacientes = onSnapshot(
+		collection(db, "Pacientes"),
+		(querySnapshot) => {
+			pacientes = querySnapshot.docs.map((doc) => {
+				//console.log(doc.data());
+				return { ...doc.data(), id: doc.id };
+			});
+			agregarClavesFaltantes(pacientes, arrayDeNombresDeClaves);
+			console.log("Desde Padre.svelte>unsubPacientes", pacientes);
+			pacientes.forEach((paciente) => {
+				actualizaPaciente(paciente);
+			});
+		},
+		(err) => {
+			console.log(err);
+		}
+	);
+
+	onDestroy(unsubPacientes); // quita la suscripcion a la escucha al cambiar de pagina o destruir el componente
+
+	//export let sesiones;
 
 	let optionsPlan = [];
 
 	let grupoButtonRadio = "";
 
 	onMount(async () => {
-		// Consulta la base de datos para obtener las opciones del select
+		// Consulta la base de datos para obtener las opciones del grupo radio button de planes
 		const optionsCollection = collection(db, "planes");
 		const optionsSnapshot = await getDocs(optionsCollection);
 		optionsPlan = optionsSnapshot.docs.map((doc) => doc.data().plan);
@@ -37,6 +94,9 @@
 	let planSeleccionado = "";
 	let createdAt = new Date();
 	let i = 0;
+	let filteredPeople;
+
+	console.log("desde crud pacientes 99:", pacientes);
 
 	$: filteredPeople = prefix
 		? pacientes.filter((person) => {
@@ -53,9 +113,25 @@
 				};
 		  });
 
+	console.log("filteredPeople", filteredPeople);
+
+	
 	$: selected = filteredPeople[i];
 
-	$: console.log(pacientes);
+
+	//el siguiente bloque reactivo if, aporta al store los valores necesarios
+	//del paciente seleccionado en el Select de este componente:
+	//el objeto pacienteSeleccionado, el apellido, la id
+	$: if (selected) {
+		$pacienteSeleccionado = selected;
+		$apellidoSeleccionado = selected.apellido;
+		$nombreSeleccionado = selected.nombre;
+		$idPacienteSeleccionado = selected.id;
+
+	}
+
+	$pacienteSeleccionado = selected;
+
 
 	$: reset_inputs(selected);
 
@@ -70,7 +146,7 @@
 		try {
 			await addDoc(collection(db, "Pacientes"), {
 				...pacientes[i],
-				createdAt: new Date(),
+				createdAt: new Date().toLocaleDateString(),
 				planSeleccionado,
 				nroSocio,
 			});
@@ -163,20 +239,29 @@
 		});
 	};
 
-	const handleOnClickSelectPlan = (event) => {
-		console.log(event.target.value);
+	const handleOnClickSelectPlan = (event) => {		
 		planSeleccionado = event.target.value;
 		selected.plan = planSeleccionado;
 	};
+
+	const dispatch = createEventDispatcher();
+	const handleSelect = (event) => {
+		const selectedPaciente = event.target.value;		
+		dispatch("pacienteSelected", selectedPaciente);
+	};
+	let person;
 </script>
 
-<input class="" placeholder="filter prefix" bind:value={prefix} />
+<input placeholder="filter prefix" bind:value={prefix} />
+<!--este prefix es la base para filtrar el array pacientes-->
 
-<select bind:value={i} size={5}>
+<select on:change={handleSelect} bind:value={i} size={5}>
 	{#each filteredPeople as person, i}
-		<!-- <option value={i}>{person.apellido}, {person.nombre}</option> -->
+		<!-- este bucle each itera por la lista filtrada con el indice i
+		que es el que le da el valor seleccionado al select -->
+
 		<option value={i}
-			>{`${person.nroSocio}-${person.apellido}, ${person.nombre} plan ${person.plan}`}</option
+			>{`${person.nroSocio}-${person.apellido}, ${person.nombre} plan ${person.plan} valor ${i}`}</option
 		>
 	{/each}
 </select>
@@ -239,9 +324,9 @@
 	select {
 		float: left;
 		margin: 0 1em 1em 0;
-		width: 18em;
+		width: 13em;
 	}
-	.contenedor-radioPlan{
+	.contenedor-radioPlan {
 		border: 1px solid black;
 		text-align: left;
 		max-width: 50%;
