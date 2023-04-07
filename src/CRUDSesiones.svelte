@@ -1,8 +1,8 @@
 <script>
   import { onMount } from "svelte";
   import Toastify from "toastify-js";
-	import Swal from "sweetalert2";
-	import "sweetalert2/src/sweetalert2.scss";
+  import Swal from "sweetalert2";
+  import "sweetalert2/src/sweetalert2.scss";
 
   import { db } from "./firebasePacientes";
 
@@ -17,6 +17,7 @@
     doc,
     setDoc,
     orderBy,
+    updateDoc,
   } from "firebase/firestore";
 
   export let sesiones; // array que va a usarse para suscribirse a la db sesiones.
@@ -59,11 +60,21 @@
     };
   });
 
+  let selectedSessionId;
+  let selectedSession;
+
   $: console.log(
     "luego de las subscripciones a pacientes y sesiones",
     sesiones,
     pacientes
   );
+
+  $: {
+    selectedSession = sesiones.find(
+      (sesion) => sesion.id === selectedSessionId //está tomando la sesion seleccionada como objeto a partir de la id de sesion seleccionada en el select
+    );
+    console.log(selectedSession);
+  }
 
   /* ahora hay que armar la logica con el formulario y el select:
   - el select va a mostrar la lista de sesiones filtrada por el paciente
@@ -89,48 +100,69 @@ Funciones del formulario:
 
  las que dependen de eventos:
  -handle_onchange_select_sesiones
-*/  
+*/
   const handle_onChange_select_sesiones = (e) => {
-    const selectedSessionId = e.target.value;
-    console.log(selectedSessionId);
+    selectedSessionId = e.target.value; // está tomando el valor del select al cambiar, que es el Id de sesion seleccionado
     console.log(sesiones);
-    const selectedSession = sesiones.find(
-      (sesion) => sesion.id === selectedSessionId
+    selectedSession = sesiones.find(
+      (sesion) => sesion.id === selectedSessionId //está tomando la sesion seleccionada como objeto a partir de la id de sesion seleccionada en el select
     );
-    console.log("selectedSession", selectedSession);
+    console.log("selectedSession", selectedSession); // es un objeto
     valorPago = selectedSession.valorPago;
     valorSesion = selectedSession.valorSesion;
     fechaPago = selectedSession.fechaPago;
     diaSesion = selectedSession.diaSesion;
   };
 
-  const addSesion = async(sesion) => {
-    console.log("Add sesion", sesion.event.formData());
+  const addSesion = () => {
+    console.log("Add sesion", selectedSession);
     //hay que hacer que los datos del formulario carguen una nueva sesion en firestore sesiones
 
-
     try {
-			await addDoc(collection(db, "sesiones"), {
-				valorPago: sesion.valorPago,
-        valorSesion: sesion.valorSesion,
-        diaSesion: sesion.diaSesion,
-        fechaPago: sesion.fechaPago,
-        pacienteID: idPacienteSeleccionado
-			});
-			console.log("sesion agregadao");
-			Toastify({
-				text: "Nueva sesion agregada",
-			}).showToast();
-		} catch (error) {
-			console.error(error);
-		}
-	};
-  
-  const updateSesion = () => {
-    console.log("Update sesion");
+      addDoc(collection(db, "sesiones"), {
+        valorPago: valorPago,
+        valorSesion: valorSesion,
+        diaSesion: diaSesion,
+        fechaPago: fechaPago,
+        pacienteID: selectedSession.pacienteID,
+      });
+      console.log("sesion agregada");
+      Toastify({
+        text: "Nueva sesion agregada",
+      }).showToast();
+    } catch (error) {
+      console.error(error);
+    }
   };
-  const deleteSesion = () => {
-    console.log("Delete sesion");
+
+  const updateSesion = async (selectedSession) => {
+    console.log("Update sesion", selectedSession);
+    try {
+      await updateDoc(doc(db, "sesiones", selectedSession.id), {valorPago: valorPago, valorSesion: valorSesion, fechaPago: fechaPago, diaSesion: diaSesion});
+      Toastify({
+        text: `sesion actualizada`,
+        style: {
+          background: "linear-gradient(to right, #00b09b, #96c93d)",
+        },
+      }).showToast();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const deleteSesion = async (selectedSession) => {
+    console.log("Delete sesion", selectedSession);
+    try {
+      await deleteDoc(doc(db, "sesiones", selectedSession.id));
+      Toastify({
+        text: "Sesion eliminada",
+        style: {
+          background: "red",
+        },
+      }).showToast();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   /*
@@ -139,6 +171,7 @@ Las variables de los inputs del formulario de sesiones:
 -valorSesion
 -diaSesion
 -fechaPago
+-pacienteId
 */
   let valorPago = 4500;
   let valorSesion = 5000;
@@ -152,7 +185,7 @@ Las variables de los inputs del formulario de sesiones:
   <div>
     <select
       on:change={handle_onChange_select_sesiones}
-      bind:value={$idPacienteSeleccionado}
+      bind:value={selectedSessionId}
       size={5}
     >
       {#each sesiones as sesion}
@@ -168,7 +201,7 @@ Las variables de los inputs del formulario de sesiones:
   <!-- Si editStatus está en true, deja ver el formulario para editar/agregar sesiones -->
   {#if editStatus}
     <div>
-      <form class="formSesiones" on:submit|preventDefault={addSesion}>
+      <form class="formSesiones" on:submit|preventDefault>
         <input type="text" bind:value={valorPago} placeholder="Valor pago" />
         <input
           type="text"
@@ -177,25 +210,24 @@ Las variables de los inputs del formulario de sesiones:
         />
         <input type="text" bind:value={diaSesion} placeholder="Día sesión" />
         <input type="text" bind:value={fechaPago} placeholder="Fecha pago" />
-        <!-- <input
-          type="text"
-          bind:value={$apellidoSeleccionado}
-          placeholder="Apellido y nombre del paciente"
-        /> -->
         <div class="buttons mt-3 p-2">
-          <button type="submit">Agregar sesión</button>
+          <button on:click={addSesion}>Agregar sesión</button>
         </div>
       </form>
 
       <div class="buttons mt-3 p-2">
-        <button on:click={updateSesion}>update</button>
-        <button on:click={deleteSesion}>delete</button>
+        <button on:click={updateSesion(selectedSession)}>update</button>
+        <button on:click={deleteSesion(selectedSession)}>delete</button>
       </div>
     </div>
   {/if}
 </main>
 
 <style>
+  main{
+    flex-flow: column wrap;
+  }
+
   .formSesiones {
     display: flex;
     flex-direction: column;
@@ -204,7 +236,15 @@ Las variables de los inputs del formulario de sesiones:
     align-items: flex-start;
   }
 
+  input {
+    width: 10em;
+  }
+
   select {
-    width: 20em;
-  }  
+    width: 26em;
+  }
+
+  option {
+    font-size: x-small;
+  }
 </style>

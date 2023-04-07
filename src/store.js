@@ -1,4 +1,4 @@
-import { writable , derived} from 'svelte/store';
+import { writable } from 'svelte/store';
 
 export const editStatus = writable(false); //maneja la visibilidad del boton>dice Update
 
@@ -16,16 +16,6 @@ export const nombreSeleccionado = writable("");
 export const idPacienteSeleccionado = writable("");
 
 export const psid = writable(pacienteSeleccionado["id"]);
-
-// export const psapellido = derived(
-// 	pacienteSeleccionado,
-// 	$pacienteSeleccionado => $pacienteSeleccionado.apellido
-// );
-
-// export const psnombre = derived(
-// 	pacienteSeleccionado,
-// 	$pacienteSeleccionado => $pacienteSeleccionado.nombre
-// );
 
 export const sesionSeleccionada = writable({
     diaSesion:"",

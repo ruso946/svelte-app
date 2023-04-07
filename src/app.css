@@ -27,6 +27,7 @@ a:hover {
 body {
   margin: 0;
   display: flex;
+  flex-flow: column wrap; /* los elementos toman la direccion de columna y pueden irse a otra linea si desbordan el contenedor*/
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
