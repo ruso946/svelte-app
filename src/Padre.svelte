@@ -43,21 +43,22 @@
 <style>
   body {
     flex-flow: column wrap;
-    max-width: 100vh;
+    max-width: 100vw;
   }
 
   .contenedor-pacientes {
-    max-width: 100vh;
+    max-width: 100vw;
     flex-flow: column wrap;
     align-items: start;
     border: 0.2em solid black;
     padding: 0.5em;
     background-color: cornflowerblue;
     margin: 0;
+    text-align: center;
   }
 
   .contenedor-sesiones {
-    max-width: 100vh;
+    max-width: 100vw;
     flex-flow: column wrap;
     align-items: start;    
     box-sizing: border-box;

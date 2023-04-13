@@ -14,7 +14,7 @@
   }
   
   main{
-    max-width: 100vh;
+    max-width: 100vw;
   }
   .contenedorPadre {
     display: flex;

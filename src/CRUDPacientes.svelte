@@ -254,7 +254,7 @@
 </script>
 
 <body>
-  <div class="filter">
+  <div id="filter"> <!--<div class="filter">-->
     <input placeholder="filter prefix" bind:value={prefix} />
     <!--este prefix es la base para filtrar el array pacientes-->
     <div class="buttons">
@@ -274,8 +274,9 @@
       <button on:click={remove} disabled={!selected}>delete</button>
     </div>
   </div>
-  <select
-    class="selectPacientes"
+  <div id="selectPacientes">
+    <select
+    class="select-Pacientes"
     on:change={handleSelect}
     bind:value={i}
     size={10}
@@ -290,15 +291,21 @@
     {/each}
   </select>
 
-  <div class="formInputs">
+  </div>
+  
+  <div id="formInputsI">
     <label><input bind:value={nombre} placeholder="nombre" /></label>
     <label><input bind:value={apellido} placeholder="apellido" /></label>
+  </div>
+
+  <div id="formInputsD">
+
     <label><input bind:value={nroSocio} placeholder="nro de Socio" /></label>
     <label><input bind:value={planSeleccionado} placeholder="plan" /></label>
   </div>
 
-  <p class="selectPlanTitulo">plan a seleccionar</p>
-  <div class="selectPlan">          
+  <p id="selectPlanTitulo">plan a seleccionar</p>
+  <div id="selectPlan">          
       {#each optionsPlan as optionPlan}
         <span>
           <input
@@ -322,58 +329,88 @@
   * {
     font-family: inherit;
     font-size: inherit;
+    margin: 0;
   }
 
   body {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 8fr 4fr 1fr 2fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-rows: 4fr 2fr 0.5fr 1fr;
     grid-template-areas:
-      "filter selectPacientes selectPacientes"
-      "formInputs formInputs formInputs"
-      "selectPlanTitulo selectPlanTitulo selectPlanTitulo"
-      "selectPlan selectPlan selectPlan";
+      "filter filter selectPacientes selectPacientes selectPacientes selectPacientes"
+      "formInputsI formInputsI formInputsI formInputsD formInputsD formInputsD"
+      "selectPlanTitulo selectPlanTitulo selectPlanTitulo selectPlanTitulo selectPlanTitulo selectPlanTitulo"
+      "selectPlan selectPlan selectPlan selectPlan selectPlan selectPlan";
     margin: 0;
   }
 
-  .filter {
+  #filter {
+    display:grid;    
     grid-area: filter;
     place-items: start;
     padding: 1em;
     justify-items: center;
     align-items: start;
+    background-color: blueviolet;
   }
 
-  .selectPacientes {
+  #filter input{
+    width: 75%;
+    max-width: 100%;
+  }
+
+  #selectPacientes {
+    display:grid;
     grid-area: selectPacientes;
     place-items: start;
     padding: 1em;
     justify-items: center;
     align-items: start;
+    background-color:brown; 
   }
 
-  .formInputs {
-    grid-area: formInputs;
+  #formInputsI {
+    display:grid;
+    grid-area: formInputsI;
     place-items: start;
     padding: 0.5em;
     justify-items: center;
     align-items: start;
+    background-color: cadetblue;
+  }
+  #formInputsD {
+    display:grid;
+    grid-area: formInputsD;
+    place-items: start;
+    padding: 0.5em;
+    justify-items: center;
+    align-items: start;
+    background-color: cadetblue;
   }
 
-  .selectPlanTitulo{
+
+  #selectPlanTitulo{
+    display:grid;
     grid-area: selectPlanTitulo;
+    margin:0;
+    padding: 0.5em;
+    place-items: center;
+    background-color: chartreuse;
   }
-  .selectPlan {
+  #selectPlan {
+    
     grid-area: selectPlan;
     display: flex;
-    flex-direction: row;
-    place-items: start;
-    gap: 2.5em;
+    flex-direction: row;    
+    gap: 2em;    
+    background-color: cyan;
+    padding: 0.5em;
   }
 
   label {
     display: inline;
-    margin: 0 0 0.5em 0;
+    margin: 0;
+    width: 90%;
   }
 
   label.selectorPlan {
@@ -381,15 +418,14 @@
     width: 2em;
   }
   input {
-    display: inline-block;
-    margin: 0 0 0.5em 0;
-    width: max-content;
+    display: grid;
+    margin: 0;
+    width: 90%;
   }
 
   select {
-    float: left;
-    margin: 0 1em 1em 0;
-    width: 15em;
+    max-width: 100%;
+    margin: 0;    
     font-size: small;
   }
 

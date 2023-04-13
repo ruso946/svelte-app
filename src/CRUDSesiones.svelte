@@ -72,7 +72,7 @@
   $: {
     selectedSession = sesiones.find(
       (sesion) => sesion.id === selectedSessionId //está tomando la sesion seleccionada como objeto a partir de la id de sesion seleccionada en el select
-    );
+    );    
     console.log(selectedSession);
   }
 
@@ -118,13 +118,14 @@ Funciones del formulario:
     console.log("Add sesion", selectedSession);
     //hay que hacer que los datos del formulario carguen una nueva sesion en firestore sesiones
 
-    try {
+    try {      
       addDoc(collection(db, "sesiones"), {
         valorPago: valorPago,
         valorSesion: valorSesion,
         diaSesion: diaSesion,
         fechaPago: fechaPago,
-        pacienteID: selectedSession.pacienteID,
+        // pacienteID: selectedSession.pacienteID,
+        pacienteID: $idPacienteSeleccionado,
       });
       console.log("sesion agregada");
       Toastify({
@@ -180,7 +181,7 @@ Las variables de los inputs del formulario de sesiones:
 </script>
 
 <main>
-  <h5>Paciente: {$apellidoSeleccionado}, {$nombreSeleccionado}</h5>
+  <h6>Paciente: {$apellidoSeleccionado}, {$nombreSeleccionado}</h6>
   <!-- Este Select va a elegir la sesion por ID de paciente -->
   <div>
     <select
@@ -241,7 +242,7 @@ Las variables de los inputs del formulario de sesiones:
   }
 
   select {
-    width: 26em;
+    width: 95%;
   }
 
   option {

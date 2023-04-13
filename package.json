@@ -21,7 +21,8 @@
     "bootstrap": "^5.2.3",
     "bootswatch": "^5.2.3",
     "firebase": "^9.17.2",
-    "firebase-tools": "^11.25.1",
+    "firebase-tools": "^11.25.3",
+    "g": "^2.0.1",
     "material-icons": "^1.13.2",
     "sweetalert2": "^11.4.8",
     "toastify-js": "^1.12.0"
