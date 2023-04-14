@@ -5,10 +5,16 @@
   [build.environment]
   NODE_VERSION = "18.12.1"
 
-  [[redirects]]
-  from = "/assets/*"
-  to = "/assets/:splat"
-  status = 200
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Type = "text/html"
+
+
+[[redirects]]
+from = "/assets/*"
+to = "/assets/:splat"
+status = 200
 
 [[redirects]]
   from = "/*"
