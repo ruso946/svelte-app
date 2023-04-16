@@ -61,11 +61,12 @@
     max-width: 100vw;
     flex-flow: column wrap;
     align-items: start;    
-    box-sizing: border-box;
+    /* box-sizing: border-box; */
     padding: 0.5em;
     border: 0.2em solid black;
     background-color: cadetblue;
-    display: inline-block;
+    /* display: inline-block; */
     margin: 0;
+    text-align: center;
   }
 </style>

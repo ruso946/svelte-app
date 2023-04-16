@@ -72,7 +72,7 @@
   $: {
     selectedSession = sesiones.find(
       (sesion) => sesion.id === selectedSessionId //está tomando la sesion seleccionada como objeto a partir de la id de sesion seleccionada en el select
-    );    
+    );
     console.log(selectedSession);
   }
 
@@ -118,7 +118,7 @@ Funciones del formulario:
     console.log("Add sesion", selectedSession);
     //hay que hacer que los datos del formulario carguen una nueva sesion en firestore sesiones
 
-    try {      
+    try {
       addDoc(collection(db, "sesiones"), {
         valorPago: valorPago,
         valorSesion: valorSesion,
@@ -139,7 +139,12 @@ Funciones del formulario:
   const updateSesion = async (selectedSession) => {
     console.log("Update sesion", selectedSession);
     try {
-      await updateDoc(doc(db, "sesiones", selectedSession.id), {valorPago: valorPago, valorSesion: valorSesion, fechaPago: fechaPago, diaSesion: diaSesion});
+      await updateDoc(doc(db, "sesiones", selectedSession.id), {
+        valorPago: valorPago,
+        valorSesion: valorSesion,
+        fechaPago: fechaPago,
+        diaSesion: diaSesion,
+      });
       Toastify({
         text: `sesion actualizada`,
         style: {
@@ -181,65 +186,163 @@ Las variables de los inputs del formulario de sesiones:
 </script>
 
 <main>
-  <h6>Paciente: {$apellidoSeleccionado}, {$nombreSeleccionado}</h6>
-  <!-- Este Select va a elegir la sesion por ID de paciente -->
-  <div>
-    <select
-      on:change={handle_onChange_select_sesiones}
-      bind:value={selectedSessionId}
-      size={5}
-    >
-      {#each sesiones as sesion}
-        {#if Object.values(sesion).includes($idPacienteSeleccionado)}
-          <option class="" value={sesion.id}
-            >dia sesion: {sesion.diaSesion} - valor sesion: {sesion.valorSesion}
-            - dia pago {sesion.fechaPago} - valor pago {sesion.valorPago}
-          </option>
-        {/if}
-      {/each}
-    </select>
-  </div>
-  <!-- Si editStatus está en true, deja ver el formulario para editar/agregar sesiones -->
-  {#if editStatus}
-    <div>
-      <form class="formSesiones" on:submit|preventDefault>
-        <input type="text" bind:value={valorPago} placeholder="Valor pago" />
-        <input
-          type="text"
-          bind:value={valorSesion}
-          placeholder="Valor sesión"
-        />
-        <input type="text" bind:value={diaSesion} placeholder="Día sesión" />
-        <input type="text" bind:value={fechaPago} placeholder="Fecha pago" />
-        <div class="buttons mt-3 p-2">
-          <button on:click={addSesion}>Agregar sesión</button>
-        </div>
-      </form>
-
-      <div class="buttons mt-3 p-2">
-        <button on:click={updateSesion(selectedSession)}>update</button>
-        <button on:click={deleteSesion(selectedSession)}>delete</button>
-      </div>
+  <body>
+    <h6>Paciente: {$apellidoSeleccionado}, {$nombreSeleccionado}</h6>
+    <!-- Este Select va a elegir la sesion por ID de paciente -->
+    <div id="select">
+      <select
+        on:change={handle_onChange_select_sesiones}
+        bind:value={selectedSessionId}
+        size={5}
+      >
+        {#each sesiones as sesion}
+          {#if Object.values(sesion).includes($idPacienteSeleccionado)}
+            <option class="" value={sesion.id}
+              >dia sesion: {sesion.diaSesion} - valor sesion: {sesion.valorSesion}
+              - dia pago {sesion.fechaPago} - valor pago {sesion.valorPago}
+            </option>
+          {/if}
+        {/each}
+      </select>
     </div>
-  {/if}
+    <!-- Si editStatus está en true, deja ver el formulario para editar/agregar sesiones -->
+    {#if editStatus}
+      <div id="contenedor-form-sesiones">
+        <form on:submit|preventDefault>
+          <div id="form-Sesiones">
+            <div id="inputsFormSesionesI">
+              <label for="valorPago">pago</label><input
+                name="valorPago"
+                type="number"
+                bind:value={valorPago}
+                placeholder="Valor pago"
+              />
+              <label for="valorSesion">valor sesion</label><input
+                type="number"
+                bind:value={valorSesion}
+                placeholder="Valor sesión"
+              />
+            </div>
+            <div id="inputsFormSesionesD">
+              <label for="diaSesion">Dia Sesion</label><input
+                name="diaSesion"
+                type="date"
+                bind:value={diaSesion}
+                placeholder="Día sesión"
+              />
+              <label for="fechaPago">Fecha Pago</label><input
+                name="fechaPago"
+                type="date"
+                bind:value={fechaPago}
+                placeholder="Fecha pago"
+              />
+            </div>
+            <div id="botonesFormSesiones" class="buttons">
+              <button on:click={updateSesion(selectedSession)}>update</button>
+              <button on:click={deleteSesion(selectedSession)}>delete</button>
+              <button on:click={addSesion}>Agregar sesión</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    {/if}
+  </body>
 </main>
 
 <style>
-  main{
-    flex-flow: column wrap;
+  * {
+    font-family: inherit;
+    font-size: inherit;
+    margin: 0;
   }
 
-  .formSesiones {
-    display: flex;
+  body {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 0.5fr 1fr 2fr;
+    grid-template-areas:
+      "titulo "
+      "select "
+      "contenedor-form-Sesiones ";
+    margin: 0;
+  }  
+
+  h6 {
+    display: grid;
+    grid-area: titulo;
+    place-items: start;
+    padding: 2px;
+    justify-items: center;
+    align-items: start;
+    background-color: rgb(43, 116, 226);
+  }
+
+  #select {
+    display: grid;
+    grid-area: select;
+    place-items: start;
+    padding: 2px;
+    justify-items: center;
+    align-items: start;
+    background-color: rgb(43, 116, 226);
+  }
+
+  #contenedor-form-sesiones {
+    display: grid;
+    grid-area: contenedor-form-Sesiones;
+    place-items: start;
+    padding: 2px;
+    justify-items: center;
+    align-items: start;
+    background-color: rgb(43, 116, 226);
+  }
+
+  #form-Sesiones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 2fr 1fr;
+    grid-template-areas:
+      "inputsFormSesionesI inputsFormSesionesD"
+      "botonesFormSesiones botonesFormSesiones";
+  }
+
+  #inputsFormSesionesI {    
+    grid-area: inputsFormSesionesI;
+    display: flex; 
     flex-direction: column;
-    flex-wrap: nowrap;
-    justify-content: flex-end;
-    align-items: flex-start;
+    align-items: center;
   }
 
-  input {
-    width: 10em;
+  #inputsFormSesionesI input, #inputsFormSesionesD input {
+    width: 80%;
+    text-align: end;
+    padding-top: 3px;
+  }  
+
+  #inputsFormSesionesI label, #inputsFormSesionesD label {
+    font-size: smaller;
+    color: aliceblue;
+    text-align: start;
+    width: 80%;
+    padding-top: 3px;
+  }  
+
+  #inputsFormSesionesD {    
+    grid-area: inputsFormSesionesD;   
+    display: flex; 
+    flex-direction: column;
+    align-items: center; 
   }
+
+  #botonesFormSesiones {    
+    grid-area: botonesFormSesiones;
+    display: flex;
+    flex-direction: row;
+    justify-items: center;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 3px 1em;
+  }  
 
   select {
     width: 95%;

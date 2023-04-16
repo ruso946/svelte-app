@@ -254,9 +254,7 @@
 </script>
 
 <body>
-  <div id="filter"> <!--<div class="filter">-->
-    <input placeholder="filter prefix" bind:value={prefix} />
-    <!--este prefix es la base para filtrar el array pacientes-->
+  <div id="botones">
     <div class="buttons">
       <button
         on:click={create}
@@ -274,54 +272,73 @@
       <button on:click={remove} disabled={!selected}>delete</button>
     </div>
   </div>
+
+  <div id="filter">
+    
+    <label for="filterPrefix">filtrar por apellido</label><input name="filterPrefix" placeholder="filter prefix" bind:value={prefix} />
+    <!--este prefix es la base para filtrar el array pacientes-->
+  </div>
   <div id="selectPacientes">
     <select
-    class="select-Pacientes"
-    on:change={handleSelect}
-    bind:value={i}
-    size={10}
-  >
-    {#each filteredPeople as person, i}
-      <!-- este bucle each itera por la lista filtrada con el indice i
+      class="select-Pacientes"
+      on:change={handleSelect}
+      bind:value={i}
+      size={5}
+    >
+      {#each filteredPeople as person, i}
+        <!-- este bucle each itera por la lista filtrada con el indice i
 				que es el que le da el valor seleccionado al select -->
 
-      <option value={i}
-        >{`${person.nroSocio}-${person.apellido}, ${person.nombre} plan ${person.plan}`}</option
-      >
-    {/each}
-  </select>
-
+        <option value={i}
+          >{`${person.nroSocio}-${person.apellido}, ${person.nombre} plan ${person.plan}`}</option
+        >
+      {/each}
+    </select>
   </div>
-  
+
   <div id="formInputsI">
-    <label><input bind:value={nombre} placeholder="nombre" /></label>
-    <label><input bind:value={apellido} placeholder="apellido" /></label>
+    <label for="nombre">nombre</label><input
+      name="nombre"
+      bind:value={nombre}
+      placeholder="nombre"
+    />
+    <label for="apellido">apellido</label><input
+      name="apellido"
+      bind:value={apellido}
+      placeholder="apellido"
+    />
   </div>
 
   <div id="formInputsD">
-
-    <label><input bind:value={nroSocio} placeholder="nro de Socio" /></label>
-    <label><input bind:value={planSeleccionado} placeholder="plan" /></label>
+    <label for="nroSocio">nº socio</label><input
+      name="nroSocio"
+      bind:value={nroSocio}
+      placeholder="nro de Socio"
+    />
+    <label for="plan">plan</label><input
+      name="plan"
+      bind:value={planSeleccionado}
+      placeholder="plan"
+    />
   </div>
 
   <p id="selectPlanTitulo">plan a seleccionar</p>
-  <div id="selectPlan">          
-      {#each optionsPlan as optionPlan}
-        <span>
-          <input
-            class="selectorPlanes"
-            name="SelectPlan"
-            type="radio"
-            on:click={handleOnClickSelectPlan}
-            bind:group={grupoButtonRadio}
-            value={optionPlan}
-          />
-          <label for="selectorPlanes" class="selectorPlan">
-            {optionPlan}
-          </label>
-        </span>
-      {/each}
-    
+  <div id="selectPlan">
+    {#each optionsPlan as optionPlan}
+      <span>
+        <input
+          class="selectorPlanes"
+          name="SelectPlan"
+          type="radio"
+          on:click={handleOnClickSelectPlan}
+          bind:group={grupoButtonRadio}
+          value={optionPlan}
+        />
+        <label for="selectorPlanes" class="selectorPlan">
+          {optionPlan}
+        </label>
+      </span>
+    {/each}
   </div>
 </body>
 
@@ -334,83 +351,102 @@
 
   body {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
-    grid-template-rows: 4fr 2fr 0.5fr 1fr;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 0.5fr 2fr 0.5fr 2fr 0.25fr 0.5fr;
     grid-template-areas:
-      "filter filter selectPacientes selectPacientes selectPacientes selectPacientes"
-      "formInputsI formInputsI formInputsI formInputsD formInputsD formInputsD"
-      "selectPlanTitulo selectPlanTitulo selectPlanTitulo selectPlanTitulo selectPlanTitulo selectPlanTitulo"
-      "selectPlan selectPlan selectPlan selectPlan selectPlan selectPlan";
+      "filter filter"
+      "selectPacientes selectPacientes"
+      "botones botones"
+      "formInputsI formInputsD"
+      "selectPlanTitulo selectPlanTitulo"
+      "selectPlan selectPlan";
     margin: 0;
   }
 
   #filter {
-    display:grid;    
     grid-area: filter;
+    display: flex;
+    flex-direction: column;
     place-items: start;
-    padding: 1em;
+    padding: 3px;
     justify-items: center;
-    align-items: start;
+    align-items: center;
     background-color: blueviolet;
   }
 
-  #filter input{
-    width: 75%;
-    max-width: 100%;
+  #filter input {
+    max-width: 200px;
+  }
+
+  #filter label {
+    max-width: 200px;
+    text-align: start;
+  }
+
+
+
+  #botones {
+    grid-area: botones;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: baseline;
+    background-color: blueviolet;
   }
 
   #selectPacientes {
-    display:grid;
     grid-area: selectPacientes;
     place-items: start;
-    padding: 1em;
+    padding: 3px;
     justify-items: center;
     align-items: start;
-    background-color:brown; 
+    background-color: brown;
+  }
+
+  #formInputsD {
+    grid-area: formInputsD;
   }
 
   #formInputsI {
-    display:grid;
     grid-area: formInputsI;
-    place-items: start;
-    padding: 0.5em;
-    justify-items: center;
-    align-items: start;
-    background-color: cadetblue;
   }
+
+  #formInputsI,
   #formInputsD {
-    display:grid;
-    grid-area: formInputsD;
-    place-items: start;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
     padding: 0.5em;
-    justify-items: center;
-    align-items: start;
     background-color: cadetblue;
+    padding: 3px;
   }
 
-
-  #selectPlanTitulo{
-    display:grid;
+  #selectPlanTitulo {
     grid-area: selectPlanTitulo;
-    margin:0;
-    padding: 0.5em;
+    margin: 0;
+    padding: 3px;
     place-items: center;
+    text-align: start;
     background-color: chartreuse;
   }
   #selectPlan {
-    
     grid-area: selectPlan;
     display: flex;
-    flex-direction: row;    
-    gap: 2em;    
+    flex-direction: row;
+    gap: 2em;
     background-color: cyan;
-    padding: 0.5em;
+    padding: 3px;
   }
 
   label {
     display: inline;
     margin: 0;
-    width: 90%;
+    width: 80%;
+    text-align: end;
+    color: aliceblue;
+    font-size: x-small;
+    margin-top: 3px;
   }
 
   label.selectorPlan {
@@ -418,21 +454,20 @@
     width: 2em;
   }
   input {
-    display: grid;
     margin: 0;
-    width: 90%;
+    width: 80%;
+    font-size: medium;
   }
 
   select {
     max-width: 100%;
-    margin: 0;    
+    margin: 0;
     font-size: small;
   }
 
   .buttons {
     display: flex;
-    flex-direction: column;
-    clear: both;
+    flex-direction: row;
     justify-content: flex-start;
     gap: 0.5em;
   }
