@@ -41,32 +41,20 @@
 </body>
 
 <style>
-  body {
-    flex-flow: column wrap;
-    max-width: 100vw;
+
+  body{
+    max-width: 100vh;
+    margin: auto;
   }
 
-  .contenedor-pacientes {
-    max-width: 100vw;
-    flex-flow: column wrap;
-    align-items: start;
+  .contenedor-pacientes, .contenedor-sesiones {
+    display: flex;    
+    max-width: 100vh;
+    flex-direction: column;
     border: 0.2em solid black;
-    padding: 0.5em;
-    background-color: cornflowerblue;
-    margin: 0;
-    text-align: center;
-  }
-
-  .contenedor-sesiones {
-    max-width: 100vw;
-    flex-flow: column wrap;
-    align-items: start;    
-    /* box-sizing: border-box; */
-    padding: 0.5em;
-    border: 0.2em solid black;
+    padding: 3px;
     background-color: cadetblue;
-    /* display: inline-block; */
-    margin: 0;
+    margin-bottom: 3px;
     text-align: center;
-  }
+  }  
 </style>

@@ -218,6 +218,7 @@ Las variables de los inputs del formulario de sesiones:
                 placeholder="Valor pago"
               />
               <label for="valorSesion">valor sesion</label><input
+                name="valorSesion"
                 type="number"
                 bind:value={valorSesion}
                 placeholder="Valor sesión"
@@ -265,7 +266,8 @@ Las variables de los inputs del formulario de sesiones:
       "select "
       "contenedor-form-Sesiones ";
     margin: 0;
-  }  
+    padding: 3px;
+  }
 
   h6 {
     display: grid;
@@ -274,17 +276,17 @@ Las variables de los inputs del formulario de sesiones:
     padding: 2px;
     justify-items: center;
     align-items: start;
-    background-color: rgb(43, 116, 226);
+    background-color:cadetblue;
   }
 
   #select {
     display: grid;
     grid-area: select;
     place-items: start;
-    padding: 2px;
+    padding: 3px;
     justify-items: center;
     align-items: start;
-    background-color: rgb(43, 116, 226);
+    background-color:cadetblue;
   }
 
   #contenedor-form-sesiones {
@@ -294,7 +296,7 @@ Las variables de los inputs del formulario de sesiones:
     padding: 2px;
     justify-items: center;
     align-items: start;
-    background-color: rgb(43, 116, 226);
+    background-color:cadetblue;
   }
 
   #form-Sesiones {
@@ -306,35 +308,39 @@ Las variables de los inputs del formulario de sesiones:
       "botonesFormSesiones botonesFormSesiones";
   }
 
-  #inputsFormSesionesI {    
+  #inputsFormSesionesI {
     grid-area: inputsFormSesionesI;
-    display: flex; 
+    display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: normal;
+    padding: 3px;
   }
 
-  #inputsFormSesionesI input, #inputsFormSesionesD input {
+  #inputsFormSesionesD {
+    grid-area: inputsFormSesionesD;
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    padding: 3px;
+  }
+
+  #inputsFormSesionesI input,
+  #inputsFormSesionesD input {
     width: 80%;
     text-align: end;
     padding-top: 3px;
-  }  
-
-  #inputsFormSesionesI label, #inputsFormSesionesD label {
-    font-size: smaller;
-    color: aliceblue;
-    text-align: start;
-    width: 80%;
-    padding-top: 3px;
-  }  
-
-  #inputsFormSesionesD {    
-    grid-area: inputsFormSesionesD;   
-    display: flex; 
-    flex-direction: column;
-    align-items: center; 
   }
 
-  #botonesFormSesiones {    
+  #inputsFormSesionesI label,
+  #inputsFormSesionesD label {
+    font-size: smaller;
+    color: aliceblue;
+    text-align: end;
+    max-width: 80%;
+    padding-top: 3px;
+  }
+
+  #botonesFormSesiones {
     grid-area: botonesFormSesiones;
     display: flex;
     flex-direction: row;
@@ -342,10 +348,10 @@ Las variables de los inputs del formulario de sesiones:
     justify-content: space-between;
     align-items: flex-end;
     padding: 3px 1em;
-  }  
+  }
 
   select {
-    width: 95%;
+    max-width: 100%;    
   }
 
   option {

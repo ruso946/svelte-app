@@ -76,8 +76,6 @@
 
   onDestroy(unsubPacientes); // quita la suscripcion a la escucha al cambiar de pagina o destruir el componente
 
-  //export let sesiones;
-
   let optionsPlan = [];
 
   let grupoButtonRadio = "";
@@ -250,7 +248,7 @@
     const selectedPaciente = event.target.value;
     dispatch("pacienteSelected", selectedPaciente);
   };
-  let person;
+  // let person;
 </script>
 
 <body>
@@ -274,8 +272,11 @@
   </div>
 
   <div id="filter">
-    
-    <label for="filterPrefix">filtrar por apellido</label><input name="filterPrefix" placeholder="filter prefix" bind:value={prefix} />
+    <label for="filterPrefix">filtrar por apellido</label><input
+      name="filterPrefix"
+      placeholder="filter prefix"
+      bind:value={prefix}
+    />
     <!--este prefix es la base para filtrar el array pacientes-->
   </div>
   <div id="selectPacientes">
@@ -321,24 +322,25 @@
       placeholder="plan"
     />
   </div>
-
-  <p id="selectPlanTitulo">plan a seleccionar</p>
-  <div id="selectPlan">
-    {#each optionsPlan as optionPlan}
-      <span>
-        <input
-          class="selectorPlanes"
-          name="SelectPlan"
-          type="radio"
-          on:click={handleOnClickSelectPlan}
-          bind:group={grupoButtonRadio}
-          value={optionPlan}
-        />
-        <label for="selectorPlanes" class="selectorPlan">
-          {optionPlan}
-        </label>
-      </span>
-    {/each}
+  <div id="selectPlanContainer">
+    <p id="selectPlanTitulo">plan a seleccionar</p>
+    <div id="selectPlan">
+      {#each optionsPlan as optionPlan}
+        <span>
+          <input
+            class="selectorPlanes"
+            name="SelectPlan"
+            type="radio"
+            on:click={handleOnClickSelectPlan}
+            bind:group={grupoButtonRadio}
+            value={optionPlan}
+          />
+          <label for="selectorPlanes" class="selectorPlan">
+            {optionPlan}
+          </label>
+        </span>
+      {/each}
+    </div>
   </div>
 </body>
 
@@ -352,15 +354,13 @@
   body {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 0.5fr 2fr 0.5fr 2fr 0.25fr 0.5fr;
+    grid-template-rows: 0.5fr 1fr 0.3fr 0.3fr;
     grid-template-areas:
       "filter filter"
       "selectPacientes selectPacientes"
       "botones botones"
-      "formInputsI formInputsD"
-      "selectPlanTitulo selectPlanTitulo"
+      "formInputsI formInputsD"      
       "selectPlan selectPlan";
-    margin: 0;
   }
 
   #filter {
@@ -371,7 +371,7 @@
     padding: 3px;
     justify-items: center;
     align-items: center;
-    background-color: blueviolet;
+    background-color: cadetblue;
   }
 
   #filter input {
@@ -383,15 +383,13 @@
     text-align: start;
   }
 
-
-
   #botones {
     grid-area: botones;
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: baseline;
-    background-color: blueviolet;
+    background-color: cadetblue;
   }
 
   #selectPacientes {
@@ -400,7 +398,7 @@
     padding: 3px;
     justify-items: center;
     align-items: start;
-    background-color: brown;
+    background-color: cadetblue;
   }
 
   #formInputsD {
@@ -409,6 +407,10 @@
 
   #formInputsI {
     grid-area: formInputsI;
+  }
+
+  #formInputsD input {
+    text-align: end;
   }
 
   #formInputsI,
@@ -422,21 +424,31 @@
     padding: 3px;
   }
 
+  #selectPlanContainer{
+    display: flex;
+    grid-area: selectPlan;
+    flex-direction: column;
+    justify-items: center;
+    background-color: cadetblue;
+  }
+
   #selectPlanTitulo {
-    grid-area: selectPlanTitulo;
-    margin: 0;
+    /* grid-area: selectPlanTitulo; */
+    margin: auto;
     padding: 3px;
     place-items: center;
     text-align: start;
-    background-color: chartreuse;
+    background-color: cadetblue;
+    color: aliceblue;
   }
   #selectPlan {
-    grid-area: selectPlan;
+    /* grid-area: selectPlan; */
     display: flex;
     flex-direction: row;
     gap: 2em;
-    background-color: cyan;
+    background-color: cadetblue;
     padding: 3px;
+    margin: auto;
   }
 
   label {

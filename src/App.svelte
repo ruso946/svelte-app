@@ -12,13 +12,16 @@
   * {
     margin: 0;
   }
-  
+
   main{
-    max-width: 100vw;
+    margin: auto;
   }
+
   .contenedorPadre {
     display: flex;
-    flex-flow: column wrap;
+    flex-direction:  column;  
+    max-width: 100vh;
+    margin: auto;
   }
   /* body.dark-theme {
   --main-color       : #404040;
