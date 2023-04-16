@@ -269,14 +269,19 @@ Las variables de los inputs del formulario de sesiones:
     padding: 3px;
   }
 
-  h6 {
-    display: grid;
-    grid-area: titulo;
-    place-items: start;
-    padding: 2px;
-    justify-items: center;
-    align-items: start;
+  h6 {    
+    grid-area: titulo;    
+    padding: 2px;    
     background-color:cadetblue;
+    color:aliceblue;
+    text-shadow: 1px 1px #ccc;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+  }
+
+  h6:hover {
+    text-shadow: 2px 2px #999;
+    background-color: rgb(67, 113, 115);
   }
 
   #select {
@@ -286,7 +291,7 @@ Las variables de los inputs del formulario de sesiones:
     padding: 3px;
     justify-items: center;
     align-items: start;
-    background-color:cadetblue;
+    background-color: cadetblue;
   }
 
   #contenedor-form-sesiones {
@@ -296,7 +301,7 @@ Las variables de los inputs del formulario de sesiones:
     padding: 2px;
     justify-items: center;
     align-items: start;
-    background-color:cadetblue;
+    background-color: cadetblue;
   }
 
   #form-Sesiones {
@@ -351,7 +356,7 @@ Las variables de los inputs del formulario de sesiones:
   }
 
   select {
-    max-width: 100%;    
+    max-width: 100%;
   }
 
   option {
