@@ -279,7 +279,7 @@
     />
     <!--este prefix es la base para filtrar el array pacientes-->
   </div>
-  <div id="selectPacientes">
+  <div id="selectPacientes">    
     <select
       class="select-Pacientes"
       on:change={handleSelect}
