@@ -1,263 +1,496 @@
 <script>
-	import { db } from "./firebasePacientes";
-	import {
-		collection,
-		addDoc,
-		doc,
-		deleteDoc,
-		updateDoc,
-		getDocs,
-	} from "firebase/firestore";
-	import { onMount } from "svelte";
-	import SelectPlan from "./SelectPlan.svelte";
-	import Toastify from "toastify-js";
-	import Swal from "sweetalert2";
-	import "sweetalert2/src/sweetalert2.scss";
+  import { onMount, onDestroy, createEventDispatcher } from "svelte";
+  import { db } from "./firebasePacientes";
+  import {
+    onSnapshot,
+    collection,
+    addDoc,
+    doc,
+    deleteDoc,
+    updateDoc,
+    getDocs,
+  } from "firebase/firestore";
+  import Toastify from "toastify-js";
+  import Swal from "sweetalert2";
+  import "sweetalert2/src/sweetalert2.scss";
+  import {
+    pacienteSeleccionado,
+    apellidoSeleccionado,
+    idPacienteSeleccionado,
+    nombreSeleccionado,
+  } from "./store";
 
-	export let pacientes; //array que viene del unsub de Padre.svelte que trae toda la db pacientes
+  export let pacientes = []; //array que viene del unsub de Padre.svelte que trae toda la db pacientes
 
-	let optionsPlan = [];
+  let arrayDeNombresDeClaves = [
+    // usado para hacer que todos los campos de la base de datos y el array pacientes tengan todas las claves
+    "nombre",
+    "apellido",
+    "nroSocio",
+    "plan",
+    "createdAt",
+  ];
 
-	let grupoButtonRadio = "";
+  const agregarClavesFaltantes = (pacientes, arrayDeNombresDeClaves) => {
+    //funcion que agrega los nombres de las claves faltantes en caso de que las haya, en el array pacientes.
+    // Iterar por cada objeto en el array
+    pacientes.forEach((paciente) => {
+      // Iterar por cada nombre de clave en el array de nombres de claves
+      arrayDeNombresDeClaves.forEach((nombreDeClave) => {
+        // Verificar si la clave está presente en el objeto
+        if (!(nombreDeClave in paciente)) {
+          // Si la clave no está presente, agregarla con un valor null
+          paciente[nombreDeClave] = null;
+        }
+      });
+    });
+  };
+  //utilizada para agregar las claves faltantes al array pacientes
+  const actualizaPaciente = async (selected) => {
+    try {
+      await updateDoc(doc(db, "Pacientes", selected.id), selected);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-	onMount(async () => {
-		// Consulta la base de datos para obtener las opciones del select
-		const optionsCollection = collection(db, "planes");
-		const optionsSnapshot = await getDocs(optionsCollection);
-		optionsPlan = optionsSnapshot.docs.map((doc) => doc.data().plan);
-		optionsPlan.push("particular");
-		optionsPlan.sort();
-		grupoButtonRadio = "particular";
-	});
+  //esta funcion de subscripcion recien devuelve el array pacientes con los datos de firestore
+  //al terminar el map, no antes.
+  const unsubPacientes = onSnapshot(
+    collection(db, "Pacientes"),
+    (querySnapshot) => {
+      pacientes = querySnapshot.docs.map((doc) => {
+        //console.log(doc.data());
+        return { ...doc.data(), id: doc.id };
+      });
+      agregarClavesFaltantes(pacientes, arrayDeNombresDeClaves);
+      console.log("Desde Padre.svelte>unsubPacientes", pacientes);
+      pacientes.forEach((paciente) => {
+        actualizaPaciente(paciente);
+      });
+    },
+    (err) => {
+      console.log(err);
+    }
+  );
 
-	let prefix = "";
-	let nombre = "";
-	let apellido = "";
-	let nroSocio = "";
-	let planSeleccionado = "";
-	let createdAt = new Date();
-	let i = 0;
+  onDestroy(unsubPacientes); // quita la suscripcion a la escucha al cambiar de pagina o destruir el componente
 
-	$: filteredPeople = prefix
-		? pacientes.filter((person) => {
-				const name = `${person.apellido}, ${person.nombre}`;
-				return name.toLowerCase().startsWith(prefix.toLowerCase());
-		  })
-		: pacientes.map((persona) => {
-				return {
-					nombre: persona.nombre,
-					apellido: persona.apellido,
-					plan: persona.plan,
-					nroSocio: persona.nroSocio,
-					id: persona.id,
-				};
-		  });
+  let optionsPlan = [];
 
-	$: selected = filteredPeople[i];
+  let grupoButtonRadio = "";
 
-	$: console.log(pacientes);
+  onMount(async () => {
+    // Consulta la base de datos para obtener las opciones del grupo radio button de planes
+    const optionsCollection = collection(db, "planes");
+    const optionsSnapshot = await getDocs(optionsCollection);
+    optionsPlan = optionsSnapshot.docs.map((doc) => doc.data().plan);
+    optionsPlan.push("particular");
+    optionsPlan.sort();
+    grupoButtonRadio = "particular";
+  });
 
-	$: reset_inputs(selected);
+  let prefix = "";
+  let nombre = "";
+  let apellido = "";
+  let nroSocio = "";
+  let planSeleccionado = "";
+  let createdAt = new Date();
+  let i = 0;
+  let filteredPeople;
 
-	const reset_inputs = (person) => {
-		nombre = person ? person.nombre : "";
-		apellido = person ? person.apellido : "";
-		nroSocio = person ? person.nroSocio : "";
-		planSeleccionado = person ? person.plan : "";
-	};
+  console.log("desde crud pacientes 99:", pacientes);
 
-	const agregarPaciente = async (i) => {
-		try {
-			await addDoc(collection(db, "Pacientes"), {
-				...pacientes[i],
-				createdAt: new Date(),
-				planSeleccionado,
-				nroSocio,
-			});
-			console.log("paciente agregado");
-			Toastify({
-				text: "Nuevo paciente agregado",
-			}).showToast();
-		} catch (error) {
-			console.error(error);
-		}
-	};
+  $: filteredPeople = prefix
+    ? pacientes.filter((person) => {
+        const name = `${person.apellido}, ${person.nombre}`;
+        return name.toLowerCase().startsWith(prefix.toLowerCase());
+      })
+    : pacientes.map((persona) => {
+        return {
+          nombre: persona.nombre,
+          apellido: persona.apellido,
+          plan: persona.plan,
+          nroSocio: persona.nroSocio,
+          id: persona.id,
+        };
+      });
 
-	const create = () => {
-		pacientes = pacientes.concat({ nombre, apellido });
-		i = pacientes.length - 1;
-		agregarPaciente(i);
-		nombre = apellido = planSeleccionado = nroSocio = "";
-	};
+  console.log("filteredPeople", filteredPeople);
 
-	const actualizarPaciente = async (selected) => {
-		console.log("selected justo antes de try catch", selected);
-		try {
-			await updateDoc(doc(db, "Pacientes", selected.id), selected);
-			Toastify({
-				text: `paciente ${selected.apellido}, ${selected.nombre} actualizado`,
-				style: {
-					background: "linear-gradient(to right, #00b09b, #96c93d)",
-				},
-			}).showToast();
-		} catch (error) {
-			console.log(error);
-		}
-	};
+  $: selected = filteredPeople[i];
 
-	const update = () => {
-		console.log("en function update al ppio selected", selected);
-		console.log(
-			"en function update al ppio planSeleccionado",
-			planSeleccionado
-		);
-		selected.nombre = nombre;
-		selected.apellido = apellido;
-		planSeleccionado = selected.plan;
-		selected.nroSocio = nroSocio;
-		selected = selected;
-		pacientes = pacientes;
-		console.log("en function update al final", selected);
-		console.log("pacientes en update", pacientes);
-		actualizarPaciente(selected);
-	};
+  //el siguiente bloque reactivo if, aporta al store los valores necesarios
+  //del paciente seleccionado en el Select de este componente:
+  //el objeto pacienteSeleccionado, el apellido, la id
+  $: if (selected) {
+    $pacienteSeleccionado = selected;
+    $apellidoSeleccionado = selected.apellido;
+    $nombreSeleccionado = selected.nombre;
+    $idPacienteSeleccionado = selected.id;
+  }
 
-	const borrarConfirmado = async (selected) => {
-		console.log("borrar", selected.id);
+  $pacienteSeleccionado = selected;
 
-		try {
-			await deleteDoc(doc(db, "Pacientes", selected.id));
-			Toastify({
-				text: "Paciente eliminado",
-				style: {
-					background: "red",
-				},
-			}).showToast();
-		} catch (error) {
-			console.error(error);
-		}
-	};
-	const remove = () => {
-		// Remove selected person from the source array (pacientes), not the filtered array
-		const index = pacientes.indexOf(selected);
-		Swal.fire({
-			title: "Are you sure?",
-			text: "You won't be able to revert this!",
-			icon: "warning",
-			showCancelButton: true,
-			confirmButtonColor: "#3085d6",
-			cancelButtonColor: "#d33",
-			confirmButtonText: "Yes, delete it!",
-		}).then((result) => {
-			if (result.isConfirmed) {
-				Swal.fire("Deleted!", "Your file has been deleted.", "success");
-				borrarConfirmado(pacientes[i]);
-				pacientes = [
-					...pacientes.slice(0, index),
-					...pacientes.slice(index + 1),
-				];
+  $: reset_inputs(selected);
 
-				nombre = apellido = nroSocio = planSeleccionado = "";
-				i = Math.min(i, filteredPeople.length - 2);
-			}
-		});
-	};
+  const reset_inputs = (person) => {
+    nombre = person ? person.nombre : "";
+    apellido = person ? person.apellido : "";
+    nroSocio = person ? person.nroSocio : "";
+    planSeleccionado = person ? person.plan : "";
+  };
 
-	const handleOnClickSelectPlan = (event) => {
-		console.log(event.target.value);
-		planSeleccionado = event.target.value;
-		selected.plan = planSeleccionado;
-	};
+  const agregarPaciente = async (i) => {
+    try {
+      await addDoc(collection(db, "Pacientes"), {
+        ...pacientes[i],
+        createdAt: new Date().toLocaleDateString(),
+        planSeleccionado,
+        nroSocio,
+      });
+      console.log("paciente agregado");
+      Toastify({
+        text: "Nuevo paciente agregado",
+      }).showToast();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const create = () => {
+    pacientes = pacientes.concat({ nombre, apellido });
+    i = pacientes.length - 1;
+    agregarPaciente(i);
+    nombre = apellido = planSeleccionado = nroSocio = "";
+  };
+
+  const actualizarPaciente = async (selected) => {
+    console.log("selected justo antes de try catch", selected);
+    try {
+      await updateDoc(doc(db, "Pacientes", selected.id), selected);
+      Toastify({
+        text: `paciente ${selected.apellido}, ${selected.nombre} actualizado`,
+        style: {
+          background: "linear-gradient(to right, #00b09b, #96c93d)",
+        },
+      }).showToast();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const update = () => {
+    console.log("en function update al ppio selected", selected);
+    console.log(
+      "en function update al ppio planSeleccionado",
+      planSeleccionado
+    );
+    selected.nombre = nombre;
+    selected.apellido = apellido;
+    planSeleccionado = selected.plan;
+    selected.nroSocio = nroSocio;
+    selected = selected;
+    pacientes = pacientes;
+    console.log("en function update al final", selected);
+    console.log("pacientes en update", pacientes);
+    actualizarPaciente(selected);
+  };
+
+  const borrarConfirmado = async (selected) => {
+    console.log("borrar", selected.id);
+
+    try {
+      await deleteDoc(doc(db, "Pacientes", selected.id));
+      Toastify({
+        text: "Paciente eliminado",
+        style: {
+          background: "red",
+        },
+      }).showToast();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const remove = () => {
+    // Remove selected person from the source array (pacientes), not the filtered array
+    const index = pacientes.indexOf(selected);
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire("Deleted!", "Your file has been deleted.", "success");
+        borrarConfirmado(pacientes[i]);
+        pacientes = [
+          ...pacientes.slice(0, index),
+          ...pacientes.slice(index + 1),
+        ];
+
+        nombre = apellido = nroSocio = planSeleccionado = "";
+        i = Math.min(i, filteredPeople.length - 2);
+      }
+    });
+  };
+
+  const handleOnClickSelectPlan = (event) => {
+    planSeleccionado = event.target.value;
+    selected.plan = planSeleccionado;
+  };
+
+  const dispatch = createEventDispatcher();
+  const handleSelect = (event) => {
+    const selectedPaciente = event.target.value;
+    dispatch("pacienteSelected", selectedPaciente);
+  };
+  // let person;
 </script>
 
-<input class="" placeholder="filter prefix" bind:value={prefix} />
+<body>
+  <div id="botones">
+    <div class="buttons">
+      <button
+        on:click={create}
+        disabled={!nombre || !apellido || !planSeleccionado || !nroSocio}
+        >create</button
+      >
+      <button
+        on:click={update}
+        disabled={!nombre ||
+          !apellido ||
+          !planSeleccionado ||
+          !nroSocio ||
+          !selected}>update</button
+      >
+      <button on:click={remove} disabled={!selected}>delete</button>
+    </div>
+  </div>
 
-<select bind:value={i} size={5}>
-	{#each filteredPeople as person, i}
-		<!-- <option value={i}>{person.apellido}, {person.nombre}</option> -->
-		<option value={i}
-			>{`${person.nroSocio}-${person.apellido}, ${person.nombre} plan ${person.plan}`}</option
-		>
-	{/each}
-</select>
-<div>
-	<label><input bind:value={nombre} placeholder="nombre" /></label>
-	<label><input bind:value={apellido} placeholder="apellido" /></label>
-	<label><input bind:value={nroSocio} placeholder="nro de Socio" /></label>
-	<label><input bind:value={planSeleccionado} placeholder="Plan" /></label>
-	<div class="contenedor-radioPlan">
-		{#each optionsPlan as optionPlan}
-			<div>
-				<input
-					class="selectorPlanes"
-					name="SelectPlan"
-					type="radio"
-					on:click={handleOnClickSelectPlan}
-					bind:group={grupoButtonRadio}
-					value={optionPlan}
-				/>
-				<label for="selectorPlanes" class="selectorPlanes">
-					{optionPlan}
-				</label>
-			</div>
-		{/each}
-	</div>
-</div>
+  <div id="filter">
+    <label for="filterPrefix">filtrar por apellido</label><input
+      name="filterPrefix"
+      placeholder="filter prefix"
+      bind:value={prefix}
+    />
+    <!--este prefix es la base para filtrar el array pacientes-->
+  </div>
+  <div id="selectPacientes">
+    <select
+      class="select-Pacientes"
+      on:change={handleSelect}
+      bind:value={i}
+      size={5}
+    >
+      {#each filteredPeople as person, i}
+        <!-- este bucle each itera por la lista filtrada con el indice i
+				que es el que le da el valor seleccionado al select -->
 
-<div class="buttons mt-3 p-2 d-flex justify-content-center">
-	<button
-		on:click={create}
-		disabled={!nombre || !apellido || !planSeleccionado || !nroSocio}
-		>create</button
-	>
-	<button
-		on:click={update}
-		disabled={!nombre ||
-			!apellido ||
-			!planSeleccionado ||
-			!nroSocio ||
-			!selected}>update</button
-	>
-	<button on:click={remove} disabled={!selected}>delete</button>
-</div>
+        <option value={i}
+          >{`${person.nroSocio}-${person.apellido}, ${person.nombre} plan ${person.plan}`}</option
+        >
+      {/each}
+    </select>
+  </div>
+
+  <div id="formInputsI">
+    <label for="nombre">nombre</label><input
+      name="nombre"
+      bind:value={nombre}
+      placeholder="nombre"
+    />
+    <label for="apellido">apellido</label><input
+      name="apellido"
+      bind:value={apellido}
+      placeholder="apellido"
+    />
+  </div>
+
+  <div id="formInputsD">
+    <label for="nroSocio">nº socio</label><input
+      name="nroSocio"
+      bind:value={nroSocio}
+      placeholder="nro de Socio"
+    />
+    <label for="plan">plan</label><input
+      name="plan"
+      bind:value={planSeleccionado}
+      placeholder="plan"
+    />
+  </div>
+  <div id="selectPlanContainer">
+    <p id="selectPlanTitulo">plan a seleccionar</p>
+    <div id="selectPlan">
+      {#each optionsPlan as optionPlan}
+        <span>
+          <input
+            class="selectorPlanes"
+            name="SelectPlan"
+            type="radio"
+            on:click={handleOnClickSelectPlan}
+            bind:group={grupoButtonRadio}
+            value={optionPlan}
+          />
+          <label for="selectorPlanes" class="selectorPlan">
+            {optionPlan}
+          </label>
+        </span>
+      {/each}
+    </div>
+  </div>
+</body>
 
 <style>
-	* {
-		font-family: inherit;
-		font-size: inherit;
-	}
+  * {
+    font-family: inherit;
+    font-size: inherit;
+    margin: 0;
+  }
 
-	label {
-		display: block;
-		margin: 0 0 0.5em 0;
-	}
-	input {
-		display: block;
-		margin: 0 0 0.5em 0;
-	}
+  body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 0.5fr 1fr 0.3fr 0.3fr;
+    grid-template-areas:
+      "filter filter"
+      "selectPacientes selectPacientes"
+      "botones botones"
+      "formInputsI formInputsD"      
+      "selectPlan selectPlan";
+  }
 
-	select {
-		float: left;
-		margin: 0 1em 1em 0;
-		width: 18em;
-	}
-	.contenedor-radioPlan{
-		border: 1px solid black;
-		text-align: left;
-		max-width: 50%;
-	}
+  #filter {
+    grid-area: filter;
+    display: flex;
+    flex-direction: column;
+    place-items: start;
+    padding: 3px;
+    justify-items: center;
+    align-items: center;
+    background-color: cadetblue;
+  }
 
-	.buttons {
-		clear: both;
-	}
+  #filter input {
+    max-width: 200px;
+  }
 
-	.selectorPlanes {
-		font-size: 0.75em;
-		display: inline;
-		padding: 0.5em;
-		height: 1em;
-		width: 40%;
-		align-items: center;
-		text-align: left;
-	}
+  #filter label {
+    max-width: 200px;
+    text-align: start;
+  }
+
+  #botones {
+    grid-area: botones;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: baseline;
+    background-color: cadetblue;
+  }
+
+  #selectPacientes {
+    grid-area: selectPacientes;
+    place-items: start;
+    padding: 3px;
+    justify-items: center;
+    align-items: start;
+    background-color: cadetblue;
+  }
+
+  #formInputsD {
+    grid-area: formInputsD;
+  }
+
+  #formInputsI {
+    grid-area: formInputsI;
+  }
+
+  #formInputsD input {
+    text-align: end;
+  }
+
+  #formInputsI,
+  #formInputsD {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5em;
+    background-color: cadetblue;
+    padding: 3px;
+  }
+
+  #selectPlanContainer{
+    display: flex;
+    grid-area: selectPlan;
+    flex-direction: column;
+    justify-items: center;
+    background-color: cadetblue;
+  }
+
+  #selectPlanTitulo {
+    /* grid-area: selectPlanTitulo; */
+    margin: auto;
+    padding: 3px;
+    place-items: center;
+    text-align: start;
+    background-color: cadetblue;
+    color: aliceblue;
+  }
+  #selectPlan {
+    /* grid-area: selectPlan; */
+    display: flex;
+    flex-direction: row;
+    gap: 2em;
+    background-color: cadetblue;
+    padding: 3px;
+    margin: auto;
+  }
+
+  label {
+    display: inline;
+    margin: 0;
+    width: 80%;
+    text-align: end;
+    color: aliceblue;
+    font-size: x-small;
+    margin-top: 3px;
+  }
+
+  label.selectorPlan {
+    display: block;
+    width: 2em;
+  }
+  input {
+    margin: 0;
+    width: 80%;
+    font-size: medium;
+  }
+
+  select {
+    max-width: 100%;
+    margin: 0;
+    font-size: small;
+  }
+
+  .buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 0.5em;
+  }
+
+  .selectorPlanes {
+    font-size: 0.75em;
+    display: block;
+    padding: 0.5em;
+    height: 1em;
+    width: 1em;
+    align-items: center;
+    text-align: left;
+  }
 </style>

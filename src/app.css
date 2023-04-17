@@ -1,4 +1,13 @@
-:root {
+body{
+  margin: auto;
+  display: flex;
+  flex-direction: column;  
+  max-width: 100vh;
+
+}
+
+
+/* :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -13,9 +22,9 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
   margin: 0;  
-}
+} */
 
-a {
+/* a {
   font-weight: 500;
   color: #646cff;
   text-decoration: inherit;
@@ -27,7 +36,8 @@ a:hover {
 body {
   margin: 0;
   display: flex;
-  place-items: center;
+  flex-flow: column wrap; /* los elementos toman la direccion de columna y pueden irse a otra linea si desbordan el contenedor*/
+  /*place-items: center;
   min-width: 320px;
   min-height: 100vh;
 }
@@ -37,16 +47,7 @@ h1 {
   line-height: 1.1;
 }
 
-.card {
-  padding: 2em;
-}
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
 
 button {
   border-radius: 8px;
@@ -78,4 +79,4 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
-}
+} */
