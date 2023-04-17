@@ -5,4 +5,5 @@ import { svelte } from '@sveltejs/vite-plugin-svelte'
 export default defineConfig({
   base: "/svelte-app/",
   plugins: [svelte()],
+  base: '/svelte-app-static/'
 })
