@@ -99,7 +99,7 @@
   let i = 0;
   let filteredPeople;
 
-  console.log("desde crud pacientes 99:", pacientes);
+  console.log("desde crud pacientes 102:", pacientes);
 
   $: filteredPeople = prefix
     ? pacientes.filter((person) => {
@@ -142,12 +142,16 @@
   };
 
   const agregarPaciente = async (i) => {
+    //hay que hacer una validacion: por lo menos que no se repita nro de socio
+    //o que no hayan registros duplicados de pacientes    
     try {
       await addDoc(collection(db, "Pacientes"), {
-        ...pacientes[i],
-        createdAt: new Date().toLocaleDateString(),
-        planSeleccionado,
+        //...pacientes[i],
+        nombre,
+        apellido,
         nroSocio,
+        createdAt: new Date().toLocaleDateString(),
+        plan: planSeleccionado,        
       });
       console.log("paciente agregado");
       Toastify({
@@ -166,7 +170,6 @@
   };
 
   const actualizarPaciente = async (selected) => {
-    console.log("selected justo antes de try catch", selected);
     try {
       await updateDoc(doc(db, "Pacientes", selected.id), selected);
       Toastify({
@@ -176,30 +179,21 @@
         },
       }).showToast();
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
   const update = () => {
-    console.log("en function update al ppio selected", selected);
-    console.log(
-      "en function update al ppio planSeleccionado",
-      planSeleccionado
-    );
     selected.nombre = nombre;
     selected.apellido = apellido;
     planSeleccionado = selected.plan;
     selected.nroSocio = nroSocio;
     selected = selected;
     pacientes = pacientes;
-    console.log("en function update al final", selected);
-    console.log("pacientes en update", pacientes);
     actualizarPaciente(selected);
   };
 
   const borrarConfirmado = async (selected) => {
-    console.log("borrar", selected.id);
-
     try {
       await deleteDoc(doc(db, "Pacientes", selected.id));
       Toastify({
@@ -239,16 +233,22 @@
   };
 
   const handleOnClickSelectPlan = (event) => {
-    planSeleccionado = event.target.value;
-    selected.plan = planSeleccionado;
+    planSeleccionado = event.target.value;    
+    if (selected.plan != planSeleccionado) {  //solo se actualiza si el click implica un cambio de plan.
+      selected.plan = planSeleccionado;
+      filteredPeople[i].plan = planSeleccionado; // esta linea hace que el select de pacientes se actualice,                                                
+      actualizarPaciente(selected); //esta linea hace la actualizacion en la base de datos con el plan seleccionado.
+    }
   };
 
   const dispatch = createEventDispatcher();
   const handleSelect = (event) => {
     const selectedPaciente = event.target.value;
+    grupoButtonRadio = filteredPeople[selectedPaciente].plan;
     dispatch("pacienteSelected", selectedPaciente);
   };
-  // let person;
+
+  
 </script>
 
 <body>
@@ -359,7 +359,7 @@
       "filter filter"
       "selectPacientes selectPacientes"
       "botones botones"
-      "formInputsI formInputsD"      
+      "formInputsI formInputsD"
       "selectPlan selectPlan";
   }
 
@@ -424,7 +424,7 @@
     padding: 3px;
   }
 
-  #selectPlanContainer{
+  #selectPlanContainer {
     display: flex;
     grid-area: selectPlan;
     flex-direction: column;

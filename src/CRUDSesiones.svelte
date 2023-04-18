@@ -187,7 +187,7 @@ Las variables de los inputs del formulario de sesiones:
 
 <main>
   <body>
-    <h6>Paciente: {$apellidoSeleccionado}, {$nombreSeleccionado}</h6>
+    <h4>Paciente: {$apellidoSeleccionado}, {$nombreSeleccionado}</h4>
     <!-- Este Select va a elegir la sesion por ID de paciente -->
     <div id="select">
       <select
@@ -269,18 +269,18 @@ Las variables de los inputs del formulario de sesiones:
     padding: 3px;
   }
 
-  h6 {    
+  h4 {    
     grid-area: titulo;    
     padding: 2px;    
     background-color:cadetblue;
     color:aliceblue;
-    text-shadow: 1px 1px #ccc;
+    text-shadow: 1px 1px #999;
     transition: all 0.2s ease-in-out;
     cursor: pointer;
   }
 
-  h6:hover {
-    text-shadow: 2px 2px #999;
+  h4:hover {
+    text-shadow: 2px 2px #ccc;
     background-color: rgb(67, 113, 115);
   }
 
@@ -357,6 +357,7 @@ Las variables de los inputs del formulario de sesiones:
 
   select {
     max-width: 100%;
+    min-width: 100%;
   }
 
   option {
