@@ -19,6 +19,7 @@
     idPacienteSeleccionado,
     nombreSeleccionado,
   } from "./store";
+  import { prevent_default } from "svelte/internal";
 
   export let pacientes = []; //array que viene del unsub de Padre.svelte que trae toda la db pacientes
 
@@ -64,7 +65,7 @@
         return { ...doc.data(), id: doc.id };
       });
       agregarClavesFaltantes(pacientes, arrayDeNombresDeClaves);
-      console.log("Desde Padre.svelte>unsubPacientes", pacientes);
+      //console.log("Desde Padre.svelte>unsubPacientes", pacientes);
       pacientes.forEach((paciente) => {
         actualizaPaciente(paciente);
       });
@@ -143,7 +144,9 @@
 
   const agregarPaciente = async (i) => {
     //hay que hacer una validacion: por lo menos que no se repita nro de socio
-    //o que no hayan registros duplicados de pacientes    
+    //o que no hayan registros duplicados de pacientes  
+    
+    console.log(nombre, apellido, nroSocio, planSeleccionado)
     try {
       await addDoc(collection(db, "Pacientes"), {
         //...pacientes[i],
@@ -233,10 +236,15 @@
   };
 
   const handleOnClickSelectPlan = (event) => {
-    planSeleccionado = event.target.value;    
+    planSeleccionado = event.target.value;
+    console.log("238 selected",selected, " - planSeleccionado",planSeleccionado)                                                    
     if (selected.plan != planSeleccionado) {  //solo se actualiza si el click implica un cambio de plan.
       selected.plan = planSeleccionado;
-      filteredPeople[i].plan = planSeleccionado; // esta linea hace que el select de pacientes se actualice,                                                
+      selected.nombre = nombre;
+      selected.apellido = apellido;
+      selected.nroSocio = nroSocio;
+      filteredPeople[i].plan = planSeleccionado; // esta linea hace que el select de pacientes se actualice,
+      console.log("242",selected)                                                
       actualizarPaciente(selected); //esta linea hace la actualizacion en la base de datos con el plan seleccionado.
     }
   };
@@ -331,7 +339,7 @@
             class="selectorPlanes"
             name="SelectPlan"
             type="radio"
-            on:click={handleOnClickSelectPlan}
+            on:change={handleOnClickSelectPlan}
             bind:group={grupoButtonRadio}
             value={optionPlan}
           />

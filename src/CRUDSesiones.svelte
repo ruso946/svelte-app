@@ -63,11 +63,11 @@
   let selectedSessionId;
   let selectedSession;
 
-  $: console.log(
-    "luego de las subscripciones a pacientes y sesiones",
-    sesiones,
-    pacientes
-  );
+  // $: console.log(
+  //   "luego de las subscripciones a pacientes y sesiones",
+  //   sesiones,
+  //   pacientes
+  // );
 
   $: {
     selectedSession = sesiones.find(
