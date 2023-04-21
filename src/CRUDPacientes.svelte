@@ -19,6 +19,7 @@
     idPacienteSeleccionado,
     nombreSeleccionado,
   } from "./store";  
+  import {agregarClavesFaltantes, actualizaPaciente} from "./moduloPacientes";
 
   export let pacientes = []; //array que viene del unsub de Padre.svelte que trae toda la db pacientes
 
@@ -30,30 +31,7 @@
     "plan",
     "createdAt",
   ];
-
-  const agregarClavesFaltantes = (pacientes, arrayDeNombresDeClaves) => {
-    //funcion que agrega los nombres de las claves faltantes en caso de que las haya, en el array pacientes.
-    // Iterar por cada objeto en el array
-    pacientes.forEach((paciente) => {
-      // Iterar por cada nombre de clave en el array de nombres de claves
-      arrayDeNombresDeClaves.forEach((nombreDeClave) => {
-        // Verificar si la clave está presente en el objeto
-        if (!(nombreDeClave in paciente)) {
-          // Si la clave no está presente, agregarla con un valor null
-          paciente[nombreDeClave] = null;
-        }
-      });
-    });
-  };
-  //utilizada para agregar las claves faltantes al array pacientes
-  const actualizaPaciente = async (selected) => {
-    try {
-      await updateDoc(doc(db, "Pacientes", selected.id), selected);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
+  
   //esta funcion de subscripcion recien devuelve el array pacientes con los datos de firestore
   //al terminar el map, no antes.
   const unsubPacientes = onSnapshot(
