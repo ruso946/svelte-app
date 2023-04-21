@@ -18,8 +18,8 @@
     apellidoSeleccionado,
     idPacienteSeleccionado,
     nombreSeleccionado,
-  } from "./store";  
-  import {agregarClavesFaltantes, actualizaPaciente} from "./moduloPacientes";
+  } from "./store";
+  import { agregarClavesFaltantes, actualizaPaciente } from "./moduloPacientes";
 
   export let pacientes = []; //array que viene del unsub de Padre.svelte que trae toda la db pacientes
 
@@ -31,7 +31,7 @@
     "plan",
     "createdAt",
   ];
-  
+
   //esta funcion de subscripcion recien devuelve el array pacientes con los datos de firestore
   //al terminar el map, no antes.
   const unsubPacientes = onSnapshot(
@@ -45,7 +45,17 @@
       //console.log("Desde Padre.svelte>unsubPacientes", pacientes);
       pacientes.forEach((paciente) => {
         actualizaPaciente(paciente);
-      });
+      });      
+      const compararPorApellido = (persona1, persona2) => {
+        if (persona1.apellido < persona2.apellido) {
+          return -1;
+        }
+        if (persona1.apellido > persona2.apellido) {
+          return 1;
+        }
+        return 0;
+      }
+      pacientes.sort(compararPorApellido);      
     },
     (err) => {
       console.log(err);
@@ -121,9 +131,9 @@
 
   const agregarPaciente = async (i) => {
     //hay que hacer una validacion: por lo menos que no se repita nro de socio
-    //o que no hayan registros duplicados de pacientes  
-    
-    console.log(nombre, apellido, nroSocio, planSeleccionado)
+    //o que no hayan registros duplicados de pacientes
+
+    console.log(nombre, apellido, nroSocio, planSeleccionado);
     try {
       await addDoc(collection(db, "Pacientes"), {
         //...pacientes[i],
@@ -131,7 +141,7 @@
         apellido,
         nroSocio,
         createdAt: new Date().toLocaleDateString(),
-        plan: planSeleccionado,        
+        plan: planSeleccionado,
       });
       console.log("paciente agregado");
       Toastify({
@@ -214,14 +224,20 @@
 
   const handleOnClickSelectPlan = (event) => {
     planSeleccionado = event.target.value;
-    console.log("238 selected",selected, " - planSeleccionado",planSeleccionado)                                                    
-    if (selected.plan != planSeleccionado) {  //solo se actualiza si el click implica un cambio de plan.
+    console.log(
+      "238 selected",
+      selected,
+      " - planSeleccionado",
+      planSeleccionado
+    );
+    if (selected.plan != planSeleccionado) {
+      //solo se actualiza si el click implica un cambio de plan.
       selected.plan = planSeleccionado;
       selected.nombre = nombre;
       selected.apellido = apellido;
       selected.nroSocio = nroSocio;
       pacientesFiltrada[i].plan = planSeleccionado; // esta linea hace que el select de pacientes se actualice,
-      console.log("242",selected)                                                
+      console.log("242", selected);
       actualizarPaciente(selected); //esta linea hace la actualizacion en la base de datos con el plan seleccionado.
     }
   };
@@ -232,8 +248,6 @@
     grupoButtonRadio = pacientesFiltrada[selectedPaciente].plan;
     dispatch("pacienteSelected", selectedPaciente);
   };
-
-  
 </script>
 
 <body>
@@ -280,7 +294,7 @@
           >{`${person.nroSocio}-${person.apellido}, ${person.nombre} plan ${person.plan}`}</option
         >
       {/each}
-    </select>    
+    </select>
   </div>
 
   <div id="formInputsI">
