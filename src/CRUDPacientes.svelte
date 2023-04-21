@@ -18,8 +18,7 @@
     apellidoSeleccionado,
     idPacienteSeleccionado,
     nombreSeleccionado,
-  } from "./store";
-  import { prevent_default } from "svelte/internal";
+  } from "./store";  
 
   export let pacientes = []; //array que viene del unsub de Padre.svelte que trae toda la db pacientes
 
@@ -98,11 +97,11 @@
   let planSeleccionado = "";
   let createdAt = new Date();
   let i = 0;
-  let filteredPeople;
+  let pacientesFiltrada;
 
   console.log("desde crud pacientes 102:", pacientes);
 
-  $: filteredPeople = prefix
+  $: pacientesFiltrada = prefix
     ? pacientes.filter((person) => {
         const name = `${person.apellido}, ${person.nombre}`;
         return name.toLowerCase().startsWith(prefix.toLowerCase());
@@ -117,9 +116,9 @@
         };
       });
 
-  console.log("filteredPeople", filteredPeople);
+  console.log("pacientesFiltrada", pacientesFiltrada);
 
-  $: selected = filteredPeople[i];
+  $: selected = pacientesFiltrada[i];
 
   //el siguiente bloque reactivo if, aporta al store los valores necesarios
   //del paciente seleccionado en el Select de este componente:
@@ -230,7 +229,7 @@
         ];
 
         nombre = apellido = nroSocio = planSeleccionado = "";
-        i = Math.min(i, filteredPeople.length - 2);
+        i = Math.min(i, pacientesFiltrada.length - 2);
       }
     });
   };
@@ -243,7 +242,7 @@
       selected.nombre = nombre;
       selected.apellido = apellido;
       selected.nroSocio = nroSocio;
-      filteredPeople[i].plan = planSeleccionado; // esta linea hace que el select de pacientes se actualice,
+      pacientesFiltrada[i].plan = planSeleccionado; // esta linea hace que el select de pacientes se actualice,
       console.log("242",selected)                                                
       actualizarPaciente(selected); //esta linea hace la actualizacion en la base de datos con el plan seleccionado.
     }
@@ -252,7 +251,7 @@
   const dispatch = createEventDispatcher();
   const handleSelect = (event) => {
     const selectedPaciente = event.target.value;
-    grupoButtonRadio = filteredPeople[selectedPaciente].plan;
+    grupoButtonRadio = pacientesFiltrada[selectedPaciente].plan;
     dispatch("pacienteSelected", selectedPaciente);
   };
 
@@ -289,12 +288,13 @@
   </div>
   <div id="selectPacientes">
     <select
+      name="select-pacientes"
       class="select-Pacientes"
       on:change={handleSelect}
       bind:value={i}
       size={5}
     >
-      {#each filteredPeople as person, i}
+      {#each pacientesFiltrada as person, i}
         <!-- este bucle each itera por la lista filtrada con el indice i
 				que es el que le da el valor seleccionado al select -->
 
@@ -302,7 +302,7 @@
           >{`${person.nroSocio}-${person.apellido}, ${person.nombre} plan ${person.plan}`}</option
         >
       {/each}
-    </select>
+    </select>    
   </div>
 
   <div id="formInputsI">
