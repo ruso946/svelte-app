@@ -45,7 +45,7 @@
       //console.log("Desde Padre.svelte>unsubPacientes", pacientes);
       pacientes.forEach((paciente) => {
         actualizaPaciente(paciente);
-      });      
+      });
       const compararPorApellido = (persona1, persona2) => {
         if (persona1.apellido < persona2.apellido) {
           return -1;
@@ -54,8 +54,8 @@
           return 1;
         }
         return 0;
-      }
-      pacientes.sort(compararPorApellido);      
+      };
+      pacientes.sort(compararPorApellido);
     },
     (err) => {
       console.log(err);
