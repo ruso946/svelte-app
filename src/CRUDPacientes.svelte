@@ -19,6 +19,7 @@
     idPacienteSeleccionado,
     nombreSeleccionado,
   } from "./store";
+  import { agregarClavesFaltantes, actualizaPaciente } from "./moduloPacientes";
 
   export let pacientes = []; //array que viene del unsub de Padre.svelte que trae toda la db pacientes
 
@@ -31,29 +32,6 @@
     "createdAt",
   ];
 
-  const agregarClavesFaltantes = (pacientes, arrayDeNombresDeClaves) => {
-    //funcion que agrega los nombres de las claves faltantes en caso de que las haya, en el array pacientes.
-    // Iterar por cada objeto en el array
-    pacientes.forEach((paciente) => {
-      // Iterar por cada nombre de clave en el array de nombres de claves
-      arrayDeNombresDeClaves.forEach((nombreDeClave) => {
-        // Verificar si la clave está presente en el objeto
-        if (!(nombreDeClave in paciente)) {
-          // Si la clave no está presente, agregarla con un valor null
-          paciente[nombreDeClave] = null;
-        }
-      });
-    });
-  };
-  //utilizada para agregar las claves faltantes al array pacientes
-  const actualizaPaciente = async (selected) => {
-    try {
-      await updateDoc(doc(db, "Pacientes", selected.id), selected);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   //esta funcion de subscripcion recien devuelve el array pacientes con los datos de firestore
   //al terminar el map, no antes.
   const unsubPacientes = onSnapshot(
@@ -64,10 +42,20 @@
         return { ...doc.data(), id: doc.id };
       });
       agregarClavesFaltantes(pacientes, arrayDeNombresDeClaves);
-      console.log("Desde Padre.svelte>unsubPacientes", pacientes);
+      //console.log("Desde Padre.svelte>unsubPacientes", pacientes);
       pacientes.forEach((paciente) => {
         actualizaPaciente(paciente);
       });
+      const compararPorApellido = (persona1, persona2) => {
+        if (persona1.apellido < persona2.apellido) {
+          return -1;
+        }
+        if (persona1.apellido > persona2.apellido) {
+          return 1;
+        }
+        return 0;
+      };
+      pacientes.sort(compararPorApellido);
     },
     (err) => {
       console.log(err);
@@ -97,11 +85,11 @@
   let planSeleccionado = "";
   let createdAt = new Date();
   let i = 0;
-  let filteredPeople;
+  let pacientesFiltrada;
 
-  console.log("desde crud pacientes 99:", pacientes);
+  console.log("desde crud pacientes 102:", pacientes);
 
-  $: filteredPeople = prefix
+  $: pacientesFiltrada = prefix
     ? pacientes.filter((person) => {
         const name = `${person.apellido}, ${person.nombre}`;
         return name.toLowerCase().startsWith(prefix.toLowerCase());
@@ -116,9 +104,9 @@
         };
       });
 
-  console.log("filteredPeople", filteredPeople);
+  console.log("pacientesFiltrada", pacientesFiltrada);
 
-  $: selected = filteredPeople[i];
+  $: selected = pacientesFiltrada[i];
 
   //el siguiente bloque reactivo if, aporta al store los valores necesarios
   //del paciente seleccionado en el Select de este componente:
@@ -142,12 +130,18 @@
   };
 
   const agregarPaciente = async (i) => {
+    //hay que hacer una validacion: por lo menos que no se repita nro de socio
+    //o que no hayan registros duplicados de pacientes
+
+    console.log(nombre, apellido, nroSocio, planSeleccionado);
     try {
       await addDoc(collection(db, "Pacientes"), {
-        ...pacientes[i],
-        createdAt: new Date().toLocaleDateString(),
-        planSeleccionado,
+        //...pacientes[i],
+        nombre,
+        apellido,
         nroSocio,
+        createdAt: new Date().toLocaleDateString(),
+        plan: planSeleccionado,
       });
       console.log("paciente agregado");
       Toastify({
@@ -166,7 +160,6 @@
   };
 
   const actualizarPaciente = async (selected) => {
-    console.log("selected justo antes de try catch", selected);
     try {
       await updateDoc(doc(db, "Pacientes", selected.id), selected);
       Toastify({
@@ -176,30 +169,21 @@
         },
       }).showToast();
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
   const update = () => {
-    console.log("en function update al ppio selected", selected);
-    console.log(
-      "en function update al ppio planSeleccionado",
-      planSeleccionado
-    );
     selected.nombre = nombre;
     selected.apellido = apellido;
     planSeleccionado = selected.plan;
     selected.nroSocio = nroSocio;
     selected = selected;
     pacientes = pacientes;
-    console.log("en function update al final", selected);
-    console.log("pacientes en update", pacientes);
     actualizarPaciente(selected);
   };
 
   const borrarConfirmado = async (selected) => {
-    console.log("borrar", selected.id);
-
     try {
       await deleteDoc(doc(db, "Pacientes", selected.id));
       Toastify({
@@ -233,22 +217,37 @@
         ];
 
         nombre = apellido = nroSocio = planSeleccionado = "";
-        i = Math.min(i, filteredPeople.length - 2);
+        i = Math.min(i, pacientesFiltrada.length - 2);
       }
     });
   };
 
   const handleOnClickSelectPlan = (event) => {
     planSeleccionado = event.target.value;
-    selected.plan = planSeleccionado;
+    console.log(
+      "238 selected",
+      selected,
+      " - planSeleccionado",
+      planSeleccionado
+    );
+    if (selected.plan != planSeleccionado) {
+      //solo se actualiza si el click implica un cambio de plan.
+      selected.plan = planSeleccionado;
+      selected.nombre = nombre;
+      selected.apellido = apellido;
+      selected.nroSocio = nroSocio;
+      pacientesFiltrada[i].plan = planSeleccionado; // esta linea hace que el select de pacientes se actualice,
+      console.log("242", selected);
+      actualizarPaciente(selected); //esta linea hace la actualizacion en la base de datos con el plan seleccionado.
+    }
   };
 
   const dispatch = createEventDispatcher();
   const handleSelect = (event) => {
     const selectedPaciente = event.target.value;
+    grupoButtonRadio = pacientesFiltrada[selectedPaciente].plan;
     dispatch("pacienteSelected", selectedPaciente);
   };
-  // let person;
 </script>
 
 <body>
@@ -281,12 +280,13 @@
   </div>
   <div id="selectPacientes">    
     <select
+      name="select-pacientes"
       class="select-Pacientes"
       on:change={handleSelect}
       bind:value={i}
       size={5}
     >
-      {#each filteredPeople as person, i}
+      {#each pacientesFiltrada as person, i}
         <!-- este bucle each itera por la lista filtrada con el indice i
 				que es el que le da el valor seleccionado al select -->
 
@@ -331,7 +331,7 @@
             class="selectorPlanes"
             name="SelectPlan"
             type="radio"
-            on:click={handleOnClickSelectPlan}
+            on:change={handleOnClickSelectPlan}
             bind:group={grupoButtonRadio}
             value={optionPlan}
           />
@@ -359,7 +359,7 @@
       "filter filter"
       "selectPacientes selectPacientes"
       "botones botones"
-      "formInputsI formInputsD"      
+      "formInputsI formInputsD"
       "selectPlan selectPlan";
   }
 
@@ -424,7 +424,7 @@
     padding: 3px;
   }
 
-  #selectPlanContainer{
+  #selectPlanContainer {
     display: flex;
     grid-area: selectPlan;
     flex-direction: column;

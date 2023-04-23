@@ -15,7 +15,7 @@ export const nombreSeleccionado = writable("");
 
 export const idPacienteSeleccionado = writable("");
 
-export const psid = writable(pacienteSeleccionado["id"]);
+// export const psid = writable(pacienteSeleccionado["id"]);
 
 export const sesionSeleccionada = writable({
     diaSesion:"",

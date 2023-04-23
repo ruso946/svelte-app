@@ -14,7 +14,7 @@
       sesiones = querySnapshot.docs.map((doc) => {
         return { ...doc.data(), id: doc.id };
       });
-      console.log("desde Padre.svelte>unsubSesiones:", sesiones);
+      //console.log("desde Padre.svelte>unsubSesiones:", sesiones);
       // agregarClavesFaltantes(sesiones, arrayDeNombresDeClaves);
       // console.log("Desde Padre.svelte>unsub", sesiones);
       // sesiones.forEach((sesiones) => {
