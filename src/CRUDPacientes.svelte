@@ -34,50 +34,82 @@
 
   //esta funcion de subscripcion recien devuelve el array pacientes con los datos de firestore
   //al terminar el map, no antes.
-  const unsubPacientes = onSnapshot(
-    collection(db, "Pacientes"),
-    (querySnapshot) => {
-      pacientes = querySnapshot.docs.map((doc) => {
-        //console.log(doc.data());
-        return { ...doc.data(), id: doc.id };
-      });
-      agregarClavesFaltantes(pacientes, arrayDeNombresDeClaves);
-      //console.log("Desde Padre.svelte>unsubPacientes", pacientes);
-      pacientes.forEach((paciente) => {
-        actualizaPaciente(paciente);
-      });
-      const compararPorApellido = (persona1, persona2) => {
-        if (persona1.apellido < persona2.apellido) {
-          return -1;
-        }
-        if (persona1.apellido > persona2.apellido) {
-          return 1;
-        }
-        return 0;
-      };
-      pacientes.sort(compararPorApellido);
-    },
-    (err) => {
-      console.log(err);
-    }
-  );
-
-  onDestroy(unsubPacientes); // quita la suscripcion a la escucha al cambiar de pagina o destruir el componente
+  // const unsubPacientes = onSnapshot(collection(db, "Pacientes"),(querySnapshot) => {
+  //     pacientes = querySnapshot.docs.map((doc) => {
+  //       return { ...doc.data(), id: doc.id };
+  //     });
+  //     agregarClavesFaltantes(pacientes, arrayDeNombresDeClaves);
+  //     pacientes.forEach((paciente) => {
+  //       actualizaPaciente(paciente);
+  //     });
+  //     const compararPorApellido = (persona1, persona2) => {
+  //       if (persona1.apellido < persona2.apellido) {
+  //         return -1;
+  //       }
+  //       if (persona1.apellido > persona2.apellido) {
+  //         return 1;
+  //       }
+  //       return 0;
+  //     };
+  //     pacientes.sort(compararPorApellido);
+  //   },
+  //   (err) => {
+  //     console.log(err);
+  //   }
+  // );
 
   let optionsPlan = [];
 
   let grupoButtonRadio = "";
 
-  onMount(async () => {
-    // Consulta la base de datos para obtener las opciones del grupo radio button de planes
-    const optionsCollection = collection(db, "planes");
-    const optionsSnapshot = await getDocs(optionsCollection);
-    optionsPlan = optionsSnapshot.docs.map((doc) => doc.data().plan);
-    optionsPlan.push("particular");
-    optionsPlan.sort();
-    grupoButtonRadio = "particular";
-  });
+  let unsubPacientes;
 
+  // en el onMount, hace la suscripcion de pacientes y trae las opciones de planes
+  //si despues paso el radio button group de planes a otro componente, se saca de onMount esa parte
+  onMount(() => {
+    unsubPacientes = onSnapshot(
+      collection(db, "Pacientes"),
+      (querySnapshot) => {
+        pacientes = querySnapshot.docs.map((doc) => {
+          return { ...doc.data(), id: doc.id };
+        });
+        agregarClavesFaltantes(pacientes, arrayDeNombresDeClaves);
+        pacientes.forEach((paciente) => {
+          actualizaPaciente(paciente);
+        });
+        const compararPorApellido = (persona1, persona2) => {
+          if (persona1.apellido < persona2.apellido) {
+            return -1;
+          }
+          if (persona1.apellido > persona2.apellido) {
+            return 1;
+          }
+          return 0;
+        };
+        pacientes.sort(compararPorApellido);
+        console.log("pacientes 100",pacientes);
+      },
+      (err) => {
+        console.log(err);
+      }
+    )
+
+    const fetchOptionsRadioButtonGroupPlanes = async () => {
+      // Consulta la base de datos para obtener las opciones del grupo radio button de planes
+      const optionsCollection = collection(db, "planes");
+      const optionsSnapshot = await getDocs(optionsCollection);
+      console.log("109 async para el radio button",optionsSnapshot);
+      optionsPlan = optionsSnapshot.docs.map((doc) => doc.data().plan);
+      optionsPlan.push("particular");
+      optionsPlan.sort();
+      grupoButtonRadio = "particular";
+    };
+    fetchOptionsRadioButtonGroupPlanes();
+  });
+  
+  onDestroy(unsubPacientes); // quita la suscripcion a la escucha al cambiar de pagina o destruir el componente
+
+  
   let prefix = "";
   let nombre = "";
   let apellido = "";
@@ -85,9 +117,7 @@
   let planSeleccionado = "";
   let createdAt = new Date();
   let i = 0;
-  let pacientesFiltrada;
-
-  console.log("desde crud pacientes 102:", pacientes);
+  let pacientesFiltrada;  
 
   $: pacientesFiltrada = prefix
     ? pacientes.filter((person) => {
@@ -278,7 +308,12 @@
     />
     <!--este prefix es la base para filtrar el array pacientes-->
   </div>
+<<<<<<< HEAD
   <div id="selectPacientes">    
+=======
+  
+  <div id="selectPacientes">
+>>>>>>> master
     <select
       name="select-pacientes"
       class="select-Pacientes"
