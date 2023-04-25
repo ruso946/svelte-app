@@ -21,7 +21,7 @@
   } from "./store";
   import { agregarClavesFaltantes, actualizaPaciente } from "./moduloPacientes";
 
-  export let pacientes = []; //array que viene del unsub de Padre.svelte que trae toda la db pacientes
+  let pacientes = []; //array que viene del unsub de Padre.svelte que trae toda la db pacientes
 
   let arrayDeNombresDeClaves = [
     // usado para hacer que todos los campos de la base de datos y el array pacientes tengan todas las claves
@@ -31,32 +31,6 @@
     "plan",
     "createdAt",
   ];
-
-  //esta funcion de subscripcion recien devuelve el array pacientes con los datos de firestore
-  //al terminar el map, no antes.
-  // const unsubPacientes = onSnapshot(collection(db, "Pacientes"),(querySnapshot) => {
-  //     pacientes = querySnapshot.docs.map((doc) => {
-  //       return { ...doc.data(), id: doc.id };
-  //     });
-  //     agregarClavesFaltantes(pacientes, arrayDeNombresDeClaves);
-  //     pacientes.forEach((paciente) => {
-  //       actualizaPaciente(paciente);
-  //     });
-  //     const compararPorApellido = (persona1, persona2) => {
-  //       if (persona1.apellido < persona2.apellido) {
-  //         return -1;
-  //       }
-  //       if (persona1.apellido > persona2.apellido) {
-  //         return 1;
-  //       }
-  //       return 0;
-  //     };
-  //     pacientes.sort(compararPorApellido);
-  //   },
-  //   (err) => {
-  //     console.log(err);
-  //   }
-  // );
 
   let optionsPlan = [];
 
@@ -73,11 +47,13 @@
         pacientes = querySnapshot.docs.map((doc) => {
           return { ...doc.data(), id: doc.id };
         });
-        agregarClavesFaltantes(pacientes, arrayDeNombresDeClaves);
+        // lo que sigue se hizo para normalizar los docs de la db y los registros de pacientes del array. Puede que ya no sea necesario.
+        agregarClavesFaltantes(pacientes, arrayDeNombresDeClaves); // si hay claves faltantes en el array de pacientes, las agrega.
         pacientes.forEach((paciente) => {
-          actualizaPaciente(paciente);
+          actualizaPaciente(paciente); // agrega las claves que faltan a la base de datos firestore
         });
         const compararPorApellido = (persona1, persona2) => {
+          //funcion para ordenar con pacientes.sort()
           if (persona1.apellido < persona2.apellido) {
             return -1;
           }
@@ -86,30 +62,28 @@
           }
           return 0;
         };
-        pacientes.sort(compararPorApellido);
-        console.log("pacientes 100",pacientes);
+        pacientes.sort(compararPorApellido); // ordena los pacientes por orden alfabetico de apellido
       },
       (err) => {
         console.log(err);
       }
-    )
+    );
 
     const fetchOptionsRadioButtonGroupPlanes = async () => {
       // Consulta la base de datos para obtener las opciones del grupo radio button de planes
       const optionsCollection = collection(db, "planes");
       const optionsSnapshot = await getDocs(optionsCollection);
-      console.log("109 async para el radio button",optionsSnapshot);
+      console.log("109 async para el radio button", optionsSnapshot);
       optionsPlan = optionsSnapshot.docs.map((doc) => doc.data().plan);
       optionsPlan.push("particular");
       optionsPlan.sort();
       grupoButtonRadio = "particular";
     };
     fetchOptionsRadioButtonGroupPlanes();
-  });
-  
+  }); // fin de onMount
+
   onDestroy(unsubPacientes); // quita la suscripcion a la escucha al cambiar de pagina o destruir el componente
 
-  
   let prefix = "";
   let nombre = "";
   let apellido = "";
@@ -117,14 +91,16 @@
   let planSeleccionado = "";
   let createdAt = new Date();
   let i = 0;
-  let pacientesFiltrada;  
+  let pacientesFiltrada;
 
-  $: pacientesFiltrada = prefix
+  $: pacientesFiltrada = prefix // bloque reactivo que de acuerdo a si hay prefix,
     ? pacientes.filter((person) => {
+        // filtra por apellido el array de pacientes y lo asigna al array pacientesFiltrada
         const name = `${person.apellido}, ${person.nombre}`;
         return name.toLowerCase().startsWith(prefix.toLowerCase());
       })
     : pacientes.map((persona) => {
+        // o mapea todo el array de pacientes para asignarlo al array pacientesFiltrada
         return {
           nombre: persona.nombre,
           apellido: persona.apellido,
@@ -134,9 +110,14 @@
         };
       });
 
-  console.log("pacientesFiltrada", pacientesFiltrada);
+  // $: console.log(             //descomentar para control reactivo de la lista de pacientes filtrada
+  //   "pacientesFiltrada",
+  //   pacientesFiltrada,
+  //   pacientesFiltrada.length
+  // );    
 
   $: selected = pacientesFiltrada[i];
+  $: console.log("i:",i);
 
   //el siguiente bloque reactivo if, aporta al store los valores necesarios
   //del paciente seleccionado en el Select de este componente:
@@ -146,9 +127,10 @@
     $apellidoSeleccionado = selected.apellido;
     $nombreSeleccionado = selected.nombre;
     $idPacienteSeleccionado = selected.id;
+    console.log(selected)
   }
 
-  $pacienteSeleccionado = selected;
+  //$pacienteSeleccionado = selected;    //chequeando a ver si está de mas esta linea
 
   $: reset_inputs(selected);
 
@@ -277,6 +259,14 @@
     const selectedPaciente = event.target.value;
     grupoButtonRadio = pacientesFiltrada[selectedPaciente].plan;
     dispatch("pacienteSelected", selectedPaciente);
+    console.log("dispatch", selectedPaciente);
+    /*con este evento pacienteSelected que se dispara al cambiar de eleccion de paciente
+     en el select de pacientes se entrega el valor de ese select.
+     En este momento es "i", pero podría pasarse el objeto correspondiente al paciente seleccionado
+     junto a "i" en un array.
+     De este modo, se puede mantener el funcionamiento en base a "i" de la logica del componente
+     y al mismo tiempo, simplificar el estado del componente y prescindir del uso del store
+    */
   };
 </script>
 
@@ -309,9 +299,13 @@
     <!--este prefix es la base para filtrar el array pacientes-->
   </div>
 <<<<<<< HEAD
+<<<<<<< HEAD
   <div id="selectPacientes">    
 =======
   
+=======
+
+>>>>>>> master
   <div id="selectPacientes">
 >>>>>>> master
     <select
@@ -320,15 +314,18 @@
       on:change={handleSelect}
       bind:value={i}
       size={5}
-    >
-      {#each pacientesFiltrada as person, i}
-        <!-- este bucle each itera por la lista filtrada con el indice i
+      >{#if pacientesFiltrada.length == 0}
+        <option disabled>no hay resultados para ese prefijo...</option>
+      {:else}
+        {#each pacientesFiltrada as person, i}
+          <!-- este bucle each itera por la lista filtrada con el indice i
 				que es el que le da el valor seleccionado al select -->
 
-        <option value={i}
-          >{`${person.nroSocio}-${person.apellido}, ${person.nombre} plan ${person.plan}`}</option
-        >
-      {/each}
+          <option value={i}
+            >{`${person.nroSocio}-${person.apellido}, ${person.nombre} plan ${person.plan}`}</option
+          >
+        {/each}
+      {/if}
     </select>
   </div>
 
@@ -508,6 +505,7 @@
 
   select {
     max-width: 100%;
+    width: 100%;
     margin: 0;
     font-size: small;
   }
