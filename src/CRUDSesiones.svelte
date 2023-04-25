@@ -214,12 +214,16 @@ Las variables de los inputs del formulario de sesiones:
               <label for="valorPago">pago</label><input
                 name="valorPago"
                 type="number"
+                step="100"
+                min="0"
                 bind:value={valorPago}
                 placeholder="Valor pago"
               />
               <label for="valorSesion">valor sesion</label><input
                 name="valorSesion"
                 type="number"
+                step="100"
+                min="0"
                 bind:value={valorSesion}
                 placeholder="Valor sesión"
               />
