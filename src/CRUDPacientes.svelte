@@ -1,4 +1,5 @@
 <script>
+  import SelectPlan from "./SelectPlan.svelte";
   import { onMount, onDestroy, createEventDispatcher } from "svelte";
   import { db } from "./firebasePacientes";
   import {
@@ -234,14 +235,31 @@
     });
   };
 
-  const handleOnClickSelectPlan = (event) => {
-    planSeleccionado = event.target.value;
-    console.log(
-      "238 selected",
-      selected,
-      " - planSeleccionado",
-      planSeleccionado
-    );
+  //esta funcion era para el selector de planes con la version radio button group
+  //la pasé a componente aparte con un select
+  // const handleOnClickSelectPlan2 = (event) => {
+  //   planSeleccionado = event.target.value;
+  //   console.log(
+  //     "238 selected",
+  //     selected,
+  //     " - planSeleccionado",
+  //     planSeleccionado
+  //   );
+  //   if (selected.plan != planSeleccionado) {
+  //     //solo se actualiza si el click implica un cambio de plan.
+  //     selected.plan = planSeleccionado;
+  //     selected.nombre = nombre;
+  //     selected.apellido = apellido;
+  //     selected.nroSocio = nroSocio;
+  //     pacientesFiltrada[i].plan = planSeleccionado; // esta linea hace que el select de pacientes se actualice,
+  //     console.log("242", selected);
+  //     actualizarPaciente(selected); //esta linea hace la actualizacion en la base de datos con el plan seleccionado.
+  //   }
+  // };
+
+  const handleOnClickSelectPlan2 = (event) => {
+    // console.log(event.detail.valor.planSeleccionado); //toma el valor del select por un evento del componente SelectPlan
+    planSeleccionado = event.detail.valor.planSeleccionado;
     if (selected.plan != planSeleccionado) {
       //solo se actualiza si el click implica un cambio de plan.
       selected.plan = planSeleccionado;
@@ -340,13 +358,16 @@
       bind:value={nroSocio}
       placeholder="nro de Socio"
     />
-    <label for="plan">plan</label><input
-      name="plan"
-      bind:value={planSeleccionado}
-      placeholder="plan"
+    <label for="plan">plan</label><SelectPlan
+      on:cambioPlan={handleOnClickSelectPlan2}
+      planes={optionsPlan}
+      {planSeleccionado}
     />
   </div>
-  <div id="selectPlanContainer">
+
+  <!--Lo que sigue era el selector de planes en la version radio button group
+      Va junto con la funcion handleSelectPlan2                             -->
+  <!-- <div id="selectPlanContainer">
     <p id="selectPlanTitulo">plan a seleccionar</p>
     <div id="selectPlan">
       {#each optionsPlan as optionPlan}
@@ -355,7 +376,7 @@
             class="selectorPlanes"
             name="SelectPlan"
             type="radio"
-            on:change={handleOnClickSelectPlan}
+            on:change={handleOnClickSelectPlan2}
             bind:group={grupoButtonRadio}
             value={optionPlan}
           />
@@ -365,7 +386,9 @@
         </span>
       {/each}
     </div>
-  </div>
+    <div>      
+    </div>
+  </div> -->
 </body>
 
 <style>
@@ -448,32 +471,34 @@
     padding: 3px;
   }
 
-  #selectPlanContainer {
+  /* #selectPlanContainer {
     display: flex;
     grid-area: selectPlan;
     flex-direction: column;
     justify-items: center;
     background-color: cadetblue;
-  }
+  } */
 
-  #selectPlanTitulo {
-    /* grid-area: selectPlanTitulo; */
+  /* #selectPlanTitulo {
+   
     margin: auto;
     padding: 3px;
     place-items: center;
     text-align: start;
     background-color: cadetblue;
     color: aliceblue;
-  }
-  #selectPlan {
-    /* grid-area: selectPlan; */
+  } */
+  
+  
+  /* #selectPlan {
+  
     display: flex;
     flex-direction: row;
     gap: 2em;
     background-color: cadetblue;
     padding: 3px;
     margin: auto;
-  }
+  } */
 
   label {
     display: inline;
