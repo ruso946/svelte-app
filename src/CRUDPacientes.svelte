@@ -30,33 +30,7 @@
     "nroSocio",
     "plan",
     "createdAt",
-  ];
-
-  //esta funcion de subscripcion recien devuelve el array pacientes con los datos de firestore
-  //al terminar el map, no antes.
-  // const unsubPacientes = onSnapshot(collection(db, "Pacientes"),(querySnapshot) => {
-  //     pacientes = querySnapshot.docs.map((doc) => {
-  //       return { ...doc.data(), id: doc.id };
-  //     });
-  //     agregarClavesFaltantes(pacientes, arrayDeNombresDeClaves);
-  //     pacientes.forEach((paciente) => {
-  //       actualizaPaciente(paciente);
-  //     });
-  //     const compararPorApellido = (persona1, persona2) => {
-  //       if (persona1.apellido < persona2.apellido) {
-  //         return -1;
-  //       }
-  //       if (persona1.apellido > persona2.apellido) {
-  //         return 1;
-  //       }
-  //       return 0;
-  //     };
-  //     pacientes.sort(compararPorApellido);
-  //   },
-  //   (err) => {
-  //     console.log(err);
-  //   }
-  // );
+  ];  
 
   let optionsPlan = [];
 
@@ -86,8 +60,7 @@
           }
           return 0;
         };
-        pacientes.sort(compararPorApellido);
-        console.log("pacientes 100",pacientes);
+        pacientes.sort(compararPorApellido);  
       },
       (err) => {
         console.log(err);
@@ -203,6 +176,12 @@
     }
   };
 
+
+  /*esta funcion responde al boton de update del crud.
+   Primero copia en el array selected los valores de los inputs del formulario.
+   Despues llama a la funcion actualizarPaciente con el argumento del array selected
+   para que copie esos datos en la base de datos de firestore
+  */
   const update = () => {
     selected.nombre = nombre;
     selected.apellido = apellido;
