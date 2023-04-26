@@ -24,14 +24,9 @@
 </script>
 
 <body>
-<<<<<<< HEAD
-  <div class="contenedor-pacientes">    
-    <CRUDPacientes {pacientes} />
-=======
   <div class="contenedor-pacientes">
     <h5>CRUD Pacientes</h5>
     <CRUDPacientes />
->>>>>>> master
   </div>
 
   <div class="contenedor-sesiones">
