@@ -114,10 +114,10 @@
   //   "pacientesFiltrada",
   //   pacientesFiltrada,
   //   pacientesFiltrada.length
-  // );    
+  // );
 
   $: selected = pacientesFiltrada[i];
-  $: console.log("i:",i);
+  $: console.log("i:", i);
 
   //el siguiente bloque reactivo if, aporta al store los valores necesarios
   //del paciente seleccionado en el Select de este componente:
@@ -127,7 +127,7 @@
     $apellidoSeleccionado = selected.apellido;
     $nombreSeleccionado = selected.nombre;
     $idPacienteSeleccionado = selected.id;
-    console.log(selected)
+    console.log(selected);
   }
 
   //$pacienteSeleccionado = selected;    //chequeando a ver si está de mas esta linea
@@ -298,16 +298,8 @@
     />
     <!--este prefix es la base para filtrar el array pacientes-->
   </div>
-<<<<<<< HEAD
-<<<<<<< HEAD
-  <div id="selectPacientes">    
-=======
-  
-=======
 
->>>>>>> master
   <div id="selectPacientes">
->>>>>>> master
     <select
       name="select-pacientes"
       class="select-Pacientes"
