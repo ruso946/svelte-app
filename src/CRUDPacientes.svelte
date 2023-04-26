@@ -186,6 +186,12 @@
     }
   };
 
+
+  /*esta funcion responde al boton de update del crud.
+   Primero copia en el array selected los valores de los inputs del formulario.
+   Despues llama a la funcion actualizarPaciente con el argumento del array selected
+   para que copie esos datos en la base de datos de firestore
+  */
   const update = () => {
     selected.nombre = nombre;
     selected.apellido = apellido;
