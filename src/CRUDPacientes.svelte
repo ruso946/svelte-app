@@ -142,14 +142,13 @@
     planSeleccionado = person ? person.plan : "";
   };
 
-  const agregarPaciente = async (i) => {
+  const agregarPaciente = async () => {
     //hay que hacer una validacion: por lo menos que no se repita nro de socio
     //o que no hayan registros duplicados de pacientes
 
     console.log(nombre, apellido, nroSocio, planSeleccionado);
     try {
-      await addDoc(collection(db, "Pacientes"), {
-        //...pacientes[i],
+      await addDoc(collection(db, "Pacientes"), {        
         nombre,
         apellido,
         nroSocio,
@@ -168,7 +167,7 @@
   const create = () => {
     pacientes = pacientes.concat({ nombre, apellido });
     i = pacientes.length - 1;
-    agregarPaciente(i);
+    agregarPaciente();
     nombre = apellido = planSeleccionado = nroSocio = "";
   };
 
@@ -243,7 +242,7 @@
 
   //esta funcion era para el selector de planes con la version radio button group
   //la pasé a componente aparte con un select
-  // const handleOnClickSelectPlan2 = (event) => {
+  // const handleOnClickSelectPlan = (event) => {
   //   planSeleccionado = event.target.value;
   //   console.log(
   //     "238 selected",

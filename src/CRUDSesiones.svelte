@@ -179,10 +179,10 @@ Las variables de los inputs del formulario de sesiones:
 -fechaPago
 -pacienteId
 */
-  let valorPago = 4500;
+  let valorPago = 5000;
   let valorSesion = 5000;
-  let diaSesion = new Date().toLocaleDateString();
-  let fechaPago = new Date().toLocaleDateString();
+  let diaSesion = new Date().toISOString().slice(0, 10);//new Date().toLocaleDateString();
+  let fechaPago = new Date().toISOString().slice(0, 10);
 </script>
 
 <main>
