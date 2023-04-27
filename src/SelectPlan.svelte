@@ -8,7 +8,7 @@
     }
 </script>
 
-<main>
+
     <select
         name="plan"
         id="plan"
@@ -19,7 +19,12 @@
             <option value={plan}>{plan}</option>
         {/each}
     </select>
-</main>
+
 
 <style>
+    select{
+        width: 80%;
+        max-width: 100%;
+        text-align: end;
+    }
 </style>

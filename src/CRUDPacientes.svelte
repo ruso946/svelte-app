@@ -516,10 +516,11 @@
     margin-top: 3px;
   }
 
-  label.selectorPlan {
+  /* label.selectorPlan {
     display: block;
     width: 2em;
-  }
+  } */
+
   input {
     margin: 0;
     width: 80%;
@@ -540,7 +541,7 @@
     gap: 0.5em;
   }
 
-  .selectorPlanes {
+  /* .selectorPlanes {
     font-size: 0.75em;
     display: block;
     padding: 0.5em;
@@ -548,5 +549,5 @@
     width: 1em;
     align-items: center;
     text-align: left;
-  }
+  } */
 </style>
