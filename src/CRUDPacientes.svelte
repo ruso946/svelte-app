@@ -1,5 +1,5 @@
 <script>
-  import SelectPlan from "./SelectPlan.svelte";
+  import SelectPlan from "./assets/SelectPlan.svelte";
   import { onMount, onDestroy, createEventDispatcher } from "svelte";
   import { db } from "./firebasePacientes";
   import {
