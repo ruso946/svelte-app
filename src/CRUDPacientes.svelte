@@ -150,7 +150,7 @@
 
     console.log(nombre, apellido, nroSocio, planSeleccionado);
     try {
-      await addDoc(collection(db, "Pacientes"), {        
+      await addDoc(collection(db, "Pacientes"), {
         nombre,
         apellido,
         nroSocio,
@@ -187,7 +187,6 @@
     }
   };
 
-
   /*esta funcion responde al boton de update del crud.
    Primero copia en el array selected los valores de los inputs del formulario.
    Despues llama a la funcion actualizarPaciente con el argumento del array selected
@@ -222,14 +221,21 @@
     }
 
     //borra los registros de la db sesiones que corresponden al paciente borrado
-    const q = query(collection(db,"sesiones"), where("pacienteID", "==", selected.id));
-    console.log("desde delete q=pacientes a borrar",q);
-    // try {
-    //   await 
-      
-    // } catch (error) {
-      
-    // }
+    const q = query(
+      collection(db, "sesiones"),
+      where("pacienteID", "==", selected.id)//consulta segun selected.id en la coleccion de sesiones
+    );
+    console.log(
+      `desde delete q=pacientes a borrar ${q} - paciente: ${selected.nombre} ${selected.apellido} ${selected.id}`
+    );
+    try {
+      const docs = await getDocs(q);
+      docs.forEach((doc) => {
+        deleteDoc(doc.ref);// borra los registros de la coleccion de sesiones que corresponden a la consulta en firebase
+      });
+    } catch (error) {
+      console.log(error);
+    }   
   };
   const remove = () => {
     // Remove selected person from the source array (pacientes), not the filtered array
@@ -256,28 +262,6 @@
       }
     });
   };
-
-  //esta funcion era para el selector de planes con la version radio button group
-  //la pasé a componente aparte con un select
-  // const handleOnClickSelectPlan = (event) => {
-  //   planSeleccionado = event.target.value;
-  //   console.log(
-  //     "238 selected",
-  //     selected,
-  //     " - planSeleccionado",
-  //     planSeleccionado
-  //   );
-  //   if (selected.plan != planSeleccionado) {
-  //     //solo se actualiza si el click implica un cambio de plan.
-  //     selected.plan = planSeleccionado;
-  //     selected.nombre = nombre;
-  //     selected.apellido = apellido;
-  //     selected.nroSocio = nroSocio;
-  //     pacientesFiltrada[i].plan = planSeleccionado; // esta linea hace que el select de pacientes se actualice,
-  //     console.log("242", selected);
-  //     actualizarPaciente(selected); //esta linea hace la actualizacion en la base de datos con el plan seleccionado.
-  //   }
-  // };
 
   const handleOnClickSelectPlan2 = (event) => {
     // console.log(event.detail.valor.planSeleccionado); //toma el valor del select por un evento del componente SelectPlan
@@ -510,8 +494,7 @@
     background-color: cadetblue;
     color: aliceblue;
   } */
-  
-  
+
   /* #selectPlan {
   
     display: flex;

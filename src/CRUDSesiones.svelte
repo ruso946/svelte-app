@@ -171,6 +171,38 @@ Funciones del formulario:
     }
   };
 
+  const depurarSesiones = () => {
+    const arrayIdPacientes = [];
+    pacientes.forEach((paciente) => {
+      arrayIdPacientes.push(paciente.id);
+    });
+    console.log(arrayIdPacientes);
+
+    /*
+      hacer un array de todas las id de pacientes
+      por cada sesion, si el id de paciente de esa sesion(pacienteID), no esta en el array de idPacientes
+      hay que borrar esa sesion
+      */
+    sesiones.forEach((sesion) => {
+      if (!arrayIdPacientes.includes(sesion.pacienteID)) {
+        console.log(
+          `en la sesion ${sesion.id},el paciente ${sesion.pacienteID} no está incluido en el array pacientes, hay que borrarla`
+        );
+        try {
+          deleteDoc(doc(db, "sesiones", sesion.id));
+          Toastify({
+            text: "Sesion eliminada",
+            style: {
+              background: "red",
+            },
+          }).showToast();
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    });
+  };
+
   /*
 Las variables de los inputs del formulario de sesiones:
 -valorPago
@@ -181,7 +213,7 @@ Las variables de los inputs del formulario de sesiones:
 */
   let valorPago = 5000;
   let valorSesion = 5000;
-  let diaSesion = new Date().toISOString().slice(0, 10);//new Date().toLocaleDateString();
+  let diaSesion = new Date().toISOString().slice(0, 10); //new Date().toLocaleDateString();
   let fechaPago = new Date().toISOString().slice(0, 10);
 </script>
 
@@ -194,7 +226,7 @@ Las variables de los inputs del formulario de sesiones:
         on:change={handle_onChange_select_sesiones}
         bind:value={selectedSessionId}
         size={5}
-      >      
+      >
         {#each sesiones as sesion}
           {#if Object.values(sesion).includes($idPacienteSeleccionado)}
             <option class="" value={sesion.id}
@@ -246,6 +278,9 @@ Las variables de los inputs del formulario de sesiones:
               <button on:click={updateSesion(selectedSession)}>update</button>
               <button on:click={deleteSesion(selectedSession)}>delete</button>
               <button on:click={addSesion}>Agregar sesión</button>
+              <!-- este boton de depurar sesiones solo se debe activar en casos extremos. Borra sesiones de pacientes inexistentes directamente de la base de datos -->
+              <!-- deberia reemplazarse por la opcion de actvar/desactivar un paciente con un campo, y sus respectivas sesiones -->
+              <!-- <button on:click={depurarSesiones}>Depurar sesiones</button> -->
             </div>
           </div>
         </form>
@@ -273,11 +308,11 @@ Las variables de los inputs del formulario de sesiones:
     padding: 3px;
   }
 
-  h4 {    
-    grid-area: titulo;    
-    padding: 2px;    
-    background-color:cadetblue;
-    color:aliceblue;
+  h4 {
+    grid-area: titulo;
+    padding: 2px;
+    background-color: cadetblue;
+    color: aliceblue;
     text-shadow: 1px 1px #999;
     transition: all 0.2s ease-in-out;
     cursor: pointer;
