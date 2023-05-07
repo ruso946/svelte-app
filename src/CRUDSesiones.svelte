@@ -194,7 +194,7 @@ Las variables de los inputs del formulario de sesiones:
         on:change={handle_onChange_select_sesiones}
         bind:value={selectedSessionId}
         size={5}
-      >
+      >      
         {#each sesiones as sesion}
           {#if Object.values(sesion).includes($idPacienteSeleccionado)}
             <option class="" value={sesion.id}
@@ -362,6 +362,7 @@ Las variables de los inputs del formulario de sesiones:
   select {
     max-width: 100%;
     min-width: 100%;
+    font-size: x-small;
   }
 
   option {

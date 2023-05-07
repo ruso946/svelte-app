@@ -10,6 +10,8 @@
     deleteDoc,
     updateDoc,
     getDocs,
+    query,
+    where,
   } from "firebase/firestore";
   import Toastify from "toastify-js";
   import Swal from "sweetalert2";
@@ -202,6 +204,11 @@
   };
 
   const borrarConfirmado = async (selected) => {
+    /* hay que borrar los registros de la base de datos de sesiones 
+    relacionados al paciente que se está borrando.
+    O en todo caso, agregar un campo "activo" que lo deshabilite de
+    la base de datos.
+    */
     try {
       await deleteDoc(doc(db, "Pacientes", selected.id));
       Toastify({
@@ -213,6 +220,16 @@
     } catch (error) {
       console.error(error);
     }
+
+    //borra los registros de la db sesiones que corresponden al paciente borrado
+    const q = query(collection(db,"sesiones"), where("pacienteID", "==", selected.id));
+    console.log("desde delete q=pacientes a borrar",q);
+    // try {
+    //   await 
+      
+    // } catch (error) {
+      
+    // }
   };
   const remove = () => {
     // Remove selected person from the source array (pacientes), not the filtered array
