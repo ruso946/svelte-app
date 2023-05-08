@@ -1,3 +1,17 @@
+# deploy en github pages en la carpeta docs, en la rama gh-pages-docs
+Se tuvo que hacer así porque no encuentro la manera de hacer que gh-pages me deje seleccionar la carpeta dist para hacer el deploy automatico
+Para eso, tuve que cambiar el archivo vite.config.js y agregar las lineas que indican hacer el build en docs
+Entonces, cada vez que hago una modificacion a la rama gh-pages-docs del remoto, se hace un deploy automatico.
+Para eso hay que hacer:
+  git checkout gh-pages-docs
+  npm run build
+  git add .
+  git commit -m"mensaje del commit que va al deploy"
+  git push
+  
+Se recomienda tener esa rama sincronizada con master y main, una vez que se compruebe que los cambios son satisfactorios.
+  
+
 # Svelte + Vite
 
 This template should help get you started developing with Svelte in Vite.
