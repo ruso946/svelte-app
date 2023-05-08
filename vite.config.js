@@ -5,13 +5,7 @@ import { svelte } from "@sveltejs/vite-plugin-svelte";
 export default defineConfig({
   base: "/svelte-app/",
   plugins: [svelte()],
-  build: {
-    outDir: "docs",
-  },
+  build: {                //estas lineas se agregan para que haya un deploy automatico 
+    outDir: "docs",       //en gh-pages en la carpeta docs, en vez de la original que era dist
+  },                      //porque no encuentro el modo de que que gh-pages me de la opcion de elegir otra carpeta
 });
-
-// // https://vitejs.dev/config/
-// export default defineConfig({
-//   base: "/svelte-app-static/",
-//   plugins: [svelte()],
-// })
