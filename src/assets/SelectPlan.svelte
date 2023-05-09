@@ -2,13 +2,15 @@
     export let planes;
     export let planSeleccionado;
     import {createEventDispatcher} from "svelte";
+    let activaSelectPlan = true;
     const dispatch = createEventDispatcher();
     function cambioPlan () {
         dispatch("cambioPlan",{valor: {planSeleccionado}})
     }
 </script>
 
-
+<input type="checkbox" bind:checked={activaSelectPlan}>
+      {#if activaSelectPlan}
     <select
         name="plan"
         id="plan"
@@ -19,6 +21,7 @@
             <option value={plan}>{plan}</option>
         {/each}
     </select>
+    {/if}
 
 
 <style>
