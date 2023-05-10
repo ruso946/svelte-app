@@ -23,6 +23,7 @@
     nombreSeleccionado,
   } from "./store";
   import { agregarClavesFaltantes, actualizaPaciente } from "./moduloPacientes";
+  import SelectorPacientes from "./SelectorPacientes.svelte";
 
   let pacientes = []; //array que viene del unsub de Padre.svelte que trae toda la db pacientes
 
@@ -135,7 +136,7 @@
 
   //$pacienteSeleccionado = selected;    //chequeando a ver si está de mas esta linea
 
-  $: reset_inputs(selected);
+  $: reset_inputs(selected); // esta funcion hace que los campos del formulario se sincronicen con la seleccion del select pacientes
 
   const reset_inputs = (person) => {
     nombre = person ? person.nombre : "";
@@ -278,20 +279,20 @@
     }
   };
 
-  const dispatch = createEventDispatcher();
-  const handleSelect = (event) => {
-    const selectedPaciente = event.target.value;
-    grupoButtonRadio = pacientesFiltrada[selectedPaciente].plan;
-    dispatch("pacienteSelected", selectedPaciente);
-    console.log("dispatch", selectedPaciente);
-    /*con este evento pacienteSelected que se dispara al cambiar de eleccion de paciente
-     en el select de pacientes se entrega el valor de ese select.
-     En este momento es "i", pero podría pasarse el objeto correspondiente al paciente seleccionado
-     junto a "i" en un array.
-     De este modo, se puede mantener el funcionamiento en base a "i" de la logica del componente
-     y al mismo tiempo, simplificar el estado del componente y prescindir del uso del store
-    */
-  };
+  //const dispatch = createEventDispatcher();
+  // const handleSelect = (event) => {
+  //   const selectedPaciente = event.target.value;
+  //   grupoButtonRadio = pacientesFiltrada[selectedPaciente].plan;
+  //   dispatch("pacienteSelected", selectedPaciente);
+  //   console.log("dispatch", selectedPaciente);
+  //   /*con este evento pacienteSelected que se dispara al cambiar de eleccion de paciente
+  //    en el select de pacientes se entrega el valor de ese select.
+  //    En este momento es "i", pero podría pasarse el objeto correspondiente al paciente seleccionado
+  //    junto a "i" en un array.
+  //    De este modo, se puede mantener el funcionamiento en base a "i" de la logica del componente
+  //    y al mismo tiempo, simplificar el estado del componente y prescindir del uso del store
+  //   */
+  // };
 </script>
 
 <body>
@@ -324,7 +325,8 @@
   </div>
 
   <div id="selectPacientes">
-    <select
+    <SelectorPacientes {pacientesFiltrada} {grupoButtonRadio} />
+    <!-- <select
       name="select-pacientes"
       class="select-Pacientes"
       on:change={handleSelect}
@@ -334,15 +336,14 @@
         <option disabled>no hay resultados para ese prefijo...</option>
       {:else}
         {#each pacientesFiltrada as person, i}
-          <!-- este bucle each itera por la lista filtrada con el indice i
-				que es el que le da el valor seleccionado al select -->
-
+           este bucle each itera por la lista filtrada con el indice i
+				que es el que le da el valor seleccionado al select 
           <option value={i}
             >{`${person.nroSocio}-${person.apellido}, ${person.nombre} plan ${person.plan}`}</option
           >
         {/each}
       {/if}
-    </select>
+    </select> -->
   </div>
 
   <div id="formInputsI">
