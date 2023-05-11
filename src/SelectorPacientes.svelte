@@ -1,8 +1,8 @@
 <script>
   import { createEventDispatcher } from "svelte";
-  export let pacientesFiltrada;
+  export let pacientesFiltrada;  
+  export let grupoButtonRadio;
   let i;
-  let grupoButtonRadio;
 
   const dispatch = createEventDispatcher();
   const handleSelect = (event) => {

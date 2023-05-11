@@ -325,25 +325,7 @@
   </div>
 
   <div id="selectPacientes">
-    <SelectorPacientes {pacientesFiltrada} {grupoButtonRadio} />
-    <!-- <select
-      name="select-pacientes"
-      class="select-Pacientes"
-      on:change={handleSelect}
-      bind:value={i}
-      size={5}
-      >{#if pacientesFiltrada.length == 0}
-        <option disabled>no hay resultados para ese prefijo...</option>
-      {:else}
-        {#each pacientesFiltrada as person, i}
-           este bucle each itera por la lista filtrada con el indice i
-				que es el que le da el valor seleccionado al select 
-          <option value={i}
-            >{`${person.nroSocio}-${person.apellido}, ${person.nombre} plan ${person.plan}`}</option
-          >
-        {/each}
-      {/if}
-    </select> -->
+    <SelectorPacientes {pacientesFiltrada} {grupoButtonRadio} />    
   </div>
 
   <div id="formInputsI">
@@ -370,35 +352,11 @@
       planes={optionsPlan}
       {planSeleccionado}
     />
-  </div>
-
-  <!--Lo que sigue era el selector de planes en la version radio button group
-      Va junto con la funcion handleSelectPlan2                             -->
-  <!-- <div id="selectPlanContainer">
-    <p id="selectPlanTitulo">plan a seleccionar</p>
-    <div id="selectPlan">
-      {#each optionsPlan as optionPlan}
-        <span>
-          <input
-            class="selectorPlanes"
-            name="SelectPlan"
-            type="radio"
-            on:change={handleOnClickSelectPlan2}
-            bind:group={grupoButtonRadio}
-            value={optionPlan}
-          />
-          <label for="selectorPlanes" class="selectorPlan">
-            {optionPlan}
-          </label>
-        </span>
-      {/each}
-    </div>
-    <div>      
-    </div>
-  </div> -->
+  </div>  
 </body>
 
 <style>
+
   * {
     font-family: inherit;
     font-size: inherit;
@@ -472,39 +430,11 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
+    justify-content: start;
     padding: 0.5em;
     background-color: cadetblue;
     padding: 3px;
   }
-
-  /* #selectPlanContainer {
-    display: flex;
-    grid-area: selectPlan;
-    flex-direction: column;
-    justify-items: center;
-    background-color: cadetblue;
-  } */
-
-  /* #selectPlanTitulo {
-   
-    margin: auto;
-    padding: 3px;
-    place-items: center;
-    text-align: start;
-    background-color: cadetblue;
-    color: aliceblue;
-  } */
-
-  /* #selectPlan {
-  
-    display: flex;
-    flex-direction: row;
-    gap: 2em;
-    background-color: cadetblue;
-    padding: 3px;
-    margin: auto;
-  } */
 
   label {
     display: inline;
@@ -514,40 +444,18 @@
     color: aliceblue;
     font-size: x-small;
     margin-top: 3px;
-  }
-
-  /* label.selectorPlan {
-    display: block;
-    width: 2em;
-  } */
+  }  
 
   input {
     margin: 0;
     width: 80%;
     font-size: medium;
-  }
-
-  select {
-    max-width: 100%;
-    width: 100%;
-    margin: 0;
-    font-size: small;
-  }
+  }  
 
   .buttons {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     gap: 0.5em;
-  }
-
-  /* .selectorPlanes {
-    font-size: 0.75em;
-    display: block;
-    padding: 0.5em;
-    height: 1em;
-    width: 1em;
-    align-items: center;
-    text-align: left;
-  } */
+  }  
 </style>
