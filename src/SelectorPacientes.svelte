@@ -1,13 +1,13 @@
 <script>
   import { createEventDispatcher } from "svelte";
   export let pacientesFiltrada;  
-  export let grupoButtonRadio;
+  export let planSelect;
   let i;
 
   const dispatch = createEventDispatcher();
   const handleSelect = (event) => {
     const selectedPaciente = event.target.value;
-    grupoButtonRadio = pacientesFiltrada[selectedPaciente].plan;
+    planSelect = pacientesFiltrada[selectedPaciente].plan;
     dispatch("pacienteSelected", selectedPaciente);
     console.log("dispatch", selectedPaciente);
     /*con este evento pacienteSelected que se dispara al cambiar de eleccion de paciente
@@ -29,10 +29,10 @@
   >{#if pacientesFiltrada.length == 0}
     <option disabled>no hay resultados para ese prefijo...</option>
   {:else}
-    {#each pacientesFiltrada as person, i}
+    {#each pacientesFiltrada as person, j}
       <!-- este bucle each itera por la lista filtrada con el indice i
 				que es el que le da el valor seleccionado al select -->
-      <option value={i}
+      <option value={j}
         >{`${person.apellido}, ${person.nombre}${
           person.plan == "particular"
             ? ""

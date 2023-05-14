@@ -2,24 +2,21 @@
   export let planes;
   export let planSeleccionado;
   import { createEventDispatcher } from "svelte";
-  let planVisible = true;
+  let planVisible = true;  
 
-  var checkbox = document.getElementById("activaPlanSelector");
-  
-
-  const activaSelect = ()=>{
+  const activaSelect = () => {
     let select = document.getElementById("plan");
     if (!planVisible) {
       select.style.visibility = "visible";
     } else {
       select.style.visibility = "hidden";
     }
-}
+  };
 
   const dispatch = createEventDispatcher();
-  function cambioPlan() {
+  const cambioPlan = () => {
     dispatch("cambioPlan", { valor: { planSeleccionado } });
-  }
+  };  
 </script>
 
 <div id="selectPlanContainer">

@@ -38,7 +38,7 @@
 
   let optionsPlan = [];
 
-  let grupoButtonRadio = "";
+  let planSelect = "";
 
   let unsubPacientes;
 
@@ -73,7 +73,7 @@
       }
     );
 
-    const fetchOptionsRadioButtonGroupPlanes = async () => {
+    const fetchOptionsSelectPlanes = async () => {
       // Consulta la base de datos para obtener las opciones del grupo radio button de planes
       const optionsCollection = collection(db, "planes");
       const optionsSnapshot = await getDocs(optionsCollection);
@@ -81,9 +81,9 @@
       optionsPlan = optionsSnapshot.docs.map((doc) => doc.data().plan);
       optionsPlan.push("particular");
       optionsPlan.sort();
-      grupoButtonRadio = "particular";
+      planSelect = "particular";
     };
-    fetchOptionsRadioButtonGroupPlanes();
+    fetchOptionsSelectPlanes();
   }); // fin de onMount
 
   onDestroy(unsubPacientes); // quita la suscripcion a la escucha al cambiar de pagina o destruir el componente
@@ -134,7 +134,7 @@
     console.log(selected);
   }
 
-  //$pacienteSeleccionado = selected;    //chequeando a ver si está de mas esta linea
+  $pacienteSeleccionado = selected;    //chequeando a ver si está de mas esta linea
 
   $: reset_inputs(selected); // esta funcion hace que los campos del formulario se sincronicen con la seleccion del select pacientes
 
@@ -274,25 +274,14 @@
       selected.apellido = apellido;
       selected.nroSocio = nroSocio;
       pacientesFiltrada[i].plan = planSeleccionado; // esta linea hace que el select de pacientes se actualice,
-      console.log("242", selected);
+      console.log("277", selected);
       actualizarPaciente(selected); //esta linea hace la actualizacion en la base de datos con el plan seleccionado.
     }
   };
 
-  //const dispatch = createEventDispatcher();
-  // const handleSelect = (event) => {
-  //   const selectedPaciente = event.target.value;
-  //   grupoButtonRadio = pacientesFiltrada[selectedPaciente].plan;
-  //   dispatch("pacienteSelected", selectedPaciente);
-  //   console.log("dispatch", selectedPaciente);
-  //   /*con este evento pacienteSelected que se dispara al cambiar de eleccion de paciente
-  //    en el select de pacientes se entrega el valor de ese select.
-  //    En este momento es "i", pero podría pasarse el objeto correspondiente al paciente seleccionado
-  //    junto a "i" en un array.
-  //    De este modo, se puede mantener el funcionamiento en base a "i" de la logica del componente
-  //    y al mismo tiempo, simplificar el estado del componente y prescindir del uso del store
-  //   */
-  // };
+  const handleSelectorPacientes = (event)=>{    //esta funcion trae del evento personalizado del componente SelectorPacientes
+    i = event.detail;                           //el valor de i, que es el indice de la lista de pacientes filtrada que se actualiza
+  }                                             //al seleccionar un paciente en el select del componente 
 </script>
 
 <body>
@@ -324,8 +313,10 @@
     <!--este prefix es la base para filtrar el array pacientes-->
   </div>
 
-  <div id="selectPacientes">
-    <SelectorPacientes {pacientesFiltrada} {grupoButtonRadio} />    
+  <div id="selectPacientes"> <!--  el SelectorPacientes trae un evento personalizado que actualiza el indice de la listaFiltrada de pacientes-->
+    <SelectorPacientes 
+    on:pacienteSelected={handleSelectorPacientes}
+    {pacientesFiltrada} {planSelect} />    
   </div>
 
   <div id="formInputsI">
