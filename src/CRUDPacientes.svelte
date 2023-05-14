@@ -96,6 +96,7 @@
   let createdAt = new Date();
   let i = 0;
   let pacientesFiltrada;
+  let textoLabelPlan = "plan";
 
   $: pacientesFiltrada = prefix // bloque reactivo que de acuerdo a si hay prefix,
     ? pacientes.filter((person) => {
@@ -134,7 +135,7 @@
     console.log(selected);
   }
 
-  $pacienteSeleccionado = selected;    //chequeando a ver si está de mas esta linea
+  $pacienteSeleccionado = selected; //chequeando a ver si está de mas esta linea
 
   $: reset_inputs(selected); // esta funcion hace que los campos del formulario se sincronicen con la seleccion del select pacientes
 
@@ -224,7 +225,7 @@
     //borra los registros de la db sesiones que corresponden al paciente borrado
     const q = query(
       collection(db, "sesiones"),
-      where("pacienteID", "==", selected.id)//consulta segun selected.id en la coleccion de sesiones
+      where("pacienteID", "==", selected.id) //consulta segun selected.id en la coleccion de sesiones
     );
     console.log(
       `desde delete q=pacientes a borrar ${q} - paciente: ${selected.nombre} ${selected.apellido} ${selected.id}`
@@ -232,11 +233,11 @@
     try {
       const docs = await getDocs(q);
       docs.forEach((doc) => {
-        deleteDoc(doc.ref);// borra los registros de la coleccion de sesiones que corresponden a la consulta en firebase
+        deleteDoc(doc.ref); // borra los registros de la coleccion de sesiones que corresponden a la consulta en firebase
       });
     } catch (error) {
       console.log(error);
-    }   
+    }
   };
   const remove = () => {
     // Remove selected person from the source array (pacientes), not the filtered array
@@ -264,7 +265,7 @@
     });
   };
 
-  const handleOnClickSelectPlan2 = (event) => {
+  const cambioPlan = (event) => {
     // console.log(event.detail.valor.planSeleccionado); //toma el valor del select por un evento del componente SelectPlan
     planSeleccionado = event.detail.valor.planSeleccionado;
     if (selected.plan != planSeleccionado) {
@@ -279,9 +280,20 @@
     }
   };
 
-  const handleSelectorPacientes = (event)=>{    //esta funcion trae del evento personalizado del componente SelectorPacientes
-    i = event.detail;                           //el valor de i, que es el indice de la lista de pacientes filtrada que se actualiza
-  }                                             //al seleccionar un paciente en el select del componente 
+  const handleSelectorPacientes = (event) => {
+    //esta funcion trae del evento personalizado del componente SelectorPacientes
+    i = event.detail; //el valor de i, que es el indice de la lista de pacientes filtrada que se actualiza
+  }; //al seleccionar un paciente en el select del componente
+
+  const clickCheckPlan = (event) => {
+    const particular = event.detail.valor.planSelectVisible;
+    console.log(particular);
+    if (!particular) {
+      textoLabelPlan = "particular";
+    } else {
+      textoLabelPlan = "plan";
+    }
+  };
 </script>
 
 <body>
@@ -313,10 +325,13 @@
     <!--este prefix es la base para filtrar el array pacientes-->
   </div>
 
-  <div id="selectPacientes"> <!--  el SelectorPacientes trae un evento personalizado que actualiza el indice de la listaFiltrada de pacientes-->
-    <SelectorPacientes 
-    on:pacienteSelected={handleSelectorPacientes}
-    {pacientesFiltrada} {planSelect} />    
+  <div id="selectPacientes">
+    <!--  el SelectorPacientes trae un evento personalizado que actualiza el indice de la listaFiltrada de pacientes-->
+    <SelectorPacientes
+      on:pacienteSelected={handleSelectorPacientes}
+      {pacientesFiltrada}
+      {planSelect}
+    />
   </div>
 
   <div id="formInputsI">
@@ -338,16 +353,16 @@
       bind:value={nroSocio}
       placeholder="nro de Socio"
     />
-    <label for="plan">plan</label><SelectPlan
-      on:cambioPlan={handleOnClickSelectPlan2}
+    <label id="labelPlan" for="plan">{textoLabelPlan}</label><SelectPlan
+      on:cambioPlan={cambioPlan}
+      on:clickCheckPlan={clickCheckPlan}
       planes={optionsPlan}
       {planSeleccionado}
     />
-  </div>  
+  </div>
 </body>
 
 <style>
-
   * {
     font-family: inherit;
     font-size: inherit;
@@ -435,18 +450,18 @@
     color: aliceblue;
     font-size: x-small;
     margin-top: 3px;
-  }  
+  }
 
   input {
     margin: 0;
     width: 80%;
     font-size: medium;
-  }  
+  }
 
   .buttons {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     gap: 0.5em;
-  }  
+  }
 </style>
