@@ -1,15 +1,18 @@
 <script>
   import { createEventDispatcher } from "svelte";
   export let pacientesFiltrada;
-  let i;
-  let grupoButtonRadio;
+  export let planSelected;
+  
+  export let i=0;
+  
 
   const dispatch = createEventDispatcher();
   const handleSelect = (event) => {
     const selectedPaciente = event.target.value;
-    grupoButtonRadio = pacientesFiltrada[selectedPaciente].plan;
+    planSelected = pacientesFiltrada[selectedPaciente].plan;
     dispatch("pacienteSelected", selectedPaciente);
-    console.log("dispatch", selectedPaciente);
+    console.log("dispatch evento pacienteSelected: detail.event", selectedPaciente);
+    i=selectedPaciente;
     /*con este evento pacienteSelected que se dispara al cambiar de eleccion de paciente
      en el select de pacientes se entrega el valor de ese select.
      En este momento es "i", pero podría pasarse el objeto correspondiente al paciente seleccionado
@@ -23,16 +26,16 @@
 <select
   name="select-pacientes"
   class="select-Pacientes"
-  on:change={handleSelect}
+  on:click={handleSelect}
   bind:value={i}
   size={5}
   >{#if pacientesFiltrada.length == 0}
     <option disabled>no hay resultados para ese prefijo...</option>
   {:else}
-    {#each pacientesFiltrada as person, i}
+    {#each pacientesFiltrada as person, j}
       <!-- este bucle each itera por la lista filtrada con el indice i
 				que es el que le da el valor seleccionado al select -->
-      <option value={i}
+      <option value={j}
         >{`${person.apellido}, ${person.nombre}${
           person.plan == "particular"
             ? ""

@@ -38,7 +38,7 @@
 
   let optionsPlan = [];
 
-  let grupoButtonRadio = "";
+  let planSelected = "";
 
   let unsubPacientes;
 
@@ -73,7 +73,7 @@
       }
     );
 
-    const fetchOptionsRadioButtonGroupPlanes = async () => {
+    const fetchOptionsSelectPlan = async () => {
       // Consulta la base de datos para obtener las opciones del grupo radio button de planes
       const optionsCollection = collection(db, "planes");
       const optionsSnapshot = await getDocs(optionsCollection);
@@ -81,9 +81,9 @@
       optionsPlan = optionsSnapshot.docs.map((doc) => doc.data().plan);
       optionsPlan.push("particular");
       optionsPlan.sort();
-      grupoButtonRadio = "particular";
+      planSelected = "particular";
     };
-    fetchOptionsRadioButtonGroupPlanes();
+    fetchOptionsSelectPlan();
   }); // fin de onMount
 
   onDestroy(unsubPacientes); // quita la suscripcion a la escucha al cambiar de pagina o destruir el componente
@@ -94,7 +94,7 @@
   let nroSocio = "";
   let planSeleccionado = "";
   let createdAt = new Date();
-  let i = 0;
+  let i;
   let pacientesFiltrada;
 
   $: pacientesFiltrada = prefix // bloque reactivo que de acuerdo a si hay prefix,
@@ -224,7 +224,7 @@
     //borra los registros de la db sesiones que corresponden al paciente borrado
     const q = query(
       collection(db, "sesiones"),
-      where("pacienteID", "==", selected.id)//consulta segun selected.id en la coleccion de sesiones
+      where("pacienteID", "==", selected.id) //consulta segun selected.id en la coleccion de sesiones
     );
     console.log(
       `desde delete q=pacientes a borrar ${q} - paciente: ${selected.nombre} ${selected.apellido} ${selected.id}`
@@ -232,11 +232,11 @@
     try {
       const docs = await getDocs(q);
       docs.forEach((doc) => {
-        deleteDoc(doc.ref);// borra los registros de la coleccion de sesiones que corresponden a la consulta en firebase
+        deleteDoc(doc.ref); // borra los registros de la coleccion de sesiones que corresponden a la consulta en firebase
       });
     } catch (error) {
       console.log(error);
-    }   
+    }
   };
   const remove = () => {
     // Remove selected person from the source array (pacientes), not the filtered array
@@ -277,6 +277,13 @@
       console.log("242", selected);
       actualizarPaciente(selected); //esta linea hace la actualizacion en la base de datos con el plan seleccionado.
     }
+  };
+
+  const pacienteSelected = (event) => {
+    console.log("desde pacienteSelected 283", event.detail);
+    i=event.detail;
+    selected = pacientesFiltrada[i];
+    console.log("286 pacientesFiltrada[i]",pacientesFiltrada[i])
   };
 
   //const dispatch = createEventDispatcher();
@@ -325,7 +332,12 @@
   </div>
 
   <div id="selectPacientes">
-    <SelectorPacientes {pacientesFiltrada} {grupoButtonRadio} />
+    <SelectorPacientes
+      on:pacienteSelected={pacienteSelected}
+      {pacientesFiltrada}
+      {planSelected}
+      {i}
+    />
     <!-- <select
       name="select-pacientes"
       class="select-Pacientes"
@@ -365,11 +377,14 @@
       bind:value={nroSocio}
       placeholder="nro de Socio"
     />
-    <label for="plan">plan</label><SelectPlan
-      on:cambioPlan={handleOnClickSelectPlan2}
-      planes={optionsPlan}
-      {planSeleccionado}
-    />
+    <label for="plan">plan</label>
+    <div id="selectPlan">
+      <SelectPlan
+        on:cambioPlan={handleOnClickSelectPlan2}
+        planes={optionsPlan}
+        {planSeleccionado}
+      />
+    </div>
   </div>
 
   <!--Lo que sigue era el selector de planes en la version radio button group
@@ -476,6 +491,10 @@
     padding: 0.5em;
     background-color: cadetblue;
     padding: 3px;
+  }
+
+  #selectPlan {
+    display: flex;
   }
 
   /* #selectPlanContainer {
