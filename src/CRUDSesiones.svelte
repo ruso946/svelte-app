@@ -42,6 +42,17 @@
         id: doc.id,
         ...doc.data(),
       }));
+      const compararPorDiaSesion = (sesion1, sesion2) => {
+          //funcion para ordenar con pacientes.sort()
+          if (sesion1.diaSesion < sesion2.diaSesion) {
+            return -1;
+          }
+          if (sesion1.diaSesion > sesion2.diaSesion) {
+            return 1;
+          }
+          return 0;
+        };
+        sesiones.sort(compararPorDiaSesion); // ordena los pacientes por orden alfabetico de apellido
     });
     console.log("desde onMount", sesiones);
     unsubscribeFunctions.push(unsubscribeSesiones);
@@ -63,11 +74,11 @@
   let selectedSessionId;
   let selectedSession;
 
-  // $: console.log(
-  //   "luego de las subscripciones a pacientes y sesiones",
-  //   sesiones,
-  //   pacientes
-  // );
+  $: console.log(
+    "luego de las subscripciones a pacientes y sesiones",
+    sesiones,
+    pacientes
+  );
 
   $: {
     selectedSession = sesiones.find(
