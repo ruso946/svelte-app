@@ -12,6 +12,7 @@
     getDocs,
     query,
     where,
+    orderBy,
   } from "firebase/firestore";
   import Toastify from "toastify-js";
   import Swal from "sweetalert2";
@@ -40,13 +41,18 @@
 
   let planSelect = "";
 
+  //let planSelectVisible; //prop o estado de SelectPlan. Se va a usar para controlar el cambio de paciente sicnronizado con la vista del SelectPlan
+
   let unsubPacientes;
 
   // en el onMount, hace la suscripcion de pacientes y trae las opciones de planes
   //si despues paso el radio button group de planes a otro componente, se saca de onMount esa parte
   onMount(() => {
+    const collectionRef = collection(db, "Pacientes");
+    const campoOrden = "apellido"; //campo por el cual se ordena alfabeticamente la consulta a sesiones
+    const consulta = query(collectionRef, orderBy(campoOrden));
     unsubPacientes = onSnapshot(
-      collection(db, "Pacientes"),
+      consulta,
       (querySnapshot) => {
         pacientes = querySnapshot.docs.map((doc) => {
           return { ...doc.data(), id: doc.id };
@@ -56,17 +62,17 @@
         pacientes.forEach((paciente) => {
           actualizaPaciente(paciente); // agrega las claves que faltan a la base de datos firestore
         });
-        const compararPorApellido = (persona1, persona2) => {
-          //funcion para ordenar con pacientes.sort()
-          if (persona1.apellido < persona2.apellido) {
-            return -1;
-          }
-          if (persona1.apellido > persona2.apellido) {
-            return 1;
-          }
-          return 0;
-        };
-        pacientes.sort(compararPorApellido); // ordena los pacientes por orden alfabetico de apellido
+        // const compararPorApellido = (persona1, persona2) => {
+        //   //funcion para ordenar con pacientes.sort()
+        //   if (persona1.apellido < persona2.apellido) {
+        //     return -1;
+        //   }
+        //   if (persona1.apellido > persona2.apellido) {
+        //     return 1;
+        //   }
+        //   return 0;
+        // };
+        // pacientes.sort(compararPorApellido); // ordena los pacientes por orden alfabetico de apellido
       },
       (err) => {
         console.log(err);
@@ -74,7 +80,7 @@
     );
 
     const fetchOptionsSelectPlanes = async () => {
-      // Consulta la base de datos para obtener las opciones del grupo radio button de planes
+      // Consulta la base de datos para obtener las opciones del select de planes
       const optionsCollection = collection(db, "planes");
       const optionsSnapshot = await getDocs(optionsCollection);
       console.log("109 async para el radio button", optionsSnapshot);
@@ -93,7 +99,7 @@
   let apellido = "";
   let nroSocio = "";
   let planSeleccionado = "";
-  let createdAt = new Date();
+  // let createdAt = new Date();
   let i = 0;
   let pacientesFiltrada;
   let textoLabelPlan = "plan";
@@ -122,7 +128,7 @@
   // );
 
   $: selected = pacientesFiltrada[i];
-  $: console.log("i:", i);
+  //$: console.log("indice de la lista Filtrada de pacientes i:", i);
 
   //el siguiente bloque reactivo if, aporta al store los valores necesarios
   //del paciente seleccionado en el Select de este componente:
@@ -132,7 +138,7 @@
     $apellidoSeleccionado = selected.apellido;
     $nombreSeleccionado = selected.nombre;
     $idPacienteSeleccionado = selected.id;
-    console.log(selected);
+    console.log("objeto paciente seleccionado en el selectPacientes",selected);
   }
 
   $pacienteSeleccionado = selected; //chequeando a ver si está de mas esta linea
@@ -264,35 +270,53 @@
       }
     });
   };
-
+  const previaActualizaPaciente = (planSeleccionado ) =>{
+    selected.plan = planSeleccionado;
+      selected.nombre = nombre;
+      selected.apellido = apellido;
+      selected.nroSocio = nroSocio;
+      pacientesFiltrada[i].plan = planSeleccionado; // esta linea hace que el select de pacientes se actualice,
+      console.log("paciente seleccionado en el SelectorPacientes desde la funcion previaActualizacionPaciente, selected: ", selected);
+      actualizarPaciente(selected); //esta linea hace la actualizacion en la base de datos con el plan seleccionado.
+  }
   const cambioPlan = (event) => {
     // console.log(event.detail.valor.planSeleccionado); //toma el valor del select por un evento del componente SelectPlan
     planSeleccionado = event.detail.valor.planSeleccionado;
     if (selected.plan != planSeleccionado) {
       //solo se actualiza si el click implica un cambio de plan.
-      selected.plan = planSeleccionado;
-      selected.nombre = nombre;
-      selected.apellido = apellido;
-      selected.nroSocio = nroSocio;
-      pacientesFiltrada[i].plan = planSeleccionado; // esta linea hace que el select de pacientes se actualice,
-      console.log("277", selected);
-      actualizarPaciente(selected); //esta linea hace la actualizacion en la base de datos con el plan seleccionado.
+      previaActualizaPaciente (planSeleccionado );
     }
   };
 
-  const handleSelectorPacientes = (event) => {
-    //esta funcion trae del evento personalizado del componente SelectorPacientes
-    i = event.detail; //el valor de i, que es el indice de la lista de pacientes filtrada que se actualiza
-  }; //al seleccionar un paciente en el select del componente
-
-  const clickCheckPlan = (event) => {
-    const particular = event.detail.valor.planSelectVisible;
-    console.log(particular);
-    if (!particular) {
+  const handleSelectorPacientes = (event) => {//funcion que trae del evento personalizado del componente SelectorPacientes                      
+    i = event.detail;                         //el valor de i, que es el indice de la lista de pacientes filtrada que se 
+                                              //actualiza al seleccionar un paciente en el select del componente
+    planSeleccionado = pacientesFiltrada[i].plan;      //actualiza la vista del SelectPlan
+    const esParticular = planSeleccionado == "particular"? true:false;
+    console.log(planSeleccionado);
+    console.log(esParticular);
+    if (esParticular) {                                         //al cambiar a particular u obra social ese checkbox
       textoLabelPlan = "particular";
+      //falta hacer que se oculte el SelectPlan y que el value de ese SelectPlan sea "particular" y hacer un uncheck del checkbox
+    } else {
+      textoLabelPlan = "plan";
+      //falta que se haga check en el checkbox, y que el value del SelectPlan sea el del planSeleccionado, y mostrar el SelectPLan
+    }
+
+
+  };                                          
+
+  const clickCheckPlan = (event) => {                           //funcion que trae el evento del checkbox del componente
+    const esParticular = !event.detail.valor.planSelectVisible; //SelectPlan para controlar en este componente lo que 
+    console.log("evento click en selectPlan desde CRUDPacientes: el checkbox eligió particular", esParticular);//sucede         
+    if (esParticular) {                                         //al cambiar a particular u obra social ese checkbox
+      textoLabelPlan = "particular";
+      planSeleccionado = "particular";
     } else {
       textoLabelPlan = "plan";
     }
+    previaActualizaPaciente(planSeleccionado);
+    
   };
 </script>
 
@@ -328,7 +352,7 @@
   <div id="selectPacientes">
     <!--  el SelectorPacientes trae un evento personalizado que actualiza el indice de la listaFiltrada de pacientes-->
     <SelectorPacientes
-      on:pacienteSelected={handleSelectorPacientes}
+      on:cambioSelectPaciente={handleSelectorPacientes}
       {pacientesFiltrada}
       {planSelect}
     />
@@ -348,15 +372,17 @@
   </div>
 
   <div id="formInputsD">
-    <label for="nroSocio">nº socio</label><input
+    <label for="nroSocio">nº socio</label>
+    <input
       name="nroSocio"
       bind:value={nroSocio}
       placeholder="nro de Socio"
     />
-    <label id="labelPlan" for="plan">{textoLabelPlan}</label><SelectPlan
+    <label id="labelPlan" for="plan">{textoLabelPlan}</label>
+    <SelectPlan
       on:cambioPlan={cambioPlan}
-      on:clickCheckPlan={clickCheckPlan}
-      planes={optionsPlan}
+      on:clickCheckPlan={clickCheckPlan}      
+      planes={optionsPlan}      
       {planSeleccionado}
     />
   </div>

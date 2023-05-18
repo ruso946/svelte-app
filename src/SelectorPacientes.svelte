@@ -6,11 +6,11 @@
 
   const dispatch = createEventDispatcher();
   const handleSelect = (event) => {
-    const selectedPaciente = event.target.value;
-    planSelect = pacientesFiltrada[selectedPaciente].plan;
-    dispatch("pacienteSelected", selectedPaciente);
-    console.log("dispatch", selectedPaciente);
-    /*con este evento pacienteSelected que se dispara al cambiar de eleccion de paciente
+    const indiceSelectPaciente = event.target.value;
+    planSelect = pacientesFiltrada[indiceSelectPaciente].plan;
+    dispatch("cambioSelectPaciente", indiceSelectPaciente);
+    console.log("dispatch cambioSelectPaciente, valorindiceSelectPaciente: ", indiceSelectPaciente);
+    /*con este evento cambioSelectPaciente que se dispara al cambiar de eleccion de paciente
      en el select de pacientes se entrega el valor de ese select.
      En este momento es "i", pero podría pasarse el objeto correspondiente al paciente seleccionado
      junto a "i" en un array.
