@@ -1,61 +1,62 @@
 <script>
   export let planes;
   export let planSeleccionado;
+  export let SelectPlanVisible;
   import { createEventDispatcher } from "svelte";
-  let planSelectVisible=true;  
-  let planSelectInvisible = !planSelectVisible;  
-  
-  $: {    
-    planSelectInvisible = !planSelectVisible;
-    manejaVisibilidadSelectPlan();
-  }
+  let SelectPlanHidden;  
+    
+  $:SelectPlanHidden = !SelectPlanVisible;    
 
-  const manejaVisibilidadSelectPlan = () => {
-    const checkBoxP = document.getElementById("CheckBoxParticular")
-    console.log(checkBoxP);
-    planSelectInvisible = !planSelectInvisible;
+  const manejaVisibilidadSelectPlan = (verSelectPlan) => {
+    SelectPlanVisible=verSelectPlan;    
   };
 
-  const modificaLabelPlan = () => {
-    dispatch("clickCheckPlan", { valor: { planSelectVisible } });
+  const modificaLabelPlan = () => {    
+    dispatch("clickCheckPlan", { valor:  {SelectPlanVisible}  });
+    
   };
 
   const clickCheckPlan = (event) => {
-                                                          //en esta funcion se verifica que al clickear en el checkbox de OS/particular
-    const elementoDelEventoClick = event.target;          // se haga o no visible el selector de planes
-    manejaVisibilidadSelectPlan();  // y tambien se llama a la funcion que dispara el evento que modifica el label
-                                                          // del select plan
-    if (planSelectInvisible) {
-      planSeleccionado = "particular";
-      console.log(planSelectInvisible, "planSelectInvisible", planSeleccionado)
-      //disparar un evento que actualice el campo en la bd
-      // const checkboxInput = document.getElementById("activaPlanSelector");
-    } else {
-      console.log("selectVisible= true, que hago?", planSelectVisible)
-    }
-    modificaLabelPlan();
+                                                    // en esta funcion se verifica que al clickear en el checkbox de OS/particular
+    var verSelectPlan = event.target.checked;       // se haga o no visible el selector de planes        
+    manejaVisibilidadSelectPlan(verSelectPlan);     // y tambien se llama a la funcion que dispara el evento que modifica el label
+    modificaLabelPlan();                            // del select plan       
   };
   const dispatch = createEventDispatcher();
   const cambioPlan = () => {
     dispatch("cambioPlan", { valor: { planSeleccionado } });
   };
+
+  const clickEvento = (e) =>{
+    console.log(e);
+    console.log(e.srcElement.open);    
+    alert("a ver si pasa algo");
+    
+  }
+  
 </script>
 
-<div id="selectPlanContainer">
+<!--
+  si SelectPlanVisible=true entonces, se muestra el SelectPlan, o sea, estaría indicando que no es particular el paciente
+  y por lo tanto, debería allí mostrar el label "plan"
+  si SelectPlanVisible=false entonces, no se muestra el SelectPlan, o sea, estaría indicando que es particular el paciente
+  y por lo tanto, debería allí mostrar el label "particular".
+-->
+<div id="selectPlanContainer">  
   <input
-    bind:checked={planSelectVisible}
-    on:click={clickCheckPlan}
+    bind:checked={SelectPlanVisible}
+    on:change={clickCheckPlan}
     type="checkbox"
     name="CheckBoxParticular"
     id="CheckBoxParticular"
   />
   <select
-    class:planSelectVisible
-    class:planSelectInvisible
+    class:SelectPlanVisible
+    class:SelectPlanHidden
     name="plan"
     id="plan"
     bind:value={planSeleccionado}
-    on:change={cambioPlan}
+    on:change={cambioPlan} 
   >
     {#each planes as plan}
       <option value={plan}>{plan}</option>
@@ -78,11 +79,11 @@
     text-align: end;
   }
 
-  .planSelectVisible {
+  .SelectPlanVisible {
     visibility: visible;
   }
 
-  .planSelectInvisible {
+  .SelectPlanHidden {
     visibility: hidden;
   }
 </style>

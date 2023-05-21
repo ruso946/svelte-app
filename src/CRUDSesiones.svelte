@@ -68,7 +68,7 @@
     selectedSession = sesiones.find(
       (sesion) => sesion.id === selectedSessionId //está tomando la sesion seleccionada como objeto a partir de la id de sesion seleccionada en el select
     );
-    console.log(selectedSession);
+    console.log(selectedSession? selectedSession:"sin seleccion de sesion");
   }
 
   /* ahora hay que armar la logica con el formulario y el select:
