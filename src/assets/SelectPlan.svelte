@@ -1,44 +1,89 @@
 <script>
-    export let planes;
-    export let planSeleccionado;
-    import { createEventDispatcher } from "svelte";
-    let activaSelectPlan = true;
-    const dispatch = createEventDispatcher();
-    function cambioPlan() {
-        dispatch("cambioPlan", { valor: { planSeleccionado } });
-    }
+  export let planes;
+  export let planSeleccionado;
+  export let SelectPlanVisible;
+  import { createEventDispatcher } from "svelte";
+  let SelectPlanHidden;  
+    
+  $:SelectPlanHidden = !SelectPlanVisible;    
+
+  const manejaVisibilidadSelectPlan = (verSelectPlan) => {
+    SelectPlanVisible=verSelectPlan;    
+  };
+
+  const modificaLabelPlan = () => {    
+    dispatch("clickCheckPlan", { valor:  {SelectPlanVisible}  });
+    
+  };
+
+  const clickCheckPlan = (event) => {
+                                                    // en esta funcion se verifica que al clickear en el checkbox de OS/particular
+    var verSelectPlan = event.target.checked;       // se haga o no visible el selector de planes        
+    manejaVisibilidadSelectPlan(verSelectPlan);     // y tambien se llama a la funcion que dispara el evento que modifica el label
+    modificaLabelPlan();                            // del select plan       
+  };
+  const dispatch = createEventDispatcher();
+  const cambioPlan = () => {
+    dispatch("cambioPlan", { valor: { planSeleccionado } });
+  };
+
+  const clickEvento = (e) =>{
+    console.log(e);
+    console.log(e.srcElement.open);    
+    alert("a ver si pasa algo");
+    
+  }
+  
 </script>
 
-<div class="select-plan-container">
-    <input type="checkbox" bind:checked={activaSelectPlan} />
-    {#if activaSelectPlan}
-        <select
-            name="plan"
-            id="plan"
-            bind:value={planSeleccionado}
-            on:change={cambioPlan}
-        >
-            {#each planes as plan}
-                <option value={plan}>{plan}</option>
-            {/each}
-        </select>
-    {/if}
+<!--
+  si SelectPlanVisible=true entonces, se muestra el SelectPlan, o sea, estaría indicando que no es particular el paciente
+  y por lo tanto, debería allí mostrar el label "plan"
+  si SelectPlanVisible=false entonces, no se muestra el SelectPlan, o sea, estaría indicando que es particular el paciente
+  y por lo tanto, debería allí mostrar el label "particular".
+-->
+<div id="selectPlanContainer">  
+  <input
+    bind:checked={SelectPlanVisible}
+    on:change={clickCheckPlan}
+    type="checkbox"
+    name="CheckBoxParticular"
+    id="CheckBoxParticular"
+  />
+  <select
+    class:SelectPlanVisible
+    class:SelectPlanHidden
+    name="plan"
+    id="plan"
+    bind:value={planSeleccionado}
+    on:change={cambioPlan} 
+  >
+    {#each planes as plan}
+      <option value={plan}>{plan}</option>
+    {/each}
+  </select>
 </div>
 
 <style>
-    .select-plan-container {
-        display: grid;
-        grid-template-columns: repeat(8, 1fr);
-        align-items: start;
-        grid-gap: 2px;
-        width: 100%;
-        margin: auto;        
-    }
+  #selectPlanContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: start;
+    flex-grow: 1;
+  }
 
-    input {
-        grid-column: span 1;
-    }
-    select {
-        grid-column: span 7;
-    }
+  select {
+    width: 100%;
+    max-width: 100%;
+    text-align: end;
+  }
+
+  .SelectPlanVisible {
+    visibility: visible;
+  }
+
+  .SelectPlanHidden {
+    visibility: hidden;
+  }
 </style>

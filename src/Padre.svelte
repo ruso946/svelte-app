@@ -1,26 +1,9 @@
 <script>
   import CRUDPacientes from "./CRUDPacientes.svelte";
   import CRUDSesiones from "./CRUDSesiones.svelte";
-  import { onDestroy } from "svelte";
-  import { db } from "./firebasePacientes";
-  import { collection, onSnapshot, updateDoc, doc } from "firebase/firestore";
-
+    
   let sesiones = [];
-  let pacientes = [];
 
-  const unsubSesiones = onSnapshot(
-    collection(db, "sesiones"),
-    (querySnapshot) => {
-      sesiones = querySnapshot.docs.map((doc) => {
-        return { ...doc.data(), id: doc.id };
-      });      
-    },
-    (err) => {
-      console.log(err);
-    }
-  );
-
-  onDestroy(unsubSesiones); // quita la suscripcion a la escucha al cambiar de pagina o destruir el componente
 </script>
 
 <body>
@@ -35,14 +18,14 @@
 </body>
 
 <style>
-
-  body{
+  body {
     max-width: 100vh;
     margin: auto;
   }
 
-  .contenedor-pacientes, .contenedor-sesiones {
-    display: flex;    
+  .contenedor-pacientes,
+  .contenedor-sesiones {
+    display: flex;
     max-width: 100vh;
     flex-direction: column;
     border: 0.2em solid black;
@@ -50,5 +33,5 @@
     background-color: cadetblue;
     margin-bottom: 3px;
     text-align: center;
-  }  
+  }
 </style>

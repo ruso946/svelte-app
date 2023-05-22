@@ -1,43 +1,37 @@
 <script>
   import { onMount } from "svelte";
-  import Toastify from "toastify-js";
-  import Swal from "sweetalert2";
+  import Toastify from "toastify-js";  
   import "sweetalert2/src/sweetalert2.scss";
-
   import { db } from "./firebasePacientes";
 
   import {
     collection,
     query,
-    onSnapshot,
-    where,
-    addDoc,
-    getDocs,
+    onSnapshot,    
+    addDoc,    
     deleteDoc,
-    doc,
-    setDoc,
+    doc,    
     orderBy,
     updateDoc,
   } from "firebase/firestore";
 
   export let sesiones; // array que va a usarse para suscribirse a la db sesiones.
   let pacientes; // array que va a usarse para suscribirse a la db Pacientes.
-  import {
-    pacienteSeleccionado,
+  import {    
     idPacienteSeleccionado,
     apellidoSeleccionado,
     nombreSeleccionado,
   } from "./store";
 
   //este onMount hace una suscripcion a las db "Pacientes" y "sesiones"
-  onMount(() => {
+  onMount ( () => {
     const unsubscribeFunctions = [];
     const sesionesRef = collection(db, "sesiones");
     const pacientesRef = collection(db, "Pacientes");
-    const qs = query(sesionesRef, orderBy("pacienteID"));
+    const qs = query(sesionesRef, orderBy("diaSesion"));
     const qp = query(pacientesRef, orderBy("apellido"));
 
-    const unsubscribeSesiones = onSnapshot(sesionesRef, (snapshot) => {
+    const unsubscribeSesiones = onSnapshot(qs, (snapshot) => {
       sesiones = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -54,10 +48,11 @@
         };
         sesiones.sort(compararPorDiaSesion); // ordena los pacientes por orden alfabetico de apellido
     });
-    console.log("desde onMount", sesiones);
+    
+    console.log("desde onMount CRUDSesiones", sesiones);
     unsubscribeFunctions.push(unsubscribeSesiones);
 
-    const unsubscribePacientes = onSnapshot(pacientesRef, (snapshot) => {
+    const unsubscribePacientes = onSnapshot(qp, (snapshot) => {
       pacientes = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -84,7 +79,7 @@
     selectedSession = sesiones.find(
       (sesion) => sesion.id === selectedSessionId //está tomando la sesion seleccionada como objeto a partir de la id de sesion seleccionada en el select
     );
-    console.log(selectedSession);
+    console.log(selectedSession? selectedSession:"sin seleccion de sesion");
   }
 
   /* ahora hay que armar la logica con el formulario y el select:

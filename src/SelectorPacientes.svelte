@@ -1,32 +1,36 @@
 <script>
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, onMount } from "svelte";
   export let pacientesFiltrada;
-  export let planSelected;
-  
-  export let i=0;
-  
+  export let planSelect;
 
+  let i;                //el indice de la opcion seleccionada en el Select de este componente
+  
   const dispatch = createEventDispatcher();
-  const handleSelect = (event) => {
-    const selectedPaciente = event.target.value;
-    planSelected = pacientesFiltrada[selectedPaciente].plan;
-    dispatch("pacienteSelected", selectedPaciente);
-    console.log("dispatch evento pacienteSelected: detail.event", selectedPaciente);
-    i=selectedPaciente;
-    /*con este evento pacienteSelected que se dispara al cambiar de eleccion de paciente
+  
+  const handleSelect = (event) => {    
+    const indiceSelectPaciente = event.target.value;
+    planSelect = pacientesFiltrada[indiceSelectPaciente].plan;    
+    dispatch("cambioSelectPaciente", indiceSelectPaciente);
+    console.log(
+      "dispatch cambioSelectPaciente, valorindiceSelectPaciente: ",
+      indiceSelectPaciente
+    );
+    /*con este evento cambioSelectPaciente que se dispara al cambiar de eleccion de paciente
      en el select de pacientes se entrega el valor de ese select.
      En este momento es "i", pero podría pasarse el objeto correspondiente al paciente seleccionado
      junto a "i" en un array.
      De este modo, se puede mantener el funcionamiento en base a "i" de la logica del componente
      y al mismo tiempo, simplificar el estado del componente y prescindir del uso del store
     */
-  };
+  }; 
+
 </script>
 
 <select
   name="select-pacientes"
   class="select-Pacientes"
-  on:click={handleSelect}
+  id="selectPacientes"
+  on:change={handleSelect}  
   bind:value={i}
   size={5}
   >{#if pacientesFiltrada.length == 0}
