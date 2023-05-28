@@ -31,6 +31,9 @@
     const qs = query(sesionesRef, orderBy("diaSesion"));
     const qp = query(pacientesRef, orderBy("apellido"));
 
+    //hacer una consulta de suscripcion por mes para sacar el total por mes
+    //por paciente y por todas as sesiones del mes
+
     const unsubscribeSesiones = onSnapshot(qs, (snapshot) => {
       sesiones = snapshot.docs.map((doc) => ({
         id: doc.id,
@@ -109,12 +112,12 @@ Funciones del formulario:
     diaSesion = selectedSession.diaSesion;
   };
 
-  const addSesion = () => {
+  const addSesion = async () => {
     console.log("Add sesion", selectedSession);
     //hay que hacer que los datos del formulario carguen una nueva sesion en firestore sesiones
 
     try {
-      addDoc(collection(db, "sesiones"), {
+      const docRef = await addDoc(collection(db, "sesiones"), {
         valorPago: valorPago,
         valorSesion: valorSesion,
         diaSesion: diaSesion,
@@ -126,6 +129,7 @@ Funciones del formulario:
       Toastify({
         text: "Nueva sesion agregada",
       }).showToast();
+      selectedSessionId = docRef.id
     } catch (error) {
       console.error(error);
     }

@@ -295,7 +295,7 @@
     }
     previaActualizaPaciente(planSeleccionado);
     modificaLabelPlan(!noEsParticular);
-  };
+  };  
 </script>
 
 <body>
@@ -322,7 +322,7 @@
     <label for="filterPrefix">filtrar por apellido</label><input
       name="filterPrefix"
       placeholder="filter prefix"
-      bind:value={prefix}
+      bind:value={prefix}    
     />
     <!--este prefix es la base para filtrar el array pacientes-->
   </div>
