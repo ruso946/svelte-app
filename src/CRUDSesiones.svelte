@@ -270,6 +270,23 @@ Las variables de los inputs del formulario de sesiones:
       return [];
     }
   };
+
+  //funcion que obtiene la suma de los valores de los pagos
+  const sumaValorPagoTotal = () => {
+    return sesiones.reduce((sum, pago) => sum + pago.valorPago, 0);
+  }
+
+  $: sumaValorPagoTotal();
+
+  const sumaValorPagoPorPaciente = (pacienteID) => {
+    const sesionesFiltradas = sesiones.filter(sesion => sesion.pacienteID === pacienteID);
+    return sesionesFiltradas.reduce((sum, pago) => sum + pago.valorPago, 0);
+  }
+  
+  $: sumaValorPagoPorPaciente($idPacienteSeleccionado);
+  //funcion que obtiene la suma de los valores de las sesiones
+
+
 </script>
 
 <main>
@@ -291,6 +308,10 @@ Las variables de los inputs del formulario de sesiones:
           {/if}
         {/each}
       </select>
+
+      <p>total general:{sumaValorPagoTotal()}</p>
+      <p>total por paciente:{sumaValorPagoPorPaciente($idPacienteSeleccionado)}</p>
+      
     </div>
     <!-- Si editStatus está en true, deja ver el formulario para editar/agregar sesiones -->
     {#if editStatus}
