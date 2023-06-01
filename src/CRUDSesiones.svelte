@@ -1,35 +1,40 @@
 <script>
   import { onMount } from "svelte";
-  import Toastify from "toastify-js";  
+  import Toastify from "toastify-js";
   import "sweetalert2/src/sweetalert2.scss";
   import { db } from "./firebasePacientes";
 
   import {
     collection,
     query,
-    onSnapshot,    
-    addDoc,    
+    onSnapshot,
+    addDoc,
     deleteDoc,
-    doc,    
+    doc,
     orderBy,
     updateDoc,
+    where,
+    getDocs,
   } from "firebase/firestore";
 
   export let sesiones; // array que va a usarse para suscribirse a la db sesiones.
   let pacientes; // array que va a usarse para suscribirse a la db Pacientes.
-  import {    
+  import {
     idPacienteSeleccionado,
     apellidoSeleccionado,
     nombreSeleccionado,
   } from "./store";
 
   //este onMount hace una suscripcion a las db "Pacientes" y "sesiones"
-  onMount ( () => {
+  onMount(() => {
     const unsubscribeFunctions = [];
     const sesionesRef = collection(db, "sesiones");
     const pacientesRef = collection(db, "Pacientes");
     const qs = query(sesionesRef, orderBy("diaSesion"));
     const qp = query(pacientesRef, orderBy("apellido"));
+
+    //hacer una consulta de suscripcion por mes para sacar el total por mes
+    //por paciente y por todas as sesiones del mes
 
     const unsubscribeSesiones = onSnapshot(qs, (snapshot) => {
       sesiones = snapshot.docs.map((doc) => ({
@@ -48,7 +53,7 @@
         };
         sesiones.sort(compararPorDiaSesion); // ordena los pacientes por orden alfabetico de apellido
     });
-    
+
     console.log("desde onMount CRUDSesiones", sesiones);
     unsubscribeFunctions.push(unsubscribeSesiones);
 
@@ -79,7 +84,7 @@
     selectedSession = sesiones.find(
       (sesion) => sesion.id === selectedSessionId //está tomando la sesion seleccionada como objeto a partir de la id de sesion seleccionada en el select
     );
-    console.log(selectedSession? selectedSession:"sin seleccion de sesion");
+    console.log(selectedSession ? selectedSession : "sin seleccion de sesion");
   }
 
   /* ahora hay que armar la logica con el formulario y el select:
@@ -120,12 +125,12 @@ Funciones del formulario:
     diaSesion = selectedSession.diaSesion;
   };
 
-  const addSesion = () => {
+  const addSesion = async () => {
     console.log("Add sesion", selectedSession);
     //hay que hacer que los datos del formulario carguen una nueva sesion en firestore sesiones
 
     try {
-      addDoc(collection(db, "sesiones"), {
+      const docRef = await addDoc(collection(db, "sesiones"), {
         valorPago: valorPago,
         valorSesion: valorSesion,
         diaSesion: diaSesion,
@@ -137,6 +142,7 @@ Funciones del formulario:
       Toastify({
         text: "Nueva sesion agregada",
       }).showToast();
+      selectedSessionId = docRef.id;
     } catch (error) {
       console.error(error);
     }
@@ -221,6 +227,77 @@ Las variables de los inputs del formulario de sesiones:
   let valorSesion = 5000;
   let diaSesion = new Date().toISOString().slice(0, 10); //new Date().toLocaleDateString();
   let fechaPago = new Date().toISOString().slice(0, 10);
+  ///////////////////////////////////////////////////////////////
+  //para hacer consultas que obtienen totales por mes actual:  //
+  ///////////////////////////////////////////////////////////////
+
+  const obtenerRegistrosMesActual = async () => {
+    const sesionesRef = collection(db, "sesiones");
+
+    // Obtiene la fecha actual
+    const fechaActual = new Date();
+
+    // Obtiene el mes y año actual
+    const mesActual = fechaActual.getMonth() + 1; // Los meses en JavaScript van de 0 a 11, por lo que se suma 1
+    const anioActual = fechaActual.getFullYear();
+
+    // Formatea el mes y año actual en el formato "aaaa-mm"
+    const mesActualFormateado = mesActual.toString().padStart(2, "0");
+    const anioActualFormateado = anioActual.toString();
+
+    // Crea las fechas de inicio y fin del mes actual
+    const fechaInicioMes = `${anioActualFormateado}-${mesActualFormateado}-01`;
+    const fechaFinMes = `${anioActualFormateado}-${mesActualFormateado}-31`;
+
+    // Filtra las sesiones utilizando la función "where" de Firestore
+    const consultaMesActual = query(
+      sesionesRef,
+      where("diaSesion", ">=", fechaInicioMes),
+      where("diaSesion", "<=", fechaFinMes)
+    );
+
+    try {
+      const querySnapshot = await getDocs(consultaMesActual);
+
+      // Itera sobre los documentos y extrae los datos de las sesiones
+      const sesionesPorMesActual = querySnapshot.docs.map((doc) => doc.data());
+      console.log("sesiones por mes actual",sesionesPorMesActual)
+
+      // Calcula la suma de los pagos
+    let totalPagos = 0;
+    querySnapshot.forEach((doc) => {
+      const pagoSesion = doc.data().valorPago;
+      if (typeof pagoSesion === 'number') {
+        totalPagos += pagoSesion;
+      }
+    });
+
+      console.log("Total pagos mes actual: ", totalPagos)
+
+      // Retorna las sesiones obtenidas y el total de los pagos
+      return [sesionesPorMesActual, totalPagos];
+    } catch (error) {
+      console.error("Error al obtener las sesiones y los pagos:", error);
+      return [];
+    }
+  };
+
+  //funcion que obtiene la suma de los valores de los pagos
+  const sumaValorPagoTotal = () => {
+    return sesiones.reduce((sum, pago) => sum + pago.valorPago, 0);
+  }
+
+  $: sumaValorPagoTotal();
+
+  const sumaValorPagoPorPaciente = (pacienteID) => {
+    const sesionesFiltradas = sesiones.filter(sesion => sesion.pacienteID === pacienteID);
+    return sesionesFiltradas.reduce((sum, pago) => sum + pago.valorPago, 0);
+  }
+  
+  $: sumaValorPagoPorPaciente($idPacienteSeleccionado);
+  //funcion que obtiene la suma de los valores de las sesiones
+
+
 </script>
 
 <main>
@@ -242,6 +319,10 @@ Las variables de los inputs del formulario de sesiones:
           {/if}
         {/each}
       </select>
+
+      <p>total general:{sumaValorPagoTotal()}</p>
+      <p>total por paciente:{sumaValorPagoPorPaciente($idPacienteSeleccionado)}</p>
+      
     </div>
     <!-- Si editStatus está en true, deja ver el formulario para editar/agregar sesiones -->
     {#if editStatus}
@@ -281,9 +362,10 @@ Las variables de los inputs del formulario de sesiones:
               />
             </div>
             <div id="botonesFormSesiones" class="buttons">
-              <button on:click={updateSesion(selectedSession)}>update</button>
-              <button on:click={deleteSesion(selectedSession)}>delete</button>
+              <button on:click={()=>updateSesion(selectedSession)}>update</button>
+              <button on:click={()=>deleteSesion(selectedSession)}>delete</button>
               <button on:click={addSesion}>Agregar sesión</button>
+              <button on:click={()=>obtenerRegistrosMesActual()}>registros mes actual</button>
               <!-- este boton de depurar sesiones solo se debe activar en casos extremos. Borra sesiones de pacientes inexistentes directamente de la base de datos -->
               <!-- deberia reemplazarse por la opcion de actvar/desactivar un paciente con un campo, y sus respectivas sesiones -->
               <!-- <button on:click={depurarSesiones}>Depurar sesiones</button> -->
