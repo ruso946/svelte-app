@@ -287,9 +287,11 @@ Las variables de los inputs del formulario de sesiones:
       });
 
       console.log("Total pagos mes actual: ", totalPagos);
+      const pTotalPagos = document.querySelector("#totalGeneral");
+      pTotalPagos.innerHTML = "total mes: $"+ totalPagos.toString();
 
       // Retorna las sesiones obtenidas y el total de los pagos
-      return [sesionesPorMesActual, totalPagos];
+      return totalPagos;
     } catch (error) {
       console.error("Error al obtener las sesiones y los pagos:", error);
       return [];
@@ -302,6 +304,10 @@ Las variables de los inputs del formulario de sesiones:
   };
 
   $: sumaValorPagoTotal();
+
+  $: obtenerRegistrosMesActual();
+
+  
 
   const sumaValorPagoPorPaciente = (pacienteID) => {
     const sesionesFiltradas = sesiones.filter(
@@ -333,11 +339,15 @@ Las variables de los inputs del formulario de sesiones:
           {/if}
         {/each}
       </select>
-
-      <p>total general:{sumaValorPagoTotal()}</p>
-      <p>
-        total por paciente:{sumaValorPagoPorPaciente($idPacienteSeleccionado)}
-      </p>
+<!-- {#await obtenerRegistrosMesActual}
+  esperando...
+{:then res}  -->
+<p id="totalGeneral">total general:{obtenerRegistrosMesActual()}</p>
+<p>
+  total por paciente:{sumaValorPagoPorPaciente($idPacienteSeleccionado)}
+</p>
+<!-- {/await} -->
+      
     </div>
     <!-- Si editStatus está en true, deja ver el formulario para editar/agregar sesiones -->
     {#if editStatus}
