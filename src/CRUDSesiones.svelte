@@ -42,16 +42,16 @@
         ...doc.data(),
       }));
       const compararPorDiaSesion = (sesion1, sesion2) => {
-          //funcion para ordenar con pacientes.sort()
-          if (sesion1.diaSesion < sesion2.diaSesion) {
-            return -1;
-          }
-          if (sesion1.diaSesion > sesion2.diaSesion) {
-            return 1;
-          }
-          return 0;
-        };
-        sesiones.sort(compararPorDiaSesion); // ordena los pacientes por orden alfabetico de apellido
+        //funcion para ordenar con pacientes.sort()
+        if (sesion1.diaSesion < sesion2.diaSesion) {
+          return -1;
+        }
+        if (sesion1.diaSesion > sesion2.diaSesion) {
+          return 1;
+        }
+        return 0;
+      };
+      sesiones.sort(compararPorDiaSesion); // ordena los pacientes por orden alfabetico de apellido
     });
 
     console.log("desde onMount CRUDSesiones", sesiones);
@@ -242,7 +242,7 @@ Las variables de los inputs del formulario de sesiones:
     const anioActual = fechaActual.getFullYear();
 
     // Formatea el mes y año actual en el formato "aaaa-mm"
-    const mesActualFormateado = mesActual.toString().padStart(2, "0");
+    const mesActualFormateado = (mesActual - 1).toString().padStart(2, "0");
     const anioActualFormateado = anioActual.toString();
 
     // Crea las fechas de inicio y fin del mes actual
@@ -261,18 +261,32 @@ Las variables de los inputs del formulario de sesiones:
 
       // Itera sobre los documentos y extrae los datos de las sesiones
       const sesionesPorMesActual = querySnapshot.docs.map((doc) => doc.data());
-      console.log("sesiones por mes actual",sesionesPorMesActual)
+      console.log("sesiones por mes actual", sesionesPorMesActual);
 
       // Calcula la suma de los pagos
-    let totalPagos = 0;
-    querySnapshot.forEach((doc) => {
-      const pagoSesion = doc.data().valorPago;
-      if (typeof pagoSesion === 'number') {
-        totalPagos += pagoSesion;
-      }
-    });
+      let totalPagos = 0;
+      querySnapshot.forEach((doc) => {
+        console.log(pacientes);
+        let pacienteActualID = doc.data().pacienteID;        
+        const pacienteActual = pacientes.find(
+          (paciente) => paciente.id == pacienteActualID
+        );
 
-      console.log("Total pagos mes actual: ", totalPagos)
+        console.log(pacienteActual);
+
+        const pagoSesion = doc.data().valorPago;
+        if (typeof pagoSesion === "number" || pagoSesion == null) {
+          if (pacienteActual.plan == "particular") {
+            totalPagos += pagoSesion;
+            console.log(`paciente ${pacienteActual.apellido}, valor pago ${doc.data().valorPago}, total acumulado ${totalPagos}`);
+          } else {
+            totalPagos += 2700;//aca esta simplificado. Hay que armar la logica de tomar los valores por plan dela db
+            console.log(`paciente ${pacienteActual.apellido}, valor pago 2700, total acumulado ${totalPagos}`);
+          }
+        }
+      });
+
+      console.log("Total pagos mes actual: ", totalPagos);
 
       // Retorna las sesiones obtenidas y el total de los pagos
       return [sesionesPorMesActual, totalPagos];
@@ -285,19 +299,19 @@ Las variables de los inputs del formulario de sesiones:
   //funcion que obtiene la suma de los valores de los pagos
   const sumaValorPagoTotal = () => {
     return sesiones.reduce((sum, pago) => sum + pago.valorPago, 0);
-  }
+  };
 
   $: sumaValorPagoTotal();
 
   const sumaValorPagoPorPaciente = (pacienteID) => {
-    const sesionesFiltradas = sesiones.filter(sesion => sesion.pacienteID === pacienteID);
+    const sesionesFiltradas = sesiones.filter(
+      (sesion) => sesion.pacienteID === pacienteID
+    );
     return sesionesFiltradas.reduce((sum, pago) => sum + pago.valorPago, 0);
-  }
-  
+  };
+
   $: sumaValorPagoPorPaciente($idPacienteSeleccionado);
   //funcion que obtiene la suma de los valores de las sesiones
-
-
 </script>
 
 <main>
@@ -321,8 +335,9 @@ Las variables de los inputs del formulario de sesiones:
       </select>
 
       <p>total general:{sumaValorPagoTotal()}</p>
-      <p>total por paciente:{sumaValorPagoPorPaciente($idPacienteSeleccionado)}</p>
-      
+      <p>
+        total por paciente:{sumaValorPagoPorPaciente($idPacienteSeleccionado)}
+      </p>
     </div>
     <!-- Si editStatus está en true, deja ver el formulario para editar/agregar sesiones -->
     {#if editStatus}
@@ -362,10 +377,16 @@ Las variables de los inputs del formulario de sesiones:
               />
             </div>
             <div id="botonesFormSesiones" class="buttons">
-              <button on:click={()=>updateSesion(selectedSession)}>update</button>
-              <button on:click={()=>deleteSesion(selectedSession)}>delete</button>
+              <button on:click={() => updateSesion(selectedSession)}
+                >update</button
+              >
+              <button on:click={() => deleteSesion(selectedSession)}
+                >delete</button
+              >
               <button on:click={addSesion}>Agregar sesión</button>
-              <button on:click={()=>obtenerRegistrosMesActual()}>registros mes actual</button>
+              <button on:click={() => obtenerRegistrosMesActual()}
+                >registros mes actual</button
+              >
               <!-- este boton de depurar sesiones solo se debe activar en casos extremos. Borra sesiones de pacientes inexistentes directamente de la base de datos -->
               <!-- deberia reemplazarse por la opcion de actvar/desactivar un paciente con un campo, y sus respectivas sesiones -->
               <!-- <button on:click={depurarSesiones}>Depurar sesiones</button> -->
