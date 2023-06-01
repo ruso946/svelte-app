@@ -1,11 +1,27 @@
-<script>  
+<script>
   import Padre from "./Padre.svelte";
+  let password = import.meta.env.VITE_PASSWORD;
+  let user = "nada";
+  let cntrsn;
+
+  const chequear = () => {
+    if (cntrsn === password) {
+      user = "Gonzalo";
+    }
+  };
 </script>
 
 <main>
-  <div class="contenedorPadre">
-    <Padre />
-  </div>
+  {#if user === "nada"}
+    <div class="ingreso">
+      <h1>ingrese la contraseña:</h1>
+      <input type="password" bind:value={cntrsn} on:input={chequear} />
+    </div>
+  {:else if user === "Gonzalo"}
+    <div class="contenedorPadre">
+      <Padre />
+    </div>
+  {/if}
 </main>
 
 <style>
@@ -13,15 +29,24 @@
     margin: 0;
   }
 
-  main{
+  main {
     margin: auto;
   }
 
   .contenedorPadre {
     display: flex;
-    flex-direction:  column;  
+    flex-direction: column;
     max-width: 100vh;
     margin: auto;
+  }
+
+  .ingreso {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: solid, 1px;
+    height: 100vh;
   }
   /* body.dark-theme {
   --main-color       : #404040;
@@ -32,5 +57,4 @@
   --container-color  : #368F51;
   --body-color       : #192229;
 }   */
-
 </style>
