@@ -1,5 +1,6 @@
 # para hacer desde el consultorio que todas las ramas queden como una remota:
 git checkout <rama que quiero modificar para que quede como una remota>
+  
 git reset --hard origin/<rama remota que quiero imitar en la actual>
 
 # deploy en github pages en la carpeta docs, en la rama gh-pages-docs
