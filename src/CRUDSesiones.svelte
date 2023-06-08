@@ -24,6 +24,7 @@
     apellidoSeleccionado,
     nombreSeleccionado,
   } from "./store";
+  import VisualizarRegistros from "./VisualizarRegistros.svelte";
 
   //este onMount hace una suscripcion a las db "Pacientes" y "sesiones"
   onMount(() => {
@@ -75,7 +76,7 @@
   const fechaActual = new Date();
 
   // Obtiene el mes y año actual
-  let mesActual = fechaActual.getMonth() + 1; // Los meses en JavaScript van de 0 a 11, por lo que se suma 1  
+  let mesActual = fechaActual.getMonth() + 1; // Los meses en JavaScript van de 0 a 11, por lo que se suma 1
   let anioActual = fechaActual.getFullYear();
   let months = [
     "enero",
@@ -94,6 +95,7 @@
 
   let selectedSessionId;
   let selectedSession;
+  let totalPagos=0;
 
   $: console.log(
     "luego de las subscripciones a pacientes y sesiones: sesiones>",
@@ -256,7 +258,7 @@ Las variables de los inputs del formulario de sesiones:
   const obtenerRegistrosMesActual = async () => {
     const sesionesRef = collection(db, "sesiones");
     // Formatea el mes y año actual en el formato "aaaa-mm"
-    const mesActualFormateado = (mesActual).toString().padStart(2, "0");
+    const mesActualFormateado = mesActual.toString().padStart(2, "0");
     const anioActualFormateado = anioActual.toString();
 
     // Crea las fechas de inicio y fin del mes actual
@@ -278,13 +280,13 @@ Las variables de los inputs del formulario de sesiones:
       console.log("sesiones por mes actual", sesionesPorMesActual);
 
       // Calcula la suma de los pagos
-      let totalPagos = 0;
+      totalPagos = 0;
       querySnapshot.forEach((doc) => {
         console.log(pacientes);
         let pacienteActualID = doc.data().pacienteID;
         const pacienteActual = pacientes.find(
           (paciente) => paciente.id == pacienteActualID
-        );
+        );obtenerRegistrosMesActual
 
         console.log(pacienteActual);
 
@@ -307,8 +309,8 @@ Las variables de los inputs del formulario de sesiones:
       });
 
       console.log("Total pagos mes actual: ", totalPagos);
-      const pTotalPagos = document.querySelector("#totalGeneral");
-      pTotalPagos.innerHTML = "total mes: $" + totalPagos.toString();
+      // const pTotalPagos = document.querySelector("#totalGeneral");
+      // pTotalPagos.innerHTML = "total mes: $" + totalPagos.toString();
 
       // Retorna las sesiones obtenidas y el total de los pagos
       return totalPagos;
@@ -329,7 +331,7 @@ Las variables de los inputs del formulario de sesiones:
 
   const sumaValorPagoPorPaciente = (pacienteID) => {
     const sesionesFiltradas = sesiones.filter(
-      (sesion) => sesion.pacienteID === pacienteID
+      (sesion) => sesion.pacienteID === pacienteID && sesion.diaSesion.slice(5,7) == mesActual+1
     );
     return sesionesFiltradas.reduce((sum, pago) => sum + pago.valorPago, 0);
   };
@@ -350,7 +352,7 @@ Las variables de los inputs del formulario de sesiones:
         size={5}
       >
         {#each sesiones as sesion}
-          {#if Object.values(sesion).includes($idPacienteSeleccionado)}
+          {#if Object.values(sesion).includes($idPacienteSeleccionado) && sesion.diaSesion.slice(5, 7) == mesActual+1}
             <option class="" value={sesion.id}
               >dia sesion: {sesion.diaSesion} - valor sesion: {sesion.valorSesion}
               - dia pago {sesion.fechaPago} - valor pago {sesion.valorPago}
@@ -358,14 +360,8 @@ Las variables de los inputs del formulario de sesiones:
           {/if}
         {/each}
       </select>
-      <!-- {#await obtenerRegistrosMesActual}
-  esperando...
-{:then res}  -->
-      <p id="totalGeneral">total general:{obtenerRegistrosMesActual()}</p>
-      <p>
-        total por paciente:{sumaValorPagoPorPaciente($idPacienteSeleccionado)}
-      </p>
-      <!-- {/await} -->
+      
+      <VisualizarRegistros registrosMesActual={totalPagos} {sumaValorPagoPorPaciente}/>
     </div>
     <!-- Si editStatus está en true, deja ver el formulario para editar/agregar sesiones -->
     {#if editStatus}
@@ -412,23 +408,29 @@ Las variables de los inputs del formulario de sesiones:
                 >delete</button
               >
               <button on:click={addSesion}>Agregar sesión</button>
-              <select bind:value={mesActual} name="mes" id="mesRegistro">
+              <select
+              on:change={()=>obtenerRegistrosMesActual()} 
+              bind:value={mesActual} name="mes" id="mesRegistro">
                 {#each months as month, i}
-                  {#if (i+1 == mesActual)}
-                    <option selected value={(i + 1)}
-                      >{`${(i+1).toString().padStart(2, "0")} - ${month}`}</option
+                  {#if i == mesActual-1}
+                    <option selected value={i}
+                      >{`registros mes ${(i + 1)
+                        .toString()
+                        .padStart(2, "0")} - ${month}`}</option
                     >
                   {:else}
-                    <option value={(i + 1)}
-                      >{`${(i+1).toString().padStart(2, "0")} - ${month}`}</option
+                  <option value={i}
+                  >{`registros mes ${(i + 1)
+                    .toString()
+                    .padStart(2, "0")} - ${month}`}</option
                     >
                   {/if}
                 {/each}
               </select>
 
-              <button on:click={() => obtenerRegistrosMesActual()}
-                >registros mes {months[mesActual-1]}</button
-              >
+              <!-- <button on:click={() => obtenerRegistrosMesActual()}
+                >registros mes {months[mesActual - 1]}</button
+              > -->
               <!-- este boton de depurar sesiones solo se debe activar en casos extremos. Borra sesiones de pacientes inexistentes directamente de la base de datos -->
               <!-- deberia reemplazarse por la opcion de actvar/desactivar un paciente con un campo, y sus respectivas sesiones -->
               <!-- <button on:click={depurarSesiones}>Depurar sesiones</button> -->
