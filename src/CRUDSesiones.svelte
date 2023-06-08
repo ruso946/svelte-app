@@ -19,22 +19,26 @@
 
   export let sesiones; // array que va a usarse para suscribirse a la db sesiones.
   let pacientes; // array que va a usarse para suscribirse a la db Pacientes.
+  let planes; // array que va a usarse para suscribirse a la db planes.
   import {
     idPacienteSeleccionado,
     apellidoSeleccionado,
     nombreSeleccionado,
   } from "./store";
 
-  //este onMount hace una suscripcion a las db "Pacientes" y "sesiones"
+  //este onMount hace una suscripcion a las db "Pacientes", "planes" y "sesiones"  
+
   onMount(() => {
     const unsubscribeFunctions = [];
     const sesionesRef = collection(db, "sesiones");
     const pacientesRef = collection(db, "Pacientes");
+    const planesRef = collection(db, "planes");
     const qs = query(sesionesRef, orderBy("diaSesion"));
     const qp = query(pacientesRef, orderBy("apellido"));
+    const qplanes = query(planesRef, orderBy("plan"));
 
     //hacer una consulta de suscripcion por mes para sacar el total por mes
-    //por paciente y por todas as sesiones del mes
+    //por paciente y por todas las sesiones del mes
 
     const unsubscribeSesiones = onSnapshot(qs, (snapshot) => {
       sesiones = snapshot.docs.map((doc) => ({
@@ -64,7 +68,15 @@
       }));
     });
 
+    const unsubscribePlanes = onSnapshot(qplanes, (snapshot) => {
+      planes = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+    });
+
     unsubscribeFunctions.push(unsubscribePacientes);
+    unsubscribeFunctions.push(unsubscribePlanes);
 
     return () => {
       unsubscribeFunctions.forEach((unsubscribe) => unsubscribe());
@@ -77,7 +89,8 @@
   $: console.log(
     "luego de las subscripciones a pacientes y sesiones",
     sesiones,
-    pacientes
+    pacientes,
+    planes
   );
 
   $: {
@@ -242,7 +255,7 @@ Las variables de los inputs del formulario de sesiones:
     const anioActual = fechaActual.getFullYear();
 
     // Formatea el mes y año actual en el formato "aaaa-mm"
-    const mesActualFormateado = (mesActual - 1).toString().padStart(2, "0");
+    const mesActualFormateado = (mesActual).toString().padStart(2, "0");
     const anioActualFormateado = anioActual.toString();
 
     // Crea las fechas de inicio y fin del mes actual
