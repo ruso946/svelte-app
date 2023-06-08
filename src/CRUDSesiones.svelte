@@ -108,10 +108,12 @@
   let selectedSession;
 
   $: console.log(
-    "luego de las subscripciones a pacientes y sesiones: sesiones>",
+    "luego de las subscripciones a pacientes, planes y sesiones: sesiones>",
     sesiones,
     "pacientes>",
-    pacientes
+    pacientes, 
+    "planes>",
+    planes
   );
 
   $: {
@@ -268,8 +270,7 @@ Las variables de los inputs del formulario de sesiones:
   const obtenerRegistrosMesActual = async () => {
     const sesionesRef = collection(db, "sesiones");
     // Formatea el mes y año actual en el formato "aaaa-mm"
-    const mesActualFormateado = (mesActual).toString().padStart(2, "0");
-    const mesActualFormateado = (mesActual).toString().padStart(2, "0");
+    const mesActualFormateado = (mesActual).toString().padStart(2, "0");    
     const anioActualFormateado = anioActual.toString();
 
     // Crea las fechas de inicio y fin del mes actual
