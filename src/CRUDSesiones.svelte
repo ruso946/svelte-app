@@ -83,14 +83,35 @@
     };
   });
 
+  //obtiene la fecha actual
+  const fechaActual = new Date();
+
+  // Obtiene el mes y año actual
+  let mesActual = fechaActual.getMonth() + 1; // Los meses en JavaScript van de 0 a 11, por lo que se suma 1  
+  let anioActual = fechaActual.getFullYear();
+  let months = [
+    "enero",
+    "febrero",
+    "marzo",
+    "abril",
+    "mayo",
+    "junio",
+    "julio",
+    "agosto",
+    "setiembre",
+    "octubre",
+    "noviembre",
+    "diciembre",
+  ];
+
   let selectedSessionId;
   let selectedSession;
 
   $: console.log(
-    "luego de las subscripciones a pacientes y sesiones",
+    "luego de las subscripciones a pacientes y sesiones: sesiones>",
     sesiones,
-    pacientes,
-    planes
+    "pacientes>",
+    pacientes
   );
 
   $: {
@@ -246,15 +267,8 @@ Las variables de los inputs del formulario de sesiones:
 
   const obtenerRegistrosMesActual = async () => {
     const sesionesRef = collection(db, "sesiones");
-
-    // Obtiene la fecha actual
-    const fechaActual = new Date();
-
-    // Obtiene el mes y año actual
-    const mesActual = fechaActual.getMonth() + 1; // Los meses en JavaScript van de 0 a 11, por lo que se suma 1
-    const anioActual = fechaActual.getFullYear();
-
     // Formatea el mes y año actual en el formato "aaaa-mm"
+    const mesActualFormateado = (mesActual).toString().padStart(2, "0");
     const mesActualFormateado = (mesActual).toString().padStart(2, "0");
     const anioActualFormateado = anioActual.toString();
 
@@ -280,7 +294,7 @@ Las variables de los inputs del formulario de sesiones:
       let totalPagos = 0;
       querySnapshot.forEach((doc) => {
         console.log(pacientes);
-        let pacienteActualID = doc.data().pacienteID;        
+        let pacienteActualID = doc.data().pacienteID;
         const pacienteActual = pacientes.find(
           (paciente) => paciente.id == pacienteActualID
         );
@@ -291,17 +305,23 @@ Las variables de los inputs del formulario de sesiones:
         if (typeof pagoSesion === "number" || pagoSesion == null) {
           if (pacienteActual.plan == "particular") {
             totalPagos += pagoSesion;
-            console.log(`paciente ${pacienteActual.apellido}, valor pago ${doc.data().valorPago}, total acumulado ${totalPagos}`);
+            console.log(
+              `paciente ${pacienteActual.apellido}, valor pago ${
+                doc.data().valorPago
+              }, total acumulado ${totalPagos}`
+            );
           } else {
-            totalPagos += 2700;//aca esta simplificado. Hay que armar la logica de tomar los valores por plan dela db
-            console.log(`paciente ${pacienteActual.apellido}, valor pago 2700, total acumulado ${totalPagos}`);
+            totalPagos += 2700; //aca esta simplificado. Hay que armar la logica de tomar los valores por plan dela db
+            console.log(
+              `paciente ${pacienteActual.apellido}, valor pago 2700, total acumulado ${totalPagos}`
+            );
           }
         }
       });
 
       console.log("Total pagos mes actual: ", totalPagos);
       const pTotalPagos = document.querySelector("#totalGeneral");
-      pTotalPagos.innerHTML = "total mes: $"+ totalPagos.toString();
+      pTotalPagos.innerHTML = "total mes: $" + totalPagos.toString();
 
       // Retorna las sesiones obtenidas y el total de los pagos
       return totalPagos;
@@ -320,8 +340,6 @@ Las variables de los inputs del formulario de sesiones:
 
   $: obtenerRegistrosMesActual();
 
-  
-
   const sumaValorPagoPorPaciente = (pacienteID) => {
     const sesionesFiltradas = sesiones.filter(
       (sesion) => sesion.pacienteID === pacienteID
@@ -339,6 +357,7 @@ Las variables de los inputs del formulario de sesiones:
     <!-- Este Select va a elegir la sesion por ID de paciente -->
     <div id="select">
       <select
+        id="select-sesiones"
         on:change={handle_onChange_select_sesiones}
         bind:value={selectedSessionId}
         size={5}
@@ -352,15 +371,14 @@ Las variables de los inputs del formulario de sesiones:
           {/if}
         {/each}
       </select>
-<!-- {#await obtenerRegistrosMesActual}
+      <!-- {#await obtenerRegistrosMesActual}
   esperando...
 {:then res}  -->
-<p id="totalGeneral">total general:{obtenerRegistrosMesActual()}</p>
-<p>
-  total por paciente:{sumaValorPagoPorPaciente($idPacienteSeleccionado)}
-</p>
-<!-- {/await} -->
-      
+      <p id="totalGeneral">total general:{obtenerRegistrosMesActual()}</p>
+      <p>
+        total por paciente:{sumaValorPagoPorPaciente($idPacienteSeleccionado)}
+      </p>
+      <!-- {/await} -->
     </div>
     <!-- Si editStatus está en true, deja ver el formulario para editar/agregar sesiones -->
     {#if editStatus}
@@ -407,8 +425,22 @@ Las variables de los inputs del formulario de sesiones:
                 >delete</button
               >
               <button on:click={addSesion}>Agregar sesión</button>
+              <select bind:value={mesActual} name="mes" id="mesRegistro">
+                {#each months as month, i}
+                  {#if (i+1 == mesActual)}
+                    <option selected value={(i + 1)}
+                      >{`${(i+1).toString().padStart(2, "0")} - ${month}`}</option
+                    >
+                  {:else}
+                    <option value={(i + 1)}
+                      >{`${(i+1).toString().padStart(2, "0")} - ${month}`}</option
+                    >
+                  {/if}
+                {/each}
+              </select>
+
               <button on:click={() => obtenerRegistrosMesActual()}
-                >registros mes actual</button
+                >registros mes {months[mesActual-1]}</button
               >
               <!-- este boton de depurar sesiones solo se debe activar en casos extremos. Borra sesiones de pacientes inexistentes directamente de la base de datos -->
               <!-- deberia reemplazarse por la opcion de actvar/desactivar un paciente con un campo, y sus respectivas sesiones -->
@@ -526,7 +558,7 @@ Las variables de los inputs del formulario de sesiones:
     padding: 3px 1em;
   }
 
-  select {
+  #select-sesiones {
     max-width: 100%;
     min-width: 100%;
     font-size: x-small;
@@ -534,5 +566,9 @@ Las variables de los inputs del formulario de sesiones:
 
   option {
     font-size: x-small;
+  }
+
+  #mesRegistro {
+    width: 100px;
   }
 </style>
