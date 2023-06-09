@@ -20,6 +20,7 @@
   export let sesiones; // array que va a usarse para suscribirse a la db sesiones.
   let pacientes; // array que va a usarse para suscribirse a la db Pacientes.
   let planes; // array que va a usarse para suscribirse a la db planes.
+  let mesSeleccionado; // variable para hacer el bind:value en el select de meses
   import {
     idPacienteSeleccionado,
     apellidoSeleccionado,
@@ -89,19 +90,32 @@
   // Obtiene el mes y año actual
   let mesActual = fechaActual.getMonth() + 1; // Los meses en JavaScript van de 0 a 11, por lo que se suma 1  
   let anioActual = fechaActual.getFullYear();
-  let months = [
-    "enero",
-    "febrero",
-    "marzo",
-    "abril",
-    "mayo",
-    "junio",
-    "julio",
-    "agosto",
-    "setiembre",
-    "octubre",
-    "noviembre",
-    "diciembre",
+  let meses = [{
+    nro: 1, nombre: "enero",
+  },
+  {
+    nro: 2, nombre: "febrero",
+  },{
+    nro: 3, nombre: "marzo",
+  },{
+    nro: 4, nombre: "abri",
+  },{
+    nro: 5, nombre: "mayo",
+  },{
+    nro: 6, nombre: "junio",
+  },{
+    nro: 7, nombre: "julio",
+  },{
+    nro: 8, nombre: "agosto",
+  },{
+    nro: 9, nombre: "setiembre",
+  },{
+    nro: 10, nombre: "octubre",
+  },{
+    nro: 11, nombre: "noviembre",
+  },{
+    nro: 12, nombre: "diciembre",
+  } 
   ];
 
   let selectedSessionId;
@@ -274,13 +288,27 @@ Las variables de los inputs del formulario de sesiones:
   let mesActualFormateado = mesActual.toString().padStart(2, "0");
   let anioActualFormateado = anioActual.toString();
 
+  //$: mesActualFormateado = mesActual.toString().padStart(2, "0");
+
   // Crea las fechas de inicio y fin del mes actual
   let fechaInicioMes = `${anioActualFormateado}-${mesActualFormateado}-01`;
   let fechaFinMes = `${anioActualFormateado}-${mesActualFormateado}-31`;
 
-  const obtenerRegistrosMesActual = async () => {             // esta funcion obtiene en la variable totalPagos, la suma de los pagos
+  const obtenerRegistrosMesActual = async () => {             // esta funcion obtiene en la variable totalPagos, la suma de los pagos    
+    if (!mesSeleccionado){mesSeleccionado=mesActual};
     const sesionesRef = collection(db, "sesiones");           // de las sesiones del mes actual (el seleccionado en el select de meses)
-                                                              // mas los pagos que hace la OS por cada sesion
+    console.log(`mesActual ${mesActual} - mesSeleccionado ${mesSeleccionado} `);                    // mas los pagos que hace la OS por cada sesion
+
+    mesActualFormateado = mesActual.toString().padStart(2, "0");
+    var mesSeleccionadoFormateado = mesSeleccionado.toString().padStart(2, "0");
+    console.log(`mesActualFormateado ${mesActualFormateado} - mesSeleccionadoFormateado ${mesSeleccionadoFormateado}`);                    
+    if (mesActual != mesSeleccionado){
+      fechaInicioMes = `${anioActualFormateado}-${mesSeleccionadoFormateado}-01`;
+      fechaFinMes = `${anioActualFormateado}-${mesSeleccionadoFormateado}-31`;
+    } else {
+      fechaInicioMes = `${anioActualFormateado}-${mesActualFormateado}-01`;
+      fechaFinMes = `${anioActualFormateado}-${mesActualFormateado}-31`;
+    }
     // Filtra las sesiones utilizando la función "where" de Firestore
     const consultaMesActual = query(
       sesionesRef,
@@ -307,7 +335,10 @@ Las variables de los inputs del formulario de sesiones:
 
         console.log(pacienteActual);
 
-        const pagoSesion = sesionMesActual.data().valorPago;
+        var pagoSesion = sesionMesActual.data().valorPago;
+        if (pagoSesion == null) {
+          pagoSesion=0;
+        }
         if (typeof pagoSesion === "number") { // if (typeof pagoSesion === "number" || pagoSesion == null) {
           if (pacienteActual.plan == "particular") {
             totalPagos += pagoSesion;
@@ -323,7 +354,7 @@ Las variables de los inputs del formulario de sesiones:
             var planActual = planes.find(                             // busca el plan en la coleccion de planes para 
               (plan) => plan.plan == planPacienteActual
             );                                                        // obtener el objeto plan correspondiente a la db planes
-            console.log("planActual", planActual);
+            console.log(`planActual ${planActual} - pagoSesion ${pagoSesion} - planActual.valorOs ${planActual.valorOs}`);
             totalPagos += planActual.valorOs + pagoSesion;            // suma el valor del pago mas el valor que paga la Os
             console.log(
               `paciente ${pacienteActual.apellido}, fechaSesion: ${
@@ -361,7 +392,7 @@ Las variables de los inputs del formulario de sesiones:
     const sesionesFiltradas = sesiones.filter(          
       (sesion) =>
         sesion.pacienteID === pacienteID &&        
-        sesion.diaSesion.slice(5, 7) === mesActual.toString().padStart(2, "0")
+        sesion.diaSesion.slice(5, 7) === mesSeleccionado.toString().padStart(2, "0")
     );
     return sesionesFiltradas.reduce((sum, pago) => sum + pago.valorPago, 0);
   };
@@ -442,30 +473,22 @@ Las variables de los inputs del formulario de sesiones:
               >
               <button on:click={addSesion}>Agregar sesión</button>
               <select
-                on:change={() => obtenerRegistrosMesActual()}
-                bind:value={mesActual}
+                on:change={obtenerRegistrosMesActual}
+                bind:value={mesSeleccionado}
                 name="mes"
                 id="mesRegistro"
               >
-                {#each months as month, i}
-                  {#if i+1 == mesActual}
-                    <option selected value={i+1}
-                      >{`${(i + 1)
+                {#each meses as mes}                                      
+                    <option value={mes.nro}
+                      >{`${(mes.nro)
                         .toString()
-                        .padStart(2, "0")} - ${month}`}</option
-                    >
-                  {:else}
-                    <option value={i+1}
-                      >{`${(i + 1)
-                        .toString()
-                        .padStart(2, "0")} - ${month}`}</option
-                    >
-                  {/if}
+                        .padStart(2, "0")} - ${mes.nombre}`}</option
+                    >                  
                 {/each}
               </select>
 
               <button on:click={() => obtenerRegistrosMesActual()}
-                >registros mes {months[mesActual-1]}</button
+                >registros mes {mesSeleccionado}</button
               >
               <!-- este boton de depurar sesiones solo se debe activar en casos extremos. Borra sesiones de pacientes inexistentes directamente de la base de datos -->
               <!-- deberia reemplazarse por la opcion de actvar/desactivar un paciente con un campo, y sus respectivas sesiones -->
