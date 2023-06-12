@@ -413,7 +413,7 @@ Las variables de los inputs del formulario de sesiones:
         size={5}
       >
         {#each sesiones as sesion}
-          {#if Object.values(sesion).includes($idPacienteSeleccionado) && sesion.diaSesion.slice(5, 7) == mesActual}
+          {#if Object.values(sesion).includes($idPacienteSeleccionado) && sesion.diaSesion.slice(5, 7) == mesSeleccionado}
             <option class="" value={sesion.id}
               >dia sesion: {sesion.diaSesion} - valor sesion: {sesion.valorSesion}
               - dia pago {sesion.fechaPago} - valor pago {sesion.valorPago}
@@ -486,7 +486,7 @@ Las variables de los inputs del formulario de sesiones:
                     >                  
                 {/each}
               </select>
-
+                  <!-- {@debug mesSeleccionado, mesActual} -->
               <button on:click={() => obtenerRegistrosMesActual()}
                 >registros mes {mesSeleccionado}</button
               >
