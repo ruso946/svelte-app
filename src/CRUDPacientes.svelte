@@ -1,7 +1,7 @@
 <script>
   import SelectPlan from "./assets/SelectPlan.svelte";
   import { onMount, onDestroy } from "svelte";
-  import { db } from "./firebasePacientes";
+  import { db } from "./configFirebase/firebasePacientes";
   import {
     onSnapshot,
     collection,
@@ -23,10 +23,10 @@
     idPacienteSeleccionado,
     nombreSeleccionado,
   } from "./store";
-  import { agregarClavesFaltantes, actualizaPaciente } from "./moduloPacientes";
-  import SelectorPacientes from "./SelectorPacientes.svelte";
+  import { agregarClavesFaltantes, actualizaPaciente } from "./modulos/moduloPacientes";
+  import SelectorPacientes from "./assets/SelectorPacientes.svelte";
 
-  let pacientes = []; //array que viene del unsub de Padre.svelte que trae toda la db pacientes
+ export let pacientes = []; //array que viene del unsub de Padre.svelte que trae toda la db pacientes
 
   let arrayDeNombresDeClaves = [
     // usado para hacer que todos los campos de la base de datos y el array pacientes tengan todas las claves

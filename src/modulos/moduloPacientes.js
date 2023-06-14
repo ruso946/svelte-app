@@ -4,7 +4,7 @@ algunas funciones de inicializacion que son importadas en el CRUD
 */
 
 import { updateDoc, doc } from "firebase/firestore";
-import { db } from "./firebasePacientes";
+import { db } from "../configFirebase/firebasePacientes";
 
 export const agregarClavesFaltantes = (pacientes, arrayDeNombresDeClaves) => {  //funcion que se usa en el unsubPacientes de CRUDPacientes
   //funcion que agrega los nombres de las claves faltantes en caso de que las haya, en el array pacientes.

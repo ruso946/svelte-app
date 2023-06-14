@@ -2,7 +2,11 @@
   import { onMount } from "svelte";
   import Toastify from "toastify-js";
   import "sweetalert2/src/sweetalert2.scss";
-  import { db } from "./firebasePacientes";
+  import { db } from "./configFirebase/firebasePacientes";
+  // import {devuelveFechaActual,           
+  // } from "./modulos/moduloSesiones";
+
+ // console.log(devuelveFechaActual()); // para probar el objeto de fechas que devuelve la funcion pasada al modulo
 
   import {
     collection,
@@ -26,7 +30,7 @@
     apellidoSeleccionado,
     nombreSeleccionado,
   } from "./store";
-  import VisualizarRegistros from "./VisualizarRegistros.svelte";
+  import VisualizarRegistros from "./assets/VisualizarRegistros.svelte";
 
   //este onMount hace una suscripcion a las db "Pacientes" y "sesiones"
   onMount(() => {
@@ -294,6 +298,8 @@ Las variables de los inputs del formulario de sesiones:
   let fechaInicioMes = `${anioActualFormateado}-${mesActualFormateado}-01`;
   let fechaFinMes = `${anioActualFormateado}-${mesActualFormateado}-31`;
 
+  
+
   const obtenerRegistrosMesActual = async () => {             // esta funcion obtiene en la variable totalPagos, la suma de los pagos    
     if (!mesSeleccionado){mesSeleccionado=mesActual};
     const sesionesRef = collection(db, "sesiones");           // de las sesiones del mes actual (el seleccionado en el select de meses)
@@ -386,9 +392,10 @@ Las variables de los inputs del formulario de sesiones:
 
   $: obtenerRegistrosMesActual(); 
 
+ // const sumaValorPagoPorPaciente = obtenerRegistrosMesActual("pepe", mesSeleccionado) ;
   const sumaValorPagoPorPaciente = (pacienteID) => {    // obtiene la suma de los pagos de los valores por el paciente seleccionado
                                                         // que está en el store.js, y filtrando tambien por mes actual
-    //console.log("sesiones[0][diaSersion].slice(5,7)",sesiones[0][diaSesion].slice(5, 7), "mesActual",mesActual.toString().padStart(2, "0"));
+    //console.log("sesiones[0][diaSesion].slice(5,7)",sesiones[0][diaSesion].slice(5, 7), "mesActual",mesActual.toString().padStart(2, "0"));
     const sesionesFiltradas = sesiones.filter(          
       (sesion) =>
         sesion.pacienteID === pacienteID &&        
