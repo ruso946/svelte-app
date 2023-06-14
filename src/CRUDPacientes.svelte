@@ -23,11 +23,15 @@
     idPacienteSeleccionado,
     nombreSeleccionado,
   } from "./store";
-  import { agregarClavesFaltantes, actualizaPaciente } from "./modulos/moduloPacientes";
+  import {
+    agregarClavesFaltantes,
+    actualizaPaciente,
+  } from "./modulos/moduloPacientes";
   import SelectorPacientes from "./assets/SelectorPacientes.svelte";
 
- export let pacientes = []; //array que viene del unsub de Padre.svelte que trae toda la db pacientes
-
+  export let pacientes = []; //array que viene del unsub de Padre.svelte que trae toda la db pacientes
+  export let sesiones;
+  export let planes;
   let arrayDeNombresDeClaves = [
     // usado para hacer que todos los campos de la base de datos y el array pacientes tengan todas las claves
     "nombre",
@@ -37,52 +41,25 @@
     "createdAt",
   ];
 
-  let optionsPlan = [];
+  export let optionsPlan;
 
-  let planSelect = "";
+  let planSelect = "particular";
 
   let SelectPlanVisible; //prop o estado de SelectPlan. Se va a usar para controlar el cambio de paciente sicnronizado con la vista del SelectPlan
 
-  let unsubPacientes;
+  //let unsubPacientes;
 
   // en el onMount, hace la suscripcion de pacientes y trae las opciones de planes
   //si despues paso el select de planes a otro componente, se saca de onMount esa parte
-  onMount(() => {
-    const collectionRef = collection(db, "Pacientes");
-    const campoOrden = "apellido"; //campo por el cual se ordena alfabeticamente la consulta a sesiones
-    const consulta = query(collectionRef, orderBy(campoOrden));
-    unsubPacientes = onSnapshot(
-      consulta,
-      (querySnapshot) => {
-        pacientes = querySnapshot.docs.map((doc) => {
-          return { ...doc.data(), id: doc.id };
-        });
+  onMount(() => {    
         // lo que sigue se hizo para normalizar los docs de la db y los registros de pacientes del array. Puede que ya no sea necesario.
         agregarClavesFaltantes(pacientes, arrayDeNombresDeClaves); // si hay claves faltantes en el array de pacientes, las agrega.
         pacientes.forEach((paciente) => {
           actualizaPaciente(paciente); // agrega las claves que faltan a la base de datos firestore
-        });        
+        });
         document.getElementById("selectPacientes").selected = i;
-      },
-      (err) => {
-        console.log(err);
       }
-    );
-
-    const fetchOptionsSelectPlanes = async () => {
-      // Consulta la base de datos para obtener las opciones del select de planes
-      const optionsCollection = collection(db, "planes");
-      const optionsSnapshot = await getDocs(optionsCollection);
-
-      optionsPlan = optionsSnapshot.docs.map((doc) => doc.data().plan);
-      optionsPlan.push("particular");
-      optionsPlan.sort();
-      planSelect = "particular";
-    };
-    fetchOptionsSelectPlanes();
-  }); // fin de onMount
-
-  onDestroy(unsubPacientes); // quita la suscripcion a la escucha al cambiar de pagina o destruir el componente
+  ); // fin de onMount  
 
   let prefix = "";
   let nombre = "";
@@ -286,7 +263,7 @@
   };
 
   const clickCheckPlan = (event) => {
-    // funcion que trae el evento del checkbox del componente    
+    // funcion que trae el evento del checkbox del componente
     const noEsParticular = event.detail.valor.SelectPlanVisible; // SelectPlan para controlar en este componente lo que
     if (!noEsParticular) {
       planSeleccionado = "particular";
@@ -295,7 +272,7 @@
     }
     previaActualizaPaciente(planSeleccionado);
     modificaLabelPlan(!noEsParticular);
-  };  
+  };
 </script>
 
 <body>
@@ -322,7 +299,7 @@
     <label for="filterPrefix">filtrar por apellido</label><input
       name="filterPrefix"
       placeholder="filter prefix"
-      bind:value={prefix}    
+      bind:value={prefix}
     />
     <!--este prefix es la base para filtrar el array pacientes-->
   </div>
@@ -356,7 +333,7 @@
     <SelectPlan
       on:cambioPlan={cambioPlan}
       on:clickCheckPlan={clickCheckPlan}
-      planes={optionsPlan}
+      {optionsPlan}
       {planSeleccionado}
       {SelectPlanVisible}
     />

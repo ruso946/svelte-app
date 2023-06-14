@@ -1,5 +1,5 @@
 <script>
-  export let planes;
+  export let optionsPlan;
   export let planSeleccionado;
   export let SelectPlanVisible;
   import { createEventDispatcher } from "svelte";
@@ -58,7 +58,7 @@
     bind:value={planSeleccionado}
     on:change={cambioPlan} 
   >
-    {#each planes as plan}
+    {#each optionsPlan as plan}
       <option value={plan}>{plan}</option>
     {/each}
   </select>

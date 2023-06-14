@@ -1,19 +1,85 @@
 <script>
   import CRUDPacientes from "./CRUDPacientes.svelte";
   import CRUDSesiones from "./CRUDSesiones.svelte";
-    
+  import { onMount } from "svelte";
+  import { db } from "./configFirebase/firebasePacientes";
+  import {
+    collection,
+    query,
+    onSnapshot,
+    addDoc,
+    deleteDoc,
+    doc,
+    orderBy,
+    updateDoc,
+    where,
+    getDocs,
+  } from "firebase/firestore";
   let sesiones = [];
+  let pacientes = [];
+  let planes = [];
+  let optionsPlan = [];
+  //este onMount hace una suscripcion a las db "Pacientes", "planes" y "sesiones"
+  onMount(() => {
+    const unsubscribeFunctions = [];
+    const sesionesRef = collection(db, "sesiones");
+    const pacientesRef = collection(db, "Pacientes");
+    const planesRef = collection(db, "planes");
+    const qs = query(sesionesRef, orderBy("diaSesion"));
+    const qp = query(pacientesRef, orderBy("apellido"));
+    const qplanes = query(planesRef, orderBy("plan"));
 
+    //hacer una consulta de suscripcion por mes para sacar el total por mes
+    //por paciente y por todas las sesiones del mes
+
+    const unsubscribeSesiones = onSnapshot(qs, (snapshot) => {
+      sesiones = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+    });
+
+    console.log("desde onMount CRUDSesiones", sesiones);
+    unsubscribeFunctions.push(unsubscribeSesiones);
+
+    const unsubscribePacientes = onSnapshot(qp, (snapshot) => {
+      pacientes = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+    });
+    unsubscribeFunctions.push(unsubscribePacientes);
+
+    const unsubscribePlanes = onSnapshot(qplanes, (snapshot) => {
+      planes = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+    });
+
+    console.log(planes);
+
+    optionsPlan = planes.map((plan) => plan.data().plan);
+    optionsPlan.push("particular");
+    optionsPlan.sort();
+    
+
+    unsubscribeFunctions.push(unsubscribePlanes);
+
+    return () => {
+      unsubscribeFunctions.forEach((unsubscribe) => unsubscribe());
+    };
+  });
 </script>
 
 <body>
   <div class="contenedor-pacientes">
     <h5>CRUD Pacientes</h5>
-    <CRUDPacientes />
+    <CRUDPacientes {sesiones} {pacientes} {planes} {optionsPlan}/>
   </div>
 
   <div class="contenedor-sesiones">
-    <CRUDSesiones {sesiones} />
+    <CRUDSesiones {sesiones} {pacientes} {planes} />
   </div>
 </body>
 
