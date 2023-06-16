@@ -64,9 +64,9 @@
     };
   });
 
-  $: {if (planes.length != 0) {
-    console.log(planes);
-    optionsPlan = planes.map((plan) => plan.plan);
+  $: {if (planes.length != 0) {                         // este bloque reactivo detecta cuando está cargado el array optionsPlan
+    console.log(planes);                                // para agregarle el valor "particular" y ordenarlo alfabéticamente.
+    optionsPlan = planes.map((plan) => plan.plan);      // Después será pasado a CRUDPacientes y a SelectPlan sucesivamente como prop
     optionsPlan.push("particular");
     optionsPlan.sort();
     console.log(optionsPlan);
