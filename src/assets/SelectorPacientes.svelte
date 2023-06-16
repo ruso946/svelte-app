@@ -2,15 +2,15 @@
   import { createEventDispatcher, onMount } from "svelte";
   export let pacientesFiltrada;
   export let planSelect;
-  let i = 3;
-  onMount(() => {
-    const selPac = document.getElementById("elementoSelectPacientes");
-    console.log(selPac);
-    const opcionesSelect = selPac.options;    
-    opcionesSelect.selectedIndex = i;
-    console.log(opcionesSelect.selectedIndex);
-    i = 0; //el indice de la opcion seleccionada en el Select de este componente
-  });
+  let i;
+  // onMount(() => {
+  //   const selPac = document.getElementById("elementoSelectPacientes");
+  //   console.log(selPac);
+  //   const opcionesSelect = selPac.options;    
+  //   opcionesSelect.selectedIndex = 0;
+  //   console.log(opcionesSelect.selectedIndex);
+  //   i = 0; //el indice de la opcion seleccionada en el Select de este componente
+  // });
 
   const dispatch = createEventDispatcher();
 
@@ -49,9 +49,9 @@
         >{`${person.apellido}, ${person.nombre}${
           person.plan == "particular"
             ? ""
-            : " -" + person.nroSocio + " - plan " + person.plan
+            : " -" + person.nroSocio + " - plan " + person.plan.plan
         } `}</option
-      >
+      >{console.log(person.plan)}
     {/each}
   {/if}
 </select>

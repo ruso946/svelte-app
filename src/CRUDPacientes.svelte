@@ -334,7 +334,7 @@
     <SelectPlan
       on:cambioPlan={cambioPlan}
       on:clickCheckPlan={clickCheckPlan}
-      {optionsPlan}
+      {planes}
       {planSeleccionado}
       {SelectPlanVisible}
     />

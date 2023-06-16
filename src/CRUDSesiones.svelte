@@ -144,7 +144,7 @@ Funciones del formulario:
     console.log("selectedSession", selectedSession); // es un objeto
     valorPago = selectedSession.valorPago;
     console.log(`planSeleccionado: ${planSeleccionado}`)
-    if (planSeleccionado.plan == "particular") {
+    if (typeof planSeleccionado.plan === "undefined" || planSeleccionado.plan == "particular" || !planSeleccionado) {
       valorSesion = selectedSession.valorSesion;
       console.log("particular", valorSesion);
     } else {      
@@ -336,14 +336,13 @@ Las variables de los inputs del formulario de sesiones:
                 sesionMesActual.data().valorPago
               }, total acumulado ${totalPagos}`
             );
-          } else {
-            //totalPagos += 2700;
-            const planPacienteActual = pacienteActual.plan; // obtiene el plan del placiente por el que itera
-            console.log("planPacienteActual", planPacienteActual);
-            var planActual = planes.find(
-              // busca el plan en la coleccion de planes para
-              (plan) => plan.plan == planPacienteActual
-            ); // obtener el objeto plan correspondiente a la db planes
+          } else {            
+            const planActual = pacienteActual.plan; // obtiene el plan del placiente por el que itera
+            console.log("planPacienteActual", planActual);
+            // var planActual = planes.find(
+            //   // busca el plan en la coleccion de planes para
+            //   (plan) => plan.plan == planPacienteActual
+            // ); // obtener el objeto plan correspondiente a la db planes
             console.log(
               `planActual ${planActual} - pagoSesion ${pagoSesion} - planActual.valorOs ${planActual.valorOs}`
             );
