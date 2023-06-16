@@ -24,6 +24,7 @@
   export let sesiones; // array que va a usarse para suscribirse a la db sesiones.
   export let pacientes; // array que va a usarse para suscribirse a la db Pacientes.
   export let planes; // array que va a usarse para suscribirse a la db planes.
+  export let planSeleccionado;  //objeto que pasa el plan seleccionado en SelectPlan.svelte
   let mesSeleccionado; // variable para hacer el bind:value en el select de meses
   import {
     idPacienteSeleccionado,
@@ -142,7 +143,15 @@ Funciones del formulario:
     );
     console.log("selectedSession", selectedSession); // es un objeto
     valorPago = selectedSession.valorPago;
-    valorSesion = selectedSession.valorSesion;
+    console.log(`planSeleccionado: ${planSeleccionado}`)
+    if (planSeleccionado.plan == "particular") {
+      valorSesion = selectedSession.valorSesion;
+      console.log("particular", valorSesion);
+    } else {      
+      valorSesion = planSeleccionado.valorCoseguro + planSeleccionado.valorOs;
+      console.log("OS", valorSesion);
+    }
+    
     fechaPago = selectedSession.fechaPago;
     diaSesion = selectedSession.diaSesion;
   };

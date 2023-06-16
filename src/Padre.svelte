@@ -19,6 +19,7 @@
   let pacientes = [];
   let planes = [];
   let optionsPlan = [];
+  let planSeleccionado;
   //este onMount hace una suscripcion a las db "Pacientes", "planes" y "sesiones"
   onMount(() => {
     const unsubscribeFunctions = [];
@@ -56,30 +57,35 @@
         ...doc.data(),
       }));
     });
-
-    console.log(planes);
-
-    optionsPlan = planes.map((plan) => plan.data().plan);
-    optionsPlan.push("particular");
-    optionsPlan.sort();
-    
-
     unsubscribeFunctions.push(unsubscribePlanes);
 
     return () => {
       unsubscribeFunctions.forEach((unsubscribe) => unsubscribe());
     };
   });
+
+  $: {if (planes.length != 0) {
+    console.log(planes);
+    optionsPlan = planes.map((plan) => plan.plan);
+    optionsPlan.push("particular");
+    optionsPlan.sort();
+    console.log(optionsPlan);
+
+  }
+    else{console.log("no hay planes")}
+  }
+
+
 </script>
 
 <body>
   <div class="contenedor-pacientes">
     <h5>CRUD Pacientes</h5>
-    <CRUDPacientes {sesiones} {pacientes} {planes} {optionsPlan}/>
+    <CRUDPacientes {sesiones} {pacientes} {planes} {optionsPlan} />
   </div>
 
   <div class="contenedor-sesiones">
-    <CRUDSesiones {sesiones} {pacientes} {planes} />
+    <CRUDSesiones {sesiones} {pacientes} {planes} {planSeleccionado} />
   </div>
 </body>
 

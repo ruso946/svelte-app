@@ -2,14 +2,21 @@
   import { createEventDispatcher, onMount } from "svelte";
   export let pacientesFiltrada;
   export let planSelect;
+  let i = 3;
+  onMount(() => {
+    const selPac = document.getElementById("elementoSelectPacientes");
+    console.log(selPac);
+    const opcionesSelect = selPac.options;    
+    opcionesSelect.selectedIndex = i;
+    console.log(opcionesSelect.selectedIndex);
+    i = 0; //el indice de la opcion seleccionada en el Select de este componente
+  });
 
-  let i;                //el indice de la opcion seleccionada en el Select de este componente
-  
   const dispatch = createEventDispatcher();
-  
-  const handleSelect = (event) => {    
+
+  const handleSelect = (event) => {
     const indiceSelectPaciente = event.target.value;
-    planSelect = pacientesFiltrada[indiceSelectPaciente].plan;    
+    planSelect = pacientesFiltrada[indiceSelectPaciente].plan;
     dispatch("cambioSelectPaciente", indiceSelectPaciente);
     console.log(
       "dispatch cambioSelectPaciente, valorindiceSelectPaciente: ",
@@ -22,15 +29,14 @@
      De este modo, se puede mantener el funcionamiento en base a "i" de la logica del componente
      y al mismo tiempo, simplificar el estado del componente y prescindir del uso del store
     */
-  }; 
-
+  };
 </script>
 
 <select
   name="select-pacientes"
   class="select-Pacientes"
-  id="selectPacientes"
-  on:change={handleSelect}  
+  id="elementoSelectPacientes"
+  on:change={handleSelect}
   bind:value={i}
   size={5}
   >{#if pacientesFiltrada.length == 0}

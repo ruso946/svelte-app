@@ -45,6 +45,8 @@
 
   let planSelect = "particular";
 
+  let i = 0;
+
   let SelectPlanVisible; //prop o estado de SelectPlan. Se va a usar para controlar el cambio de paciente sicnronizado con la vista del SelectPlan
 
   //let unsubPacientes;
@@ -56,8 +58,7 @@
         agregarClavesFaltantes(pacientes, arrayDeNombresDeClaves); // si hay claves faltantes en el array de pacientes, las agrega.
         pacientes.forEach((paciente) => {
           actualizaPaciente(paciente); // agrega las claves que faltan a la base de datos firestore
-        });
-        document.getElementById("selectPacientes").selected = i;
+        });       
       }
   ); // fin de onMount  
 
@@ -67,7 +68,7 @@
   let nroSocio = "";
   let planSeleccionado = "";
   // let createdAt = new Date();
-  let i = 0;
+
   let pacientesFiltrada;
   let textoLabelPlan = "plan";
 

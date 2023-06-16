@@ -25,14 +25,7 @@
   const dispatch = createEventDispatcher();
   const cambioPlan = () => {
     dispatch("cambioPlan", { valor: { planSeleccionado } });
-  };
-
-  const clickEvento = (e) =>{
-    console.log(e);
-    console.log(e.srcElement.open);    
-    alert("a ver si pasa algo");
-    
-  }
+  }; 
   
 </script>
 
