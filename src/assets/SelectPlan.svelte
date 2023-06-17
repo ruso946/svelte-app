@@ -50,7 +50,7 @@
     id="plan"
     bind:value={planSeleccionado}
     on:change={cambioPlan} 
-  >
+  >{console.log(planSeleccionado)}
     {#each planes as plan}
       <option value={plan}>{plan.plan}</option>
     {/each}

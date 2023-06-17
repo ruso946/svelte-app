@@ -32,6 +32,7 @@
   export let pacientes = []; //array que viene del unsub de Padre.svelte que trae toda la db pacientes
   export let sesiones;
   export let planes;
+  export let planSeleccionado;
   let arrayDeNombresDeClaves = [
     // usado para hacer que todos los campos de la base de datos y el array pacientes tengan todas las claves
     "nombre",
@@ -65,8 +66,7 @@
   let prefix = "";
   let nombre = "";
   let apellido = "";
-  let nroSocio = "";
-  let planSeleccionado = "";
+  let nroSocio = "";  
   // let createdAt = new Date();
 
   let pacientesFiltrada;
@@ -109,7 +109,7 @@
     nombre = person ? person.nombre : "";
     apellido = person ? person.apellido : "";
     nroSocio = person ? person.nroSocio : "";
-    planSeleccionado = person ? person.plan : "";
+    planSeleccionado = person ? person.plan : {};
   };
 
   const agregarPaciente = async () => {
@@ -237,6 +237,7 @@
   };
   const cambioPlan = (event) => {
     planSeleccionado = event.detail.valor.planSeleccionado;
+    console.log(planSeleccionado);
     if (selected.plan != planSeleccionado) {
       //solo se actualiza si el click implica un cambio de plan.
       previaActualizaPaciente(planSeleccionado);

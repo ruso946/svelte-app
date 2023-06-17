@@ -2,17 +2,6 @@
   import { createEventDispatcher, onMount } from "svelte";
   export let pacientesFiltrada;
   export let planSelect;
-<<<<<<< HEAD
-  let i=3;  
-  onMount(() => {
-    const selPac = document.getElementById("elementoSelectPacientes");
-    console.log(selPac);
-    const opcionesSelect = selPac.options;    
-    opcionesSelect.selectedIndex = i;
-    console.log(opcionesSelect.selectedIndex);
-    i = 0; //el indice de la opcion seleccionada en el Select de este componente
-  });
-=======
   let i;
   // onMount(() => {
   //   const selPac = document.getElementById("elementoSelectPacientes");
@@ -22,7 +11,6 @@
   //   console.log(opcionesSelect.selectedIndex);
   //   i = 0; //el indice de la opcion seleccionada en el Select de este componente
   // });
->>>>>>> d91cb86da8dc3e9efba2fe1417af0798093b93c5
 
   const dispatch = createEventDispatcher();
 

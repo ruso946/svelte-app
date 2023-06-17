@@ -19,7 +19,7 @@
   let pacientes = [];
   let planes = [];
   let optionsPlan = [];
-  let planSeleccionado;
+  let planSeleccionado = {};
   //este onMount hace una suscripcion a las db "Pacientes", "planes" y "sesiones"
   onMount(() => {
     const unsubscribeFunctions = [];
@@ -81,7 +81,7 @@
 <body>
   <div class="contenedor-pacientes">
     <h5>CRUD Pacientes</h5>
-    <CRUDPacientes {sesiones} {pacientes} {planes} {optionsPlan} />
+    <CRUDPacientes {sesiones} {pacientes} {planes} {optionsPlan} {planSeleccionado} />
   </div>
 
   <div class="contenedor-sesiones">
