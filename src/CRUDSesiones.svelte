@@ -144,7 +144,7 @@ Funciones del formulario:
     console.log("selectedSession", selectedSession); // es un objeto
     valorPago = selectedSession.valorPago;
     console.log(`planSeleccionado: ${planSeleccionado}`)
-    if (planSeleccionado === "particular") {
+    if (typeof planSeleccionado.plan === "undefined" || planSeleccionado.plan == "particular" || !planSeleccionado) {
       valorSesion = selectedSession.valorSesion;
       console.log("particular", valorSesion);
     } else {      
@@ -337,16 +337,15 @@ Las variables de los inputs del formulario de sesiones:
                 sesionMesActual.data().valorPago
               }, total acumulado ${totalPagos}`
             );
-          } else {
-            // hay que agregar la funcion por la cual detecta de que fecha es la prestacion y en funcion de eso tomar el valor para el calculo del pago            
-            const planPacienteActual = pacienteActual.plan; // obtiene el plan del placiente por el que itera
-            console.log("planPacienteActual", planPacienteActual);
-            var planActual = planes.find(
-              // busca el plan en la coleccion de planes para
-              (plan) => plan.plan == planPacienteActual
-            ); // obtener el objeto plan correspondiente a la db planes
+          } else {            
+            const planActual = pacienteActual.plan; // obtiene el plan del placiente por el que itera
+            console.log("planPacienteActual", planActual);
+            // var planActual = planes.find(
+            //   // busca el plan en la coleccion de planes para
+            //   (plan) => plan.plan == planPacienteActual
+            // ); // obtener el objeto plan correspondiente a la db planes
             console.log(
-              `planActual ${planPacienteActual} - pagoSesion ${pagoSesion} - planActual.valorOs ${planActual.valorOs}`
+              `planActual ${planActual} - pagoSesion ${pagoSesion} - planActual.valorOs ${planActual.valorOs}`
             );
             totalPagos += planActual.valorOs + pagoSesion; // suma el valor del pago mas el valor que paga la Os
             console.log(
