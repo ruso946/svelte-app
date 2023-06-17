@@ -2,7 +2,7 @@
   import { createEventDispatcher, onMount } from "svelte";
   export let pacientesFiltrada;
   export let planSelect;
-  let i = 3;
+  let i=3;  
   onMount(() => {
     const selPac = document.getElementById("elementoSelectPacientes");
     console.log(selPac);

@@ -144,11 +144,13 @@ Funciones del formulario:
     console.log("selectedSession", selectedSession); // es un objeto
     valorPago = selectedSession.valorPago;
     console.log(`planSeleccionado: ${planSeleccionado}`)
-    if (planSeleccionado.plan == "particular") {
+    if (planSeleccionado === "particular") {
       valorSesion = selectedSession.valorSesion;
       console.log("particular", valorSesion);
     } else {      
-      valorSesion = planSeleccionado.valorCoseguro + planSeleccionado.valorOs;
+      //valorSesion = planSeleccionado.valorCoseguro + planSeleccionado.valorOs;
+      var planActual = planes.find((plan)=>plan.plan == planSeleccionado);
+      console.log(planActual);
       console.log("OS", valorSesion);
     }
     
@@ -327,8 +329,7 @@ Las variables de los inputs del formulario de sesiones:
         if (pagoSesion == null) {
           pagoSesion = 0;
         }
-        if (typeof pagoSesion === "number") {
-          // if (typeof pagoSesion === "number" || pagoSesion == null) {
+        if (typeof pagoSesion === "number") {          
           if (pacienteActual.plan == "particular") {
             totalPagos += pagoSesion;
             console.log(
@@ -337,7 +338,7 @@ Las variables de los inputs del formulario de sesiones:
               }, total acumulado ${totalPagos}`
             );
           } else {
-            //totalPagos += 2700;
+            // hay que agregar la funcion por la cual detecta de que fecha es la prestacion y en funcion de eso tomar el valor para el calculo del pago            
             const planPacienteActual = pacienteActual.plan; // obtiene el plan del placiente por el que itera
             console.log("planPacienteActual", planPacienteActual);
             var planActual = planes.find(
@@ -345,7 +346,7 @@ Las variables de los inputs del formulario de sesiones:
               (plan) => plan.plan == planPacienteActual
             ); // obtener el objeto plan correspondiente a la db planes
             console.log(
-              `planActual ${planActual} - pagoSesion ${pagoSesion} - planActual.valorOs ${planActual.valorOs}`
+              `planActual ${planPacienteActual} - pagoSesion ${pagoSesion} - planActual.valorOs ${planActual.valorOs}`
             );
             totalPagos += planActual.valorOs + pagoSesion; // suma el valor del pago mas el valor que paga la Os
             console.log(
