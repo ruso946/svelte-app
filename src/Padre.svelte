@@ -19,7 +19,7 @@
   let pacientes = [];
   let planes = [];
   let optionsPlan = [];
-  let planSeleccionado = {};
+  let planSeleccionado = "particular";
   //este onMount hace una suscripcion a las db "Pacientes", "planes" y "sesiones"
   onMount(() => {
     const unsubscribeFunctions = [];

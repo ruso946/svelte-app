@@ -44,9 +44,11 @@
 
   export let optionsPlan;
 
+  let indicePlan; //prop a pasar a SelectPlan para actualizar la vista al cambiar de paciente en el SelectorPacientes
+
   let planSelect = "particular";
 
-  let i = 0;
+  let i;
 
   let SelectPlanVisible; //prop o estado de SelectPlan. Se va a usar para controlar el cambio de paciente sicnronizado con la vista del SelectPlan
 
@@ -54,19 +56,18 @@
 
   // en el onMount, hace la suscripcion de pacientes y trae las opciones de planes
   //si despues paso el select de planes a otro componente, se saca de onMount esa parte
-  onMount(() => {    
-        // lo que sigue se hizo para normalizar los docs de la db y los registros de pacientes del array. Puede que ya no sea necesario.
-        agregarClavesFaltantes(pacientes, arrayDeNombresDeClaves); // si hay claves faltantes en el array de pacientes, las agrega.
-        pacientes.forEach((paciente) => {
-          actualizaPaciente(paciente); // agrega las claves que faltan a la base de datos firestore
-        });       
-      }
-  ); // fin de onMount  
+  onMount(() => {
+    // lo que sigue se hizo para normalizar los docs de la db y los registros de pacientes del array. Puede que ya no sea necesario.
+    agregarClavesFaltantes(pacientes, arrayDeNombresDeClaves); // si hay claves faltantes en el array de pacientes, las agrega.
+    pacientes.forEach((paciente) => {
+      actualizaPaciente(paciente); // agrega las claves que faltan a la base de datos firestore
+    });
+  }); // fin de onMount
 
   let prefix = "";
   let nombre = "";
   let apellido = "";
-  let nroSocio = "";  
+  let nroSocio = "";
   // let createdAt = new Date();
 
   let pacientesFiltrada;
@@ -236,9 +237,10 @@
     actualizarPaciente(selected); //esta linea hace la actualizacion en la base de datos con el plan seleccionado.
   };
   const cambioPlan = (event) => {
-    planSeleccionado = event.detail.valor.planSeleccionado;
+    //console.log(`event.detail.plan pasado a cambioPlan ${event.detail.plan}`)
+    planSeleccionado = event.detail; //es un objeto plan
     console.log(planSeleccionado);
-    if (selected.plan != planSeleccionado) {
+    if (selected.plan.plan != planSeleccionado.plan) {          //compara los nombres de los objetos plan (plan.plan) 
       //solo se actualiza si el click implica un cambio de plan.
       previaActualizaPaciente(planSeleccionado);
     }
@@ -257,10 +259,24 @@
 
   const handleSelectorPacientes = (event) => {
     //funcion que trae del evento personalizado del componente SelectorPacientes
-    i = event.detail; //el valor de i, que es el indice de la lista de pacientes filtrada que se
-    //actualiza al seleccionar un paciente en el select del componente
-    planSeleccionado = pacientesFiltrada[i].plan; //actualiza la vista del SelectPlan
-    const esParticular = planSeleccionado == "particular" ? true : false;
+    i = event.detail[0]; //el valor de i, que es el indice de la lista de pacientes filtrada que se
+    const planSelect = event.detail[1]; //actualiza al seleccionar un paciente en el select del componente
+    const planSelectNombrePlan =
+      typeof planSelect == "string" ? "particular" : planSelect.plan; //planSelect es un objeto
+    console.log(`i ${i}, planSelect ${planSelectNombrePlan}`);
+
+    planSeleccionado =
+      planSelectNombrePlan == "particular"
+        ? "particular"  //planSeleccionado="particular"
+        : pacientesFiltrada[i].plan; //da a planSeleccionado el objeto plan del paciente que se eligio en el SelectorPacientes
+    if (planSeleccionado != "particular") {
+      indicePlan = planes.findIndex(
+        (plan) => plan["plan"] === planSelectNombrePlan
+      )
+      console.log(`indicePlan ${indicePlan}, ${typeof indicePlan}`);
+    }
+    const esParticular = planSelectNombrePlan == "particular" ? true : false;
+    
     modificaLabelPlan(esParticular);
   };
 
@@ -338,6 +354,7 @@
       {planes}
       {planSeleccionado}
       {SelectPlanVisible}
+      {indicePlan}
     />
   </div>
 </body>

@@ -15,12 +15,12 @@
   const dispatch = createEventDispatcher();
 
   const handleSelect = (event) => {
-    const indiceSelectPaciente = event.target.value;
+    const indiceSelectPaciente = event.target.value;    
     planSelect = pacientesFiltrada[indiceSelectPaciente].plan;
-    dispatch("cambioSelectPaciente", indiceSelectPaciente);
+    dispatch("cambioSelectPaciente", [indiceSelectPaciente, planSelect]);
     console.log(
-      "dispatch cambioSelectPaciente, valorindiceSelectPaciente: ",
-      indiceSelectPaciente
+      `dispatch cambioSelectPaciente, valorindiceSelectPaciente: 
+      ${indiceSelectPaciente}, planSelect ${planSelect.plan ? planSelect.plan : "particular"}`
     );
     /*con este evento cambioSelectPaciente que se dispara al cambiar de eleccion de paciente
      en el select de pacientes se entrega el valor de ese select.
@@ -51,7 +51,8 @@
             ? ""
             : " -" + person.nroSocio + " - plan " + person.plan.plan
         } `}</option
-      >{console.log(person.plan)}
+      >
+       <!-- {console.log(person.plan)} -->
     {/each}
   {/if}
 </select>
