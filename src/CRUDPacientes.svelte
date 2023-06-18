@@ -240,7 +240,8 @@
     //console.log(`event.detail.plan pasado a cambioPlan ${event.detail.plan}`)
     planSeleccionado = event.detail; //es un objeto plan
     console.log(planSeleccionado);
-    if (selected.plan.plan != planSeleccionado.plan) {          //compara los nombres de los objetos plan (plan.plan) 
+    if (selected.plan.plan != planSeleccionado.plan) {
+      //compara los nombres de los objetos plan (plan.plan)
       //solo se actualiza si el click implica un cambio de plan.
       previaActualizaPaciente(planSeleccionado);
     }
@@ -267,16 +268,16 @@
 
     planSeleccionado =
       planSelectNombrePlan == "particular"
-        ? "particular"  //planSeleccionado="particular"
+        ? "particular" //planSeleccionado="particular"
         : pacientesFiltrada[i].plan; //da a planSeleccionado el objeto plan del paciente que se eligio en el SelectorPacientes
     if (planSeleccionado != "particular") {
       indicePlan = planes.findIndex(
         (plan) => plan["plan"] === planSelectNombrePlan
-      )
+      );
       console.log(`indicePlan ${indicePlan}, ${typeof indicePlan}`);
     }
     const esParticular = planSelectNombrePlan == "particular" ? true : false;
-    
+
     modificaLabelPlan(esParticular);
   };
 
@@ -291,6 +292,23 @@
     previaActualizaPaciente(planSeleccionado);
     modificaLabelPlan(!noEsParticular);
   };
+
+  function copyToClipboard(e) {
+    /* Obtener el campo de entrada */
+    const input = document.getElementById("inputNroSocio");
+
+    console.log(`input ${input}`);
+
+    /* Seleccionar el texto del campo de entrada */
+    input.select();
+    input.setSelectionRange(0, 99999); /* Para dispositivos móviles */
+
+    /* Copiar el texto seleccionado al portapapeles */
+    document.execCommand("copy");
+
+    /* Alerta o retroalimentación para el usuario */
+    //alert("Texto copiado al portapapeles: " + input.value);
+  }
 </script>
 
 <body>
@@ -310,7 +328,7 @@
           !selected}>update</button
       >
       <button on:click={remove} disabled={!selected}>delete</button>
-    </div>
+    </div>    
   </div>
 
   <div id="filter">
@@ -346,7 +364,15 @@
 
   <div id="formInputsD">
     <label for="nroSocio">nº socio</label>
-    <input name="nroSocio" bind:value={nroSocio} placeholder="nro de Socio" />
+    <div class="formRow">
+      <input
+        id="inputNroSocio"
+        name="nroSocio"
+        bind:value={nroSocio}
+        placeholder="nro de Socio"
+      />
+      <button on:click={copyToClipboard}>✎</button>
+    </div>
     <label id="labelPlan" for="plan">{textoLabelPlan}</label>
     <SelectPlan
       on:cambioPlan={cambioPlan}
@@ -437,6 +463,15 @@
     padding: 0.5em;
     background-color: cadetblue;
     padding: 3px;
+  }
+
+  .formRow {
+    display: flex;
+    align-items: center;
+  }
+
+  .formRow label {
+    margin-right: 5px;
   }
 
   label {
