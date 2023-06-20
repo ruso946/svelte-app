@@ -3,10 +3,10 @@
   import Toastify from "toastify-js";
   import "sweetalert2/src/sweetalert2.scss";
   import { db } from "./configFirebase/firebasePacientes";
-  // import {devuelveFechaActual,
+  // import {devuelveFechaActual,    //si lo quiero usar hay que revisarlo. Lo modifiqué para que seirva al nombre del backup de colecciones firestore
   // } from "./modulos/moduloSesiones";
 
-  // console.log(devuelveFechaActual()); // para probar el objeto de fechas que devuelve la funcion pasada al modulo
+  
 
   import {
     collection,
@@ -24,7 +24,7 @@
   export let sesiones; // array que va a usarse para suscribirse a la db sesiones.
   export let pacientes; // array que va a usarse para suscribirse a la db Pacientes.
   export let planes; // array que va a usarse para suscribirse a la db planes.
-  export let planSeleccionado;  //objeto que pasa el plan seleccionado en SelectPlan.svelte
+  export let planSeleccionado; //objeto que pasa el plan seleccionado en SelectPlan.svelte
   let mesSeleccionado; // variable para hacer el bind:value en el select de meses
   import {
     idPacienteSeleccionado,
@@ -32,6 +32,8 @@
     nombreSeleccionado,
   } from "./store";
   import VisualizarRegistros from "./assets/VisualizarRegistros.svelte";
+
+  let totalAdeudado = 0;
 
   //obtiene la fecha actual
   const fechaActual = new Date();
@@ -143,17 +145,21 @@ Funciones del formulario:
     );
     console.log("selectedSession", selectedSession); // es un objeto
     valorPago = selectedSession.valorPago;
-    console.log(`planSeleccionado: ${planSeleccionado}`)
-    if (typeof planSeleccionado.plan === "undefined" || planSeleccionado.plan == "particular" || !planSeleccionado) {
+    console.log(`planSeleccionado: ${planSeleccionado}`);
+    if (
+      typeof planSeleccionado.plan === "undefined" ||
+      planSeleccionado.plan == "particular" ||
+      !planSeleccionado
+    ) {
       valorSesion = selectedSession.valorSesion;
       console.log("particular", valorSesion);
-    } else {      
+    } else {
       //valorSesion = planSeleccionado.valorCoseguro + planSeleccionado.valorOs;
-      var planActual = planes.find((plan)=>plan.plan == planSeleccionado);
+      var planActual = planes.find((plan) => plan.plan == planSeleccionado);
       console.log(planActual);
       console.log("OS", valorSesion);
     }
-    
+
     fechaPago = selectedSession.fechaPago;
     diaSesion = selectedSession.diaSesion;
   };
@@ -313,6 +319,7 @@ Las variables de los inputs del formulario de sesiones:
 
       // Calcula la suma de los pagos
       totalPagos = 0;
+      totalAdeudado = 0;
       querySnapshotConsultaMesActual.forEach((sesionMesActual) => {
         //  por cada sesion de la consulta de sesiones del mes actual:
         //  console.log(pacientes);
@@ -325,28 +332,35 @@ Las variables de los inputs del formulario de sesiones:
 
         console.log(pacienteActual);
 
-        var pagoSesion = sesionMesActual.data().valorPago;
+        var pagoSesion = sesionMesActual.data().valorPago; // toma el valor del pago de la sesion que está iterando
         if (pagoSesion == null) {
+          // lo pasa aa valor cero si es null
           pagoSesion = 0;
         }
-        if (typeof pagoSesion === "number") {          
+        if (typeof pagoSesion === "number") {
           if (pacienteActual.plan == "particular") {
-            totalPagos += pagoSesion;
-            console.log(
-              `paciente ${pacienteActual.apellido}, valor pago ${
-                sesionMesActual.data().valorPago
-              }, total acumulado ${totalPagos}`
-            );
-          } else {            
-            const planActual = pacienteActual.plan; // obtiene el plan del placiente por el que itera
+            //si el paciente es particular
+            totalPagos += pagoSesion; //usa ese valor para sumar al total que está calculando
+            if (pagoSesion < valorSesion) {
+              totalAdeudado += valorSesion - pagoSesion; //calcula deuda si corresponde
+            }
+            // console.log(
+            //   `paciente ${pacienteActual.apellido}, valor pago ${
+            //     sesionMesActual.data().valorPago
+            //   }, total acumulado ${totalPagos}`
+            // );
+          } else {
+            // si no es particular, hace la lógica del cálculo
+            const planActual = pacienteActual.plan; // primero, obtiene el plan del placiente por el que itera
             console.log("planPacienteActual", planActual);
-            // var planActual = planes.find(
-            //   // busca el plan en la coleccion de planes para
-            //   (plan) => plan.plan == planPacienteActual
-            // ); // obtener el objeto plan correspondiente a la db planes
             console.log(
               `planActual ${planActual} - pagoSesion ${pagoSesion} - planActual.valorOs ${planActual.valorOs}`
             );
+            if (pagoSesion < planActual.valorCoseguro) {
+              // si el pago es menor al coseguro, calcula la deuda
+              totalAdeudado += planActual.valorCoseguro - pagoSesion;
+              console.log(`totalAdeudado: ${totalAdeudado}`);
+            }
             totalPagos += planActual.valorOs + pagoSesion; // suma el valor del pago mas el valor que paga la Os
             console.log(
               `paciente ${pacienteActual.apellido}, fechaSesion: ${
@@ -360,6 +374,7 @@ Las variables de los inputs del formulario de sesiones:
       });
 
       console.log("Total pagos mes actual: ", totalPagos);
+      console.log("Total adeudado mes actual: ", totalAdeudado);
 
       // Retorna las sesiones obtenidas y el total de los pagos
       return totalPagos;
@@ -370,11 +385,11 @@ Las variables de los inputs del formulario de sesiones:
   };
 
   //funcion que obtiene la suma de los valores de los pagos, quizas no tenga sentido
-  const sumaValorPagoTotal = () => {
-    return sesiones.reduce((sum, pago) => sum + pago.valorPago, 0);
-  };
+  // const sumaValorPagoTotal = () => {
+  //   return sesiones.reduce((sum, pago) => sum + pago.valorPago, 0);
+  // };
 
-  $: sumaValorPagoTotal(); // quizas esta linea no tenga sentido
+  // $: sumaValorPagoTotal(); // quizas esta linea no tenga sentido
 
   $: obtenerRegistrosMesActual();
 
@@ -393,6 +408,39 @@ Las variables de los inputs del formulario de sesiones:
   };
 
   $: sumaValorPagoPorPaciente($idPacienteSeleccionado);
+
+  var valorUltimaSesion = (pacientex) => {
+    console.log("valorUltimaSesion");
+  };
+
+  const actualizaValoresSesionesPorUnicaVez = () => {
+    sesiones.forEach((sesion) => {
+      // buscar plan del paciente de la sesion iterada:
+      console.log(`sesion ${sesion.pacienteID}`);
+      var pacienteIDx = sesion.pacienteID;  //con el ID del paciente de la sesion iterada
+      var pacientex = pacientes.find(       //encuentra el objeto paciente de la suscripcion a la coleccion pacientes
+        (pacientexx) => pacientexx.id == pacienteIDx
+      );
+      console.log(pacientex);
+      var planPacientex = pacientex.plan;     //plan del paciente de la sesion iterada 
+      console.log(`pacientex ${pacientex.apellido} planpacientex ${planPacientex}`);
+      if (planPacientex === "particular") {        //si es un paciente particular
+        console.log(                               //el valor de la sesion es el mismo que el de la sesion iterada
+          `paciente: ${                            //o sea, sesion.valorSesion
+            pacientex.apellido
+          }, es particular , valorSesion ${sesion.valorSesion}`          
+        );
+      } else {                                              //si es un paciente de Obra Social/Prepaga
+        var valorCosegurox = planPacientex.valorCoseguro;   //toma el valor del coseguro
+        var valorOsx = planPacientex.valorOs;               //toma el valor que paga la Os
+        var valorSesionx = valorCosegurox + valorOsx;       //calcula el valor total de la sesion
+        console.log(
+          `paciente: ${pacientex.apellido}, plan ${planPacientex.plan}, coseguro ${valorCosegurox}, valorOs ${valorOsx}, valorSesionx ${valorSesionx}`
+        );
+      }
+    });
+    
+  };
 </script>
 
 <main>
@@ -480,13 +528,14 @@ Las variables de los inputs del formulario de sesiones:
                   >
                 {/each}
               </select>
-              <!-- {@debug mesSeleccionado, mesActual} -->
               <button on:click={() => obtenerRegistrosMesActual()}
                 >registros mes {mesSeleccionado}</button
               >
               <!-- este boton de depurar sesiones solo se debe activar en casos extremos. Borra sesiones de pacientes inexistentes directamente de la base de datos -->
               <!-- deberia reemplazarse por la opcion de actvar/desactivar un paciente con un campo, y sus respectivas sesiones -->
               <!-- <button on:click={depurarSesiones}>Depurar sesiones</button> -->
+
+              <button on:click={actualizaValoresSesionesPorUnicaVez} />
             </div>
           </div>
         </form>
