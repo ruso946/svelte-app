@@ -1,33 +1,24 @@
 <script>
-  import { createEventDispatcher, onMount } from "svelte";
+  import { createEventDispatcher } from "svelte";
   export let pacientesFiltrada;
-  export let planSelect;
-  let i;
-  // onMount(() => {
-  //   const selPac = document.getElementById("elementoSelectPacientes");
-  //   console.log(selPac);
-  //   const opcionesSelect = selPac.options;    
-  //   opcionesSelect.selectedIndex = 0;
-  //   console.log(opcionesSelect.selectedIndex);
-  //   i = 0; //el indice de la opcion seleccionada en el Select de este componente
-  // });
-
+  export let planSelect;// estado que tambien va a pasarse en el evento cambioSelectPaciente
+  let i;                // indice que se entrega con el evento cambioSelectPaciente
+  let pacienteId;       // id del paciente seleccionado que se entrega con el evento cambioSelectPaciente
   const dispatch = createEventDispatcher();
 
   const handleSelect = (event) => {
     const indiceSelectPaciente = event.target.value;    
     planSelect = pacientesFiltrada[indiceSelectPaciente].plan;
-    dispatch("cambioSelectPaciente", [indiceSelectPaciente, planSelect]);
+    pacienteId = pacientesFiltrada[indiceSelectPaciente].id;
+    dispatch("cambioSelectPaciente", [indiceSelectPaciente, planSelect,pacienteId]);
+    
     console.log(
-      `dispatch cambioSelectPaciente, valorindiceSelectPaciente: 
+      `dispatch cambioSelectPaciente, idPaciente ${pacienteId} valorindiceSelectPaciente: 
       ${indiceSelectPaciente}, planSelect ${planSelect.plan ? planSelect.plan : "particular"}`
     );
     /*con este evento cambioSelectPaciente que se dispara al cambiar de eleccion de paciente
-     en el select de pacientes se entrega el valor de ese select.
-     En este momento es "i", pero podría pasarse el objeto correspondiente al paciente seleccionado
-     junto a "i" en un array.
-     De este modo, se puede mantener el funcionamiento en base a "i" de la logica del componente
-     y al mismo tiempo, simplificar el estado del componente y prescindir del uso del store
+     en el select de pacientes se entrega el valor de ese select, y tambien el id de paciente
+     y el plan correspondiente
     */
   };
 </script>

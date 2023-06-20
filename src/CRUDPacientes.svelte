@@ -262,6 +262,7 @@
     //funcion que trae del evento personalizado del componente SelectorPacientes
     i = event.detail[0]; //el valor de i, que es el indice de la lista de pacientes filtrada que se
     const planSelect = event.detail[1]; //actualiza al seleccionar un paciente en el select del componente
+    $idPacienteSeleccionado = event.detail[2]; //actualiza el id de paciente seleccionado en el store    
     const planSelectNombrePlan =
       typeof planSelect == "string" ? "particular" : planSelect.plan; //planSelect es un objeto
     console.log(`i ${i}, planSelect ${planSelectNombrePlan}`);
