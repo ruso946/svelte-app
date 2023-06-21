@@ -30,7 +30,8 @@
     nombreSeleccionado,
   } from "./store";
   import VisualizarRegistros from "./assets/VisualizarRegistros.svelte";
- 
+  let vistaCalculos = false;
+  let arrayParaLaVista;
   let varSumaValorPagoPorPaciente;                        // variable para reflejar la suma por paciente por mes. Se pasa como prop a VisualizarRegistros
   let totalAdeudado = 0;
 
@@ -296,6 +297,15 @@ Las variables de los inputs del formulario de sesiones:
     return sesionesFiltradas.reduce((sum, pago) => sum + pago.valorSesion, 0);
   };
 
+  
+  //esta funcion hace el listado de las sesiones por mes en un div al fuinal de la pagina
+  //falta darle estilos
+  const listarItemsPorMes = async (mesSeleccionado)=>{
+    const arrayListadoItemsPorMes = await obtenerRegistrosMesActual(mesSeleccionado);    
+    arrayParaLaVista = arrayListadoItemsPorMes[1];    
+    vistaCalculos = true;
+  };
+
   const obtenerRegistrosMesActual = async (mesSeleccionado) => {
    
     if (!mesSeleccionado) {           //si al principio no hay seleccion de select, lo calcula a la fecha de hoy, el mes actual
@@ -336,6 +346,7 @@ Las variables de los inputs del formulario de sesiones:
       // Calcula la suma de los pagos
       totalPagos = 0;
       totalAdeudado = 0;
+      var arrayListadoItemsPorMes = [];
       querySnapshotConsultaMesActual.forEach((sesionMesActual) => {
         //  por cada sesion de la consulta de sesiones del mes actual:
         //  console.log(pacientes);
@@ -344,13 +355,12 @@ Las variables de los inputs del formulario de sesiones:
           //  para poder obtener el objeto paciente corespondiente
           (paciente) => paciente.id == pacienteActualID
         );
-        //obtenerRegistrosMesActual;
-
-        console.log(pacienteActual);
+        
+        console.log(`pacienteActual ${pacienteActual.apellido}, ${pacienteActual.nombre} - plan ${pacienteActual.plan.plan?pacienteActual.plan.plan:"particular"}`);
 
         var pagoSesion = sesionMesActual.data().valorPago; // toma el valor del pago de la sesion que está iterando
         if (pagoSesion == null) {
-          // lo pasa aa valor cero si es null
+          // lo pasa a valor cero si es null
           pagoSesion = 0;
         }
         if (typeof pagoSesion === "number") {
@@ -360,18 +370,46 @@ Las variables de los inputs del formulario de sesiones:
             if (pagoSesion < valorSesion) {
               totalAdeudado += valorSesion - pagoSesion; //calcula deuda si corresponde
             }
-            // console.log(
+            console.log(
+              `fechaSesion ${sesionMesActual.data().diaSesion} pagoSesion ${pagoSesion} - valorSesion ${sesionMesActual.data().valorSesion}`
+             // console.log(
             //   `paciente ${pacienteActual.apellido}, valor pago ${
             //     sesionMesActual.data().valorPago
             //   }, total acumulado ${totalPagos}`
-            // );
+            );
+              var objetoParaPushearAlListado = {
+              diaSesion : sesionMesActual.data().diaSesion,
+              apellido : pacienteActual.apellido,
+              nombre: pacienteActual.nombre,
+              plan : pacienteActual.plan.plan?pacienteActual.plan.plan:"particular",
+              valorPago : pagoSesion,
+              valorSesion : sesionMesActual.data().valorSesion
+            }            
+            console.log (objetoParaPushearAlListado);
+            arrayListadoItemsPorMes.push(objetoParaPushearAlListado);
+            //console.log (`objetoParaPushearAlListado: ${objetoParaPushearAlListado}`)
           } else {
                                                     // si no es particular, hace la lógica del cálculo
             const planActual = pacienteActual.plan; // primero, obtiene el plan del placiente por el que itera
-            console.log("planPacienteActual", planActual);
+            // console.log("planPacienteActual", planActual);
             console.log(
-              `planActual ${planActual} - pagoSesion ${pagoSesion} - planActual.valorOs ${planActual.valorOs}`
+              `fechaSesion ${sesionMesActual.data().diaSesion} pagoSesion ${pagoSesion} - valorSesion ${sesionMesActual.data().valorSesion}`
+            // console.log(
+            //   `planActual ${planActual} - pagoSesion ${pagoSesion} - planActual.valorOs ${planActual.valorOs}`            
             );
+            var objetoParaPushearAlListado = {
+              diaSesion : sesionMesActual.data().diaSesion,
+              apellido : pacienteActual.apellido,
+              nombre: pacienteActual.nombre,
+              plan : pacienteActual.plan.plan?pacienteActual.plan.plan:"particular",
+              valorPago : pagoSesion,
+              valorSesion : sesionMesActual.data().valorSesion
+            } 
+
+            console.log(objetoParaPushearAlListado);
+
+            arrayListadoItemsPorMes.push(objetoParaPushearAlListado);
+
             if (pagoSesion < planActual.valorCoseguro) {
               // si el pago es menor al coseguro, calcula la deuda
               totalAdeudado += planActual.valorCoseguro - pagoSesion;
@@ -395,7 +433,7 @@ Las variables de los inputs del formulario de sesiones:
 
 
       // Retorna las sesiones obtenidas y el total de los pagos
-      return totalPagos;
+      return [totalPagos, arrayListadoItemsPorMes];
     } catch (error) {
       console.error("Error al obtener las sesiones y los pagos:", error);
       return [];
@@ -558,9 +596,14 @@ Las variables de los inputs del formulario de sesiones:
                   >
                 {/each}
               </select>
-              <button on:click={() => obtenerRegistrosMesActual(mesSeleccionado)}
+              <button on:click={() => listarItemsPorMes(mesSeleccionado)}
+                >listar mes {mesSeleccionado}</button
+              >
+              <!-- <button on:click={() => obtenerRegistrosMesActual(mesSeleccionado)}
                 >registros mes {mesSeleccionado}</button
               >
+              cambiar este boton a que controle la vista de la lista de items de los pagos
+               -->
               <!-- este boton de depurar sesiones solo se debe activar en casos extremos. Borra sesiones de pacientes inexistentes directamente de la base de datos -->
               <!-- deberia reemplazarse por la opcion de actvar/desactivar un paciente con un campo, y sus respectivas sesiones -->
               <!-- <button on:click={depurarSesiones}>Depurar sesiones</button> -->
@@ -571,6 +614,21 @@ Las variables de los inputs del formulario de sesiones:
         </form>
       </div>
     {/if}
+    <div>
+      {#if vistaCalculos}
+      <h1>Array listado items por mes</h1>
+      <ul>
+        {#each arrayParaLaVista as item }
+          <li>
+            {`${item.diaSesion} - ${item.apellido}, ${item.nombre} - ${item.plan} - pago: $ ${item.valorPago} - valor sesion: $${item.valorSesion} `}
+          </li>
+      {/each}
+      </ul>  
+  
+      <button on:click={()=>vistaCalculos=false}>ocultar</button>
+      {/if}
+    </div>
+    
   </body>
 </main>
 
