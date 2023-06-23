@@ -617,7 +617,7 @@ Las variables de los inputs del formulario de sesiones:
       </div>
     {/if}
 
-    <ListadoSesionesPorMes {vistaCalculos} {arrayParaLaVista} {totalPagos} {mesSeleccionado}/>
+    <ListadoSesionesPorMes on:vistaPulsado={(e)=>obtenerRegistrosMesActual(e.detail.mesSeleccionado)} {vistaCalculos} {arrayParaLaVista} {totalPagos} {mesSeleccionado}/>
     <!-- <div class="listadoSesionesPorMes">
       {#if vistaCalculos}
       <h1>Listado sesiones por mes</h1>
