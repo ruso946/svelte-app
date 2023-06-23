@@ -31,7 +31,7 @@
         </ul>
         <p class="centrar">Total: ${totalPagos}</p>
 
-        <button on:click={() => (vistaCalculos = false)}>ocultar</button>
+        <button on:click={() => vistaCalculos = false }>ocultar</button>
     {/if}
 </div>
 
