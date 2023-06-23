@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import Toastify from "toastify-js";
   import "sweetalert2/src/sweetalert2.scss";
+  import ListadoSesionesPorMes from "./assets/ListadoSesionesPorMes.svelte";
   import { db } from "./configFirebase/firebasePacientes";
   // import {devuelveFechaActual,    //si lo quiero usar hay que revisarlo. Lo modifiqué para que sirva al nombre del backup de colecciones firestore
   // } from "./modulos/moduloSesiones";
@@ -30,6 +31,7 @@
     nombreSeleccionado,
   } from "./store";
   import VisualizarRegistros from "./assets/VisualizarRegistros.svelte";
+
   let vistaCalculos = false;
   let arrayParaLaVista;
   let varSumaValorPagoPorPaciente;                        // variable para reflejar la suma por paciente por mes. Se pasa como prop a VisualizarRegistros
@@ -614,20 +616,22 @@ Las variables de los inputs del formulario de sesiones:
         </form>
       </div>
     {/if}
-    <div>
+
+    <ListadoSesionesPorMes {vistaCalculos} {arrayParaLaVista} {totalPagos} {mesSeleccionado}/>
+    <!-- <div class="listadoSesionesPorMes">
       {#if vistaCalculos}
-      <h1>Array listado items por mes</h1>
+      <h1>Listado sesiones por mes</h1>
       <ul>
-        {#each arrayParaLaVista as item }
+        {#each arrayParaLaVista as item, indice }
           <li>
-            {`${item.diaSesion} - ${item.apellido}, ${item.nombre} - ${item.plan} - pago: $ ${item.valorPago} - valor sesion: $${item.valorSesion} `}
+            {`${indice+1}-${item.diaSesion} - ${item.apellido}, ${item.nombre} - ${item.plan} - pago: $ ${item.valorPago} - valor sesion: $${item.valorSesion} `}
           </li>
       {/each}
       </ul>  
   
       <button on:click={()=>vistaCalculos=false}>ocultar</button>
       {/if}
-    </div>
+    </div> -->
     
   </body>
 </main>
@@ -749,5 +753,5 @@ Las variables de los inputs del formulario de sesiones:
 
   #mesRegistro {
     width: 100px;
-  }
+  }  
 </style>
