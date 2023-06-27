@@ -37,11 +37,17 @@ export const querySnapshotConsultaMesActual = async (mesSeleccionado) => {
 };
 
 // estoy haciendo la consulta de Pacientes que se ejecuta en el boton del componente ListadoSesionesPorMes
-//Hasta ahora da un objeto que hay que convertir a datos
+//Hasta ahora da un objeto que se convierte a datos
+let arrayPacientes=[];
+
 export let querySnapshotPacientes = async () => {
   try {
-    const querySnapshot = await getDocs(pacientesRef)
-    console.log(querySnapshot);  
+    const querySnapshot = await getDocs(pacientesRef)    
+    querySnapshot.forEach((paciente) => {      
+      console.log(paciente.id, " => ", paciente.data());
+      arrayPacientes.push([paciente.id, paciente.data()]);
+    });
+    console.log(arrayPacientes);  
   } catch (error) {
     console.error(error);    
   }    
