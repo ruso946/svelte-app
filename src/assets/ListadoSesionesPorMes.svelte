@@ -1,5 +1,6 @@
 <script>
-    import { createEventDispatcher } from "svelte";    
+    import { createEventDispatcher } from "svelte";
+    import {querySnapshotPacientes}  from "../modulos/moduloConsultasBBDD";
     export let mesSeleccionado;
     export let vistaCalculos;
     export let arrayParaLaVista;
@@ -22,7 +23,8 @@
 
     const handleMostrarVista = () => {
         if (!vistaCalculos) {
-            dispatch("vistaPulsado", mesSeleccionado);            
+            dispatch("vistaPulsado", mesSeleccionado); 
+            querySnapshotPacientes();
         }
         vistaCalculos = !vistaCalculos;
     };

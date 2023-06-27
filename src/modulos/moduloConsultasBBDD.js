@@ -35,3 +35,15 @@ export const querySnapshotConsultaMesActual = async (mesSeleccionado) => {
   );
   return querySnapshot.docs.map((sesionMesActual) => sesionMesActual.data());
 };
+
+// estoy haciendo la consulta de Pacientes que se ejecuta en el boton del componente ListadoSesionesPorMes
+//Hasta ahora da un objeto que hay que convertir a datos
+export let querySnapshotPacientes = async () => {
+  try {
+    const querySnapshot = await getDocs(pacientesRef)
+    console.log(querySnapshot);  
+  } catch (error) {
+    console.error(error);    
+  }    
+};
+
