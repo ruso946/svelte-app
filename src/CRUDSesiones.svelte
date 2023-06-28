@@ -1,8 +1,10 @@
 <script>
-  import { onMount } from "svelte";
   import Toastify from "toastify-js";
   import "sweetalert2/src/sweetalert2.scss";
-  import { db } from "./firebasePacientes";
+  import ListadoSesionesPorMes from "./assets/ListadoSesionesPorMes.svelte";
+  import { db } from "./configFirebase/firebasePacientes";
+  // import {devuelveFechaActual,    //si lo quiero usar hay que revisarlo. Lo modifiqué para que sirva al nombre del backup de colecciones firestore
+  // } from "./modulos/moduloSesiones";
 
   import {
     collection,
@@ -17,67 +19,98 @@
     getDocs,
   } from "firebase/firestore";
 
+  import { querySnapshotConsultaMesActual } from "./modulos/moduloConsultasBBDD";
+
   export let sesiones; // array que va a usarse para suscribirse a la db sesiones.
-  let pacientes; // array que va a usarse para suscribirse a la db Pacientes.
+  export let pacientes; // array que va a usarse para suscribirse a la db Pacientes.
+  export let planes; // array que va a usarse para suscribirse a la db planes.
+  export let planSeleccionado; //objeto que pasa el plan seleccionado en SelectPlan.svelte
+
   import {
     idPacienteSeleccionado,
     apellidoSeleccionado,
     nombreSeleccionado,
   } from "./store";
+  import VisualizarRegistros from "./assets/VisualizarRegistros.svelte";
+  //import { mesSeleccionadoStore } from "./store";
 
-  //este onMount hace una suscripcion a las db "Pacientes" y "sesiones"
-  onMount(() => {
-    const unsubscribeFunctions = [];
-    const sesionesRef = collection(db, "sesiones");
-    const pacientesRef = collection(db, "Pacientes");
-    const qs = query(sesionesRef, orderBy("diaSesion"));
-    const qp = query(pacientesRef, orderBy("apellido"));
+  let vistaCalculos;
+  let arrayParaLaVista = []; //si no agrego esta definicion de array vacío, entonces no funciona de una el boton del componente ListadoSesionesPorMes porque no toma arrayParaLaVista como un array.
+  let varSumaValorPagoPorPaciente; // variable para reflejar la suma por paciente por mes. Se pasa como prop a VisualizarRegistros
+  let totalAdeudado = 0;
 
-    //hacer una consulta de suscripcion por mes para sacar el total por mes
-    //por paciente y por todas as sesiones del mes
+  //obtiene la fecha actual
+  const fechaActual = new Date();
 
-    const unsubscribeSesiones = onSnapshot(qs, (snapshot) => {
-      sesiones = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      const compararPorDiaSesion = (sesion1, sesion2) => {
-        //funcion para ordenar con pacientes.sort()
-        if (sesion1.diaSesion < sesion2.diaSesion) {
-          return -1;
-        }
-        if (sesion1.diaSesion > sesion2.diaSesion) {
-          return 1;
-        }
-        return 0;
-      };
-      sesiones.sort(compararPorDiaSesion); // ordena los pacientes por orden alfabetico de apellido
-    });
+  // Obtiene el mes y año actual
+  let mesActual = fechaActual.getMonth() + 1; // Los meses en JavaScript van de 0 a 11, por lo que se suma 1
+  let anioActual = fechaActual.getFullYear();
+  let mesSeleccionado = mesActual; // variable para hacer el bind:value en el select de meses
 
-    console.log("desde onMount CRUDSesiones", sesiones);
-    unsubscribeFunctions.push(unsubscribeSesiones);
-
-    const unsubscribePacientes = onSnapshot(qp, (snapshot) => {
-      pacientes = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-    });
-
-    unsubscribeFunctions.push(unsubscribePacientes);
-
-    return () => {
-      unsubscribeFunctions.forEach((unsubscribe) => unsubscribe());
-    };
-  });
+  //$: $mesSeleccionadoStore = mesSeleccionado;
+  console.log(`mesSeleccionado ${mesSeleccionado}`);
+  let meses = [
+    {
+      nro: 1,
+      nombre: "enero",
+    },
+    {
+      nro: 2,
+      nombre: "febrero",
+    },
+    {
+      nro: 3,
+      nombre: "marzo",
+    },
+    {
+      nro: 4,
+      nombre: "abri",
+    },
+    {
+      nro: 5,
+      nombre: "mayo",
+    },
+    {
+      nro: 6,
+      nombre: "junio",
+    },
+    {
+      nro: 7,
+      nombre: "julio",
+    },
+    {
+      nro: 8,
+      nombre: "agosto",
+    },
+    {
+      nro: 9,
+      nombre: "setiembre",
+    },
+    {
+      nro: 10,
+      nombre: "octubre",
+    },
+    {
+      nro: 11,
+      nombre: "noviembre",
+    },
+    {
+      nro: 12,
+      nombre: "diciembre",
+    },
+  ];
 
   let selectedSessionId;
   let selectedSession;
+  let totalPagos = 0;
 
   $: console.log(
-    "luego de las subscripciones a pacientes y sesiones",
+    "luego de las subscripciones a pacientes, planes y sesiones: sesiones>",
     sesiones,
-    pacientes
+    "pacientes>",
+    pacientes,
+    "planes>",
+    planes
   );
 
   $: {
@@ -120,7 +153,21 @@ Funciones del formulario:
     );
     console.log("selectedSession", selectedSession); // es un objeto
     valorPago = selectedSession.valorPago;
-    valorSesion = selectedSession.valorSesion;
+    console.log(`planSeleccionado: ${planSeleccionado}`);
+    if (
+      typeof planSeleccionado.plan === "undefined" ||
+      planSeleccionado.plan == "particular" ||
+      !planSeleccionado
+    ) {
+      valorSesion = selectedSession.valorSesion;
+      console.log("particular", valorSesion);
+    } else {
+      //valorSesion = planSeleccionado.valorCoseguro + planSeleccionado.valorOs;
+      var planActual = planes.find((plan) => plan.plan == planSeleccionado);
+      console.log(planActual);
+      console.log("OS", valorSesion);
+    }
+
     fechaPago = selectedSession.fechaPago;
     diaSesion = selectedSession.diaSesion;
   };
@@ -227,97 +274,220 @@ Las variables de los inputs del formulario de sesiones:
   let valorSesion = 5000;
   let diaSesion = new Date().toISOString().slice(0, 10); //new Date().toLocaleDateString();
   let fechaPago = new Date().toISOString().slice(0, 10);
+
   ///////////////////////////////////////////////////////////////
   //para hacer consultas que obtienen totales por mes actual:  //
   ///////////////////////////////////////////////////////////////
 
-  const obtenerRegistrosMesActual = async () => {
-    const sesionesRef = collection(db, "sesiones");
+  // Formatea el mes y año actual en el formato "aaaa-mm"
+  let mesActualFormateado = mesActual.toString().padStart(2, "0");
+  let anioActualFormateado = anioActual.toString();
 
-    // Obtiene la fecha actual
-    const fechaActual = new Date();
+  //$: mesActualFormateado = mesActual.toString().padStart(2, "0");
 
-    // Obtiene el mes y año actual
-    const mesActual = fechaActual.getMonth() + 1; // Los meses en JavaScript van de 0 a 11, por lo que se suma 1
-    const anioActual = fechaActual.getFullYear();
+  // Crea las fechas de inicio y fin del mes actual
+  let fechaInicioMes = `${anioActualFormateado}-${mesActualFormateado}-01`;
+  let fechaFinMes = `${anioActualFormateado}-${mesActualFormateado}-31`;
 
-    // Formatea el mes y año actual en el formato "aaaa-mm"
-    const mesActualFormateado = (mesActual - 1).toString().padStart(2, "0");
-    const anioActualFormateado = anioActual.toString();
-
-    // Crea las fechas de inicio y fin del mes actual
-    const fechaInicioMes = `${anioActualFormateado}-${mesActualFormateado}-01`;
-    const fechaFinMes = `${anioActualFormateado}-${mesActualFormateado}-31`;
-
-    // Filtra las sesiones utilizando la función "where" de Firestore
-    const consultaMesActual = query(
-      sesionesRef,
-      where("diaSesion", ">=", fechaInicioMes),
-      where("diaSesion", "<=", fechaFinMes)
+  let funcSumaValorPagoPorPaciente = (pacienteID) => {
+    // obtiene la suma de los pagos de los valores por el paciente seleccionado
+    // que está en el store.js, y filtrando tambien por mes actual
+    //console.log("sesiones[0][diaSesion].slice(5,7)",sesiones[0][diaSesion].slice(5, 7), "mesActual",mesActual.toString().padStart(2, "0"));
+    const sesionesFiltradas = sesiones.filter(
+      (sesion) =>
+        sesion.pacienteID === pacienteID &&
+        sesion.diaSesion.slice(5, 7) ===
+          mesSeleccionado.toString().padStart(2, "0")
     );
+    return sesionesFiltradas.reduce((sum, pago) => sum + pago.valorSesion, 0);
+  };
+
+  //esta funcion hace el listado de las sesiones por mes en un div al final de la pagina
+  //falta darle estilos
+  const listarItemsPorMes = async (mesSeleccionado) => {
+    const arrayListadoItemsPorMes = await obtenerRegistrosMesActual(
+      mesSeleccionado
+    );
+    arrayParaLaVista = arrayListadoItemsPorMes[1];
+    console.log(Array.isArray(arrayListadoItemsPorMes[1]));
+    console.log(arrayListadoItemsPorMes[1]);
+    vistaCalculos = true;
+  };
+
+  const obtenerRegistrosMesActual = async (mesSeleccionado) => {
+    if (!mesSeleccionado) {
+      //si al principio no hay seleccion de select, lo calcula a la fecha de hoy, el mes actual
+      mesSeleccionado = mesActual;
+    }
+    // esta funcion obtiene en la variable totalPagos, la suma de los pagos
+    // de las sesiones del mes actual (el seleccionado en el select de meses)
+    // mas los pagos que hace la OS por cada sesion
 
     try {
-      const querySnapshot = await getDocs(consultaMesActual);
-
       // Itera sobre los documentos y extrae los datos de las sesiones
-      const sesionesPorMesActual = querySnapshot.docs.map((doc) => doc.data());
-      console.log("sesiones por mes actual", sesionesPorMesActual);
-
+      const sesionesPorMesActual = await querySnapshotConsultaMesActual(
+        mesSeleccionado
+      );
       // Calcula la suma de los pagos
-      let totalPagos = 0;
-      querySnapshot.forEach((doc) => {
-        console.log(pacientes);
-        let pacienteActualID = doc.data().pacienteID;        
+      totalPagos = 0;
+      totalAdeudado = 0;
+      let arrayListadoItemsPorMes = [];
+      console.log(typeof arrayListadoItemsPorMes);
+      sesionesPorMesActual.forEach((sesionMesActual) => {
+        //  por cada sesion de la consulta de sesiones del mes actual:
+        //  console.log(pacientes);
+        let pacienteActualID = sesionMesActual.pacienteID; //  primero obtiene el ID del paciente de la sesion en la que está iterando
         const pacienteActual = pacientes.find(
+          //  para poder obtener el objeto paciente corespondiente
           (paciente) => paciente.id == pacienteActualID
         );
-
-        console.log(pacienteActual);
-
-        const pagoSesion = doc.data().valorPago;
-        if (typeof pagoSesion === "number" || pagoSesion == null) {
+        //console.log(`pacienteActual ${pacienteActual.apellido}, ${pacienteActual.nombre} - plan ${pacienteActual.plan.plan?pacienteActual.plan.plan:"particular"}`);
+        var pagoSesion = sesionMesActual.valorPago; // toma el valor del pago de la sesion que está iterando
+        if (pagoSesion == null) {
+          // lo pasa a valor cero si es null
+          pagoSesion = 0;
+        }
+        if (typeof pagoSesion === "number") {
           if (pacienteActual.plan == "particular") {
-            totalPagos += pagoSesion;
-            console.log(`paciente ${pacienteActual.apellido}, valor pago ${doc.data().valorPago}, total acumulado ${totalPagos}`);
+            //si el paciente es particular
+            totalPagos += pagoSesion; //usa ese valor para sumar al total que está calculando
+            if (pagoSesion < valorSesion) {
+              totalAdeudado += valorSesion - pagoSesion; //calcula deuda si corresponde
+            }
+            var objetoParaPushearAlListado = {
+              diaSesion: sesionMesActual.diaSesion,
+              apellido: pacienteActual.apellido,
+              nombre: pacienteActual.nombre,
+              plan: pacienteActual.plan.plan
+                ? pacienteActual.plan.plan
+                : "particular",
+              valorPago: pagoSesion,
+              valorSesion: sesionMesActual.valorSesion,
+            };
+            console.log(objetoParaPushearAlListado);
+            console.log(typeof arrayListadoItemsPorMes);
+            arrayListadoItemsPorMes.push(objetoParaPushearAlListado);
           } else {
-            totalPagos += 2700;//aca esta simplificado. Hay que armar la logica de tomar los valores por plan dela db
-            console.log(`paciente ${pacienteActual.apellido}, valor pago 2700, total acumulado ${totalPagos}`);
+            // si no es particular, hace la lógica del cálculo
+            const planActual = pacienteActual.plan; // primero, obtiene el plan del placiente por el que itera
+
+            var objetoParaPushearAlListado = {
+              diaSesion: sesionMesActual.diaSesion,
+              apellido: pacienteActual.apellido,
+              nombre: pacienteActual.nombre,
+              plan: pacienteActual.plan.plan
+                ? pacienteActual.plan.plan
+                : "particular",
+              valorPago: pagoSesion,
+              valorSesion: sesionMesActual.valorSesion,
+            };
+
+            console.log(objetoParaPushearAlListado);
+            console.log(typeof arrayListadoItemsPorMes);
+            arrayListadoItemsPorMes.push(objetoParaPushearAlListado);
+
+            if (pagoSesion < planActual.valorCoseguro) {
+              // si el pago es menor al coseguro, calcula la deuda
+              totalAdeudado += planActual.valorCoseguro - pagoSesion;
+              console.log(`totalAdeudado: ${totalAdeudado}`);
+            }
+            totalPagos += planActual.valorOs + pagoSesion; // suma el valor del pago mas el valor que paga la Os
+            console.log(
+              `paciente ${pacienteActual.apellido}, fechaSesion: ${
+                sesionMesActual.diaSesion
+              }, valor Os + Coseguro$${
+                planActual.valorOs + planActual.valorCoseguro
+              }, total acumulado ${totalPagos}`
+            );
           }
         }
       });
 
       console.log("Total pagos mes actual: ", totalPagos);
-      const pTotalPagos = document.querySelector("#totalGeneral");
-      pTotalPagos.innerHTML = "total mes: $"+ totalPagos.toString();
+      console.log("Total adeudado mes actual: ", totalAdeudado);
+      varSumaValorPagoPorPaciente = funcSumaValorPagoPorPaciente(
+        $idPacienteSeleccionado
+      );
 
       // Retorna las sesiones obtenidas y el total de los pagos
-      return totalPagos;
+      console.log(typeof arrayListadoItemsPorMes);
+      return [totalPagos, arrayListadoItemsPorMes];
     } catch (error) {
       console.error("Error al obtener las sesiones y los pagos:", error);
       return [];
     }
   };
 
-  //funcion que obtiene la suma de los valores de los pagos
-  const sumaValorPagoTotal = () => {
-    return sesiones.reduce((sum, pago) => sum + pago.valorPago, 0);
-  };
-
-  $: sumaValorPagoTotal();
-
   $: obtenerRegistrosMesActual();
 
-  
+  $: varSumaValorPagoPorPaciente = funcSumaValorPagoPorPaciente(
+    $idPacienteSeleccionado
+  );
 
-  const sumaValorPagoPorPaciente = (pacienteID) => {
-    const sesionesFiltradas = sesiones.filter(
-      (sesion) => sesion.pacienteID === pacienteID
-    );
-    return sesionesFiltradas.reduce((sum, pago) => sum + pago.valorPago, 0);
+  var valorUltimaSesion = (pacientex) => {
+    console.log("valorUltimaSesion");
   };
 
-  $: sumaValorPagoPorPaciente($idPacienteSeleccionado);
-  //funcion que obtiene la suma de los valores de las sesiones
+  /////////////////////////////////////////////////////////////////////////
+  const updateSesionPorUnicaVez = async (sesionAmodificar, valorSesionPUV) => {
+    console.log("Update sesion", sesionAmodificar, valorSesionPUV);
+    try {
+      await updateDoc(doc(db, "sesiones", sesionAmodificar.id), {
+        //valorPago: valorPago,
+        valorSesion: valorSesionPUV,
+        //fechaPago: fechaPago,
+        //diaSesion: diaSesion,
+      });
+      Toastify({
+        text: `sesion actualizada ${sesionAmodificar.fechaSesion}`,
+        style: {
+          background: "linear-gradient(to right, #00b09b, #96c93d)",
+        },
+      }).showToast();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const actualizaValoresSesionesPorUnicaVez = () => {
+    sesiones.forEach((sesion) => {
+      //console.log(sesion);
+
+      if (sesion.diaSesion >= "2023-06-01") {
+        // buscar plan del paciente de la sesion iterada:
+        console.log(`sesion ${sesion.pacienteID} ${sesion.diaSesion}`);
+        var pacienteIDx = sesion.pacienteID; //con el ID del paciente de la sesion iterada
+        var pacientex = pacientes.find(
+          //encuentra el objeto paciente de la suscripcion a la coleccion pacientes
+          (pacientexx) => pacientexx.id == pacienteIDx
+        );
+        console.log(pacientex);
+        var planPacientex = pacientex.plan; //plan del paciente de la sesion iterada
+        console.log(
+          `pacientex ${pacientex.apellido} planpacientex ${planPacientex}`
+        );
+        if (planPacientex === "particular") {
+          //si es un paciente particular
+          console.log(
+            //el valor de la sesion es el mismo que el de la sesion iterada
+            `paciente: ${
+              //o sea, sesion.valorSesion
+              pacientex.apellido
+            }, es particular , valorSesion ${sesion.valorSesion}`
+          );
+        } else {
+          //si es un paciente de Obra Social/Prepaga
+          var valorCosegurox = planPacientex.valorCoseguro; //toma el valor del coseguro
+          var valorOsx = planPacientex.valorOs; //toma el valor que paga la Os
+          var valorSesionx = valorCosegurox + valorOsx; //calcula el valor total de la sesion
+          console.log(
+            `paciente: ${pacientex.apellido}, plan ${planPacientex.plan}, coseguro ${valorCosegurox}, valorOs ${valorOsx}, valorSesionx ${valorSesionx}`
+          );
+          //updateSesionPorUnicaVez(sesion, valorSesionx)
+        }
+      }
+    });
+  };
 </script>
 
 <main>
@@ -326,12 +496,13 @@ Las variables de los inputs del formulario de sesiones:
     <!-- Este Select va a elegir la sesion por ID de paciente -->
     <div id="select">
       <select
+        id="select-sesiones"
         on:change={handle_onChange_select_sesiones}
         bind:value={selectedSessionId}
         size={5}
       >
         {#each sesiones as sesion}
-          {#if Object.values(sesion).includes($idPacienteSeleccionado)}
+          {#if Object.values(sesion).includes($idPacienteSeleccionado) && sesion.diaSesion.slice(5, 7) == mesSeleccionado}
             <option class="" value={sesion.id}
               >dia sesion: {sesion.diaSesion} - valor sesion: {sesion.valorSesion}
               - dia pago {sesion.fechaPago} - valor pago {sesion.valorPago}
@@ -339,15 +510,11 @@ Las variables de los inputs del formulario de sesiones:
           {/if}
         {/each}
       </select>
-<!-- {#await obtenerRegistrosMesActual}
-  esperando...
-{:then res}  -->
-<p id="totalGeneral">total general:{obtenerRegistrosMesActual()}</p>
-<p>
-  total por paciente:{sumaValorPagoPorPaciente($idPacienteSeleccionado)}
-</p>
-<!-- {/await} -->
-      
+
+      <VisualizarRegistros
+        registrosMesActual={totalPagos}
+        {varSumaValorPagoPorPaciente}
+      />
     </div>
     <!-- Si editStatus está en true, deja ver el formulario para editar/agregar sesiones -->
     {#if editStatus}
@@ -394,17 +561,45 @@ Las variables de los inputs del formulario de sesiones:
                 >delete</button
               >
               <button on:click={addSesion}>Agregar sesión</button>
-              <button on:click={() => obtenerRegistrosMesActual()}
-                >registros mes actual</button
+              <select
+                on:change={(e) => listarItemsPorMes(e.target.value)}
+                bind:value={mesSeleccionado}
+                name="mes"
+                id="mesRegistro"
               >
+                {#each meses as mes}
+                  <option value={mes.nro}
+                    >{`${mes.nro.toString().padStart(2, "0")} - ${
+                      mes.nombre
+                    }`}</option
+                  >
+                {/each}
+              </select>
+              <button on:click={() => listarItemsPorMes(mesSeleccionado)}
+                >listar mes {mesSeleccionado}</button
+              >
+              <!-- <button on:click={() => obtenerRegistrosMesActual(mesSeleccionado)}
+                >registros mes {mesSeleccionado}</button
+              >
+              cambiar este boton a que controle la vista de la lista de items de los pagos
+               -->
               <!-- este boton de depurar sesiones solo se debe activar en casos extremos. Borra sesiones de pacientes inexistentes directamente de la base de datos -->
               <!-- deberia reemplazarse por la opcion de actvar/desactivar un paciente con un campo, y sus respectivas sesiones -->
               <!-- <button on:click={depurarSesiones}>Depurar sesiones</button> -->
+
+              <!-- <button on:click={actualizaValoresSesionesPorUnicaVez} /> -->
             </div>
           </div>
         </form>
       </div>
     {/if}
+    <ListadoSesionesPorMes
+      on:vistaPulsado={() => listarItemsPorMes(mesSeleccionado)}
+      {vistaCalculos}
+      {arrayParaLaVista}
+      {totalPagos}
+      {mesSeleccionado}
+    />
   </body>
 </main>
 
@@ -513,7 +708,7 @@ Las variables de los inputs del formulario de sesiones:
     padding: 3px 1em;
   }
 
-  select {
+  #select-sesiones {
     max-width: 100%;
     min-width: 100%;
     font-size: x-small;
@@ -521,5 +716,9 @@ Las variables de los inputs del formulario de sesiones:
 
   option {
     font-size: x-small;
+  }
+
+  #mesRegistro {
+    width: 100px;
   }
 </style>

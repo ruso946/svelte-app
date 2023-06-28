@@ -2,38 +2,43 @@
   export let planes;
   export let planSeleccionado;
   export let SelectPlanVisible;
-  import { createEventDispatcher } from "svelte";
+  export let indicePlan;
+  import { createEventDispatcher, onMount } from "svelte";
   let SelectPlanHidden;  
-    
-  $:SelectPlanHidden = !SelectPlanVisible;    
+  
+
+  $: SelectPlanHidden = !SelectPlanVisible;
 
   const manejaVisibilidadSelectPlan = (verSelectPlan) => {
-    SelectPlanVisible=verSelectPlan;    
+    SelectPlanVisible = verSelectPlan;
   };
 
-  const modificaLabelPlan = () => {    
-    dispatch("clickCheckPlan", { valor:  {SelectPlanVisible}  });
-    
+  const modificaLabelPlan = () => {
+    dispatch("clickCheckPlan", { valor: { SelectPlanVisible } });
   };
 
   const clickCheckPlan = (event) => {
-                                                    // en esta funcion se verifica que al clickear en el checkbox de OS/particular
-    var verSelectPlan = event.target.checked;       // se haga o no visible el selector de planes        
-    manejaVisibilidadSelectPlan(verSelectPlan);     // y tambien se llama a la funcion que dispara el evento que modifica el label
-    modificaLabelPlan();                            // del select plan       
+    // en esta funcion se verifica que al clickear en el checkbox de OS/particular
+    var verSelectPlan = event.target.checked; // se haga o no visible el selector de planes
+    manejaVisibilidadSelectPlan(verSelectPlan); // y tambien se llama a la funcion que dispara el evento que modifica el label
+    modificaLabelPlan(); // del select plan
   };
   const dispatch = createEventDispatcher();
-  const cambioPlan = () => {
-    dispatch("cambioPlan", { valor: { planSeleccionado } });
+  const cambioPlan = (event) => {    
+    indicePlan = parseInt(event.target.value);
+    console.log(`tipo de dato indicePlan: ${typeof indicePlan}, indicePlan ${indicePlan}`)
+    // console.log(`planSeleccionado antes de modificarlo en cambioPlan${planSeleccionado}`)//acá es un objeto
+    // console.log(`planes, es lista de obj? ${planes}`);
+    // console.log(`planes[0] ${planes[0]}`);
+    // console.log(`planes[1] ${planes[1]}`);
+    // console.log(`planes[indicePlan] ${planes[indicePlan]}`);
+    console.log(`planSeleccionado.plan antes de modificarlo${planSeleccionado.plan}, indicePlan ${indicePlan}`);
+    planSeleccionado = planes[indicePlan];
+    console.log(`planSeleccionado.plan despues de modificarlo${planSeleccionado.plan}, indicePlan ${indicePlan}`);
+    dispatch("cambioPlan", planSeleccionado );
   };
 
-  const clickEvento = (e) =>{
-    console.log(e);
-    console.log(e.srcElement.open);    
-    alert("a ver si pasa algo");
-    
-  }
-  
+  //$: planSeleccionado = planes[indicePlan];
 </script>
 
 <!--
@@ -42,7 +47,7 @@
   si SelectPlanVisible=false entonces, no se muestra el SelectPlan, o sea, estaría indicando que es particular el paciente
   y por lo tanto, debería allí mostrar el label "particular".
 -->
-<div id="selectPlanContainer">  
+<div id="selectPlanContainer">
   <input
     bind:checked={SelectPlanVisible}
     on:change={clickCheckPlan}
@@ -55,13 +60,13 @@
     class:SelectPlanHidden
     name="plan"
     id="plan"
-    bind:value={planSeleccionado}
-    on:change={cambioPlan} 
-  >
-    {#each planes as plan}
-      <option value={plan}>{plan}</option>
+    bind:value={indicePlan}
+    on:change={cambioPlan}
+    >
+    {#each planes as plan, index}
+      <option value={index}>{plan.plan}</option>
     {/each}
-  </select>
+  </select>  
 </div>
 
 <style>

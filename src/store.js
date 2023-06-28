@@ -12,14 +12,10 @@ export const pacienteSeleccionado = writable({
 
 export const apellidoSeleccionado = writable("");
 export const nombreSeleccionado = writable("");
-
 export const idPacienteSeleccionado = writable("");
-
-// export const psid = writable(pacienteSeleccionado["id"]);
-
 export const sesionSeleccionada = writable({
     diaSesion:"",
     fechaPago:"",
     valorSesion:0,
     valorPago:0
-})
+});

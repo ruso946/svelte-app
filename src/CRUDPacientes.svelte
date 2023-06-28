@@ -1,7 +1,7 @@
 <script>
   import SelectPlan from "./assets/SelectPlan.svelte";
   import { onMount, onDestroy } from "svelte";
-  import { db } from "./firebasePacientes";
+  import { db } from "./configFirebase/firebasePacientes";
   import {
     onSnapshot,
     collection,
@@ -23,11 +23,16 @@
     idPacienteSeleccionado,
     nombreSeleccionado,
   } from "./store";
-  import { agregarClavesFaltantes, actualizaPaciente } from "./moduloPacientes";
-  import SelectorPacientes from "./SelectorPacientes.svelte";
+  import {
+    agregarClavesFaltantes,
+    actualizaPaciente,
+  } from "./modulos/moduloPacientes";
+  import SelectorPacientes from "./assets/SelectorPacientes.svelte";
 
-  let pacientes = []; //array que viene del unsub de Padre.svelte que trae toda la db pacientes
-
+  export let pacientes = []; //array que viene del unsub de Padre.svelte que trae toda la db pacientes
+  export let sesiones;
+  export let planes;
+  export let planSeleccionado;
   let arrayDeNombresDeClaves = [
     // usado para hacer que todos los campos de la base de datos y el array pacientes tengan todas las claves
     "nombre",
@@ -37,60 +42,34 @@
     "createdAt",
   ];
 
-  let optionsPlan = [];
+  export let optionsPlan;
 
-  let planSelect = "";
+  let indicePlan; //prop a pasar a SelectPlan para actualizar la vista al cambiar de paciente en el SelectorPacientes
+
+  let planSelect = "particular";
+
+  let i;
 
   let SelectPlanVisible; //prop o estado de SelectPlan. Se va a usar para controlar el cambio de paciente sicnronizado con la vista del SelectPlan
 
-  let unsubPacientes;
+  //let unsubPacientes;
 
   // en el onMount, hace la suscripcion de pacientes y trae las opciones de planes
   //si despues paso el select de planes a otro componente, se saca de onMount esa parte
   onMount(() => {
-    const collectionRef = collection(db, "Pacientes");
-    const campoOrden = "apellido"; //campo por el cual se ordena alfabeticamente la consulta a sesiones
-    const consulta = query(collectionRef, orderBy(campoOrden));
-    unsubPacientes = onSnapshot(
-      consulta,
-      (querySnapshot) => {
-        pacientes = querySnapshot.docs.map((doc) => {
-          return { ...doc.data(), id: doc.id };
-        });
-        // lo que sigue se hizo para normalizar los docs de la db y los registros de pacientes del array. Puede que ya no sea necesario.
-        agregarClavesFaltantes(pacientes, arrayDeNombresDeClaves); // si hay claves faltantes en el array de pacientes, las agrega.
-        pacientes.forEach((paciente) => {
-          actualizaPaciente(paciente); // agrega las claves que faltan a la base de datos firestore
-        });        
-        document.getElementById("selectPacientes").selected = i;
-      },
-      (err) => {
-        console.log(err);
-      }
-    );
-
-    const fetchOptionsSelectPlanes = async () => {
-      // Consulta la base de datos para obtener las opciones del select de planes
-      const optionsCollection = collection(db, "planes");
-      const optionsSnapshot = await getDocs(optionsCollection);
-
-      optionsPlan = optionsSnapshot.docs.map((doc) => doc.data().plan);
-      optionsPlan.push("particular");
-      optionsPlan.sort();
-      planSelect = "particular";
-    };
-    fetchOptionsSelectPlanes();
+    // lo que sigue se hizo para normalizar los docs de la db y los registros de pacientes del array. Puede que ya no sea necesario.
+    agregarClavesFaltantes(pacientes, arrayDeNombresDeClaves); // si hay claves faltantes en el array de pacientes, las agrega.
+    pacientes.forEach((paciente) => {
+      actualizaPaciente(paciente); // agrega las claves que faltan a la base de datos firestore
+    });
   }); // fin de onMount
-
-  onDestroy(unsubPacientes); // quita la suscripcion a la escucha al cambiar de pagina o destruir el componente
 
   let prefix = "";
   let nombre = "";
   let apellido = "";
   let nroSocio = "";
-  let planSeleccionado = "";
   // let createdAt = new Date();
-  let i = 0;
+
   let pacientesFiltrada;
   let textoLabelPlan = "plan";
 
@@ -131,7 +110,7 @@
     nombre = person ? person.nombre : "";
     apellido = person ? person.apellido : "";
     nroSocio = person ? person.nroSocio : "";
-    planSeleccionado = person ? person.plan : "";
+    planSeleccionado = person ? person.plan : {};
   };
 
   const agregarPaciente = async () => {
@@ -258,8 +237,11 @@
     actualizarPaciente(selected); //esta linea hace la actualizacion en la base de datos con el plan seleccionado.
   };
   const cambioPlan = (event) => {
-    planSeleccionado = event.detail.valor.planSeleccionado;
-    if (selected.plan != planSeleccionado) {
+    //console.log(`event.detail.plan pasado a cambioPlan ${event.detail.plan}`)
+    planSeleccionado = event.detail; //es un objeto plan
+    console.log(planSeleccionado);
+    if (selected.plan.plan != planSeleccionado.plan) {
+      //compara los nombres de los objetos plan (plan.plan)
       //solo se actualiza si el click implica un cambio de plan.
       previaActualizaPaciente(planSeleccionado);
     }
@@ -278,15 +260,30 @@
 
   const handleSelectorPacientes = (event) => {
     //funcion que trae del evento personalizado del componente SelectorPacientes
-    i = event.detail; //el valor de i, que es el indice de la lista de pacientes filtrada que se
-    //actualiza al seleccionar un paciente en el select del componente
-    planSeleccionado = pacientesFiltrada[i].plan; //actualiza la vista del SelectPlan
-    const esParticular = planSeleccionado == "particular" ? true : false;
+    i = event.detail[0]; //el valor de i, que es el indice de la lista de pacientes filtrada que se
+    const planSelect = event.detail[1]; //actualiza al seleccionar un paciente en el select del componente
+    $idPacienteSeleccionado = event.detail[2]; //actualiza el id de paciente seleccionado en el store    
+    const planSelectNombrePlan =
+      typeof planSelect == "string" ? "particular" : planSelect.plan; //planSelect es un objeto
+    console.log(`i ${i}, planSelect ${planSelectNombrePlan}`);
+
+    planSeleccionado =
+      planSelectNombrePlan == "particular"
+        ? "particular" //planSeleccionado="particular"
+        : pacientesFiltrada[i].plan; //da a planSeleccionado el objeto plan del paciente que se eligio en el SelectorPacientes
+    if (planSeleccionado != "particular") {
+      indicePlan = planes.findIndex(
+        (plan) => plan["plan"] === planSelectNombrePlan
+      );
+      console.log(`indicePlan ${indicePlan}, ${typeof indicePlan}`);
+    }
+    const esParticular = planSelectNombrePlan == "particular" ? true : false;
+
     modificaLabelPlan(esParticular);
   };
 
   const clickCheckPlan = (event) => {
-    // funcion que trae el evento del checkbox del componente    
+    // funcion que trae el evento del checkbox del componente
     const noEsParticular = event.detail.valor.SelectPlanVisible; // SelectPlan para controlar en este componente lo que
     if (!noEsParticular) {
       planSeleccionado = "particular";
@@ -295,7 +292,24 @@
     }
     previaActualizaPaciente(planSeleccionado);
     modificaLabelPlan(!noEsParticular);
-  };  
+  };
+
+  function copyToClipboard(e) {
+    /* Obtener el campo de entrada */
+    const input = document.getElementById("inputNroSocio");
+
+    console.log(`input ${input}`);
+
+    /* Seleccionar el texto del campo de entrada */
+    input.select();
+    input.setSelectionRange(0, 99999); /* Para dispositivos móviles */
+
+    /* Copiar el texto seleccionado al portapapeles */
+    document.execCommand("copy");
+
+    /* Alerta o retroalimentación para el usuario */
+    //alert("Texto copiado al portapapeles: " + input.value);
+  }
 </script>
 
 <body>
@@ -315,14 +329,14 @@
           !selected}>update</button
       >
       <button on:click={remove} disabled={!selected}>delete</button>
-    </div>
+    </div>    
   </div>
 
   <div id="filter">
     <label for="filterPrefix">filtrar por apellido</label><input
       name="filterPrefix"
       placeholder="filter prefix"
-      bind:value={prefix}    
+      bind:value={prefix}
     />
     <!--este prefix es la base para filtrar el array pacientes-->
   </div>
@@ -351,14 +365,23 @@
 
   <div id="formInputsD">
     <label for="nroSocio">nº socio</label>
-    <input name="nroSocio" bind:value={nroSocio} placeholder="nro de Socio" />
+    <div class="formRow">
+      <input
+        id="inputNroSocio"
+        name="nroSocio"
+        bind:value={nroSocio}
+        placeholder="nro de Socio"
+      />
+      <button on:click={copyToClipboard}>✎</button>
+    </div>
     <label id="labelPlan" for="plan">{textoLabelPlan}</label>
     <SelectPlan
       on:cambioPlan={cambioPlan}
       on:clickCheckPlan={clickCheckPlan}
-      planes={optionsPlan}
+      {planes}
       {planSeleccionado}
       {SelectPlanVisible}
+      {indicePlan}
     />
   </div>
 </body>
@@ -441,6 +464,15 @@
     padding: 0.5em;
     background-color: cadetblue;
     padding: 3px;
+  }
+
+  .formRow {
+    display: flex;
+    align-items: center;
+  }
+
+  .formRow label {
+    margin-right: 5px;
   }
 
   label {
