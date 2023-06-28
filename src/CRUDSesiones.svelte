@@ -1,4 +1,4 @@
-<script>  
+<script>
   import Toastify from "toastify-js";
   import "sweetalert2/src/sweetalert2.scss";
   import ListadoSesionesPorMes from "./assets/ListadoSesionesPorMes.svelte";
@@ -19,13 +19,13 @@
     getDocs,
   } from "firebase/firestore";
 
-  import {querySnapshotConsultaMesActual} from "./modulos/moduloConsultasBBDD"
+  import { querySnapshotConsultaMesActual } from "./modulos/moduloConsultasBBDD";
 
   export let sesiones; // array que va a usarse para suscribirse a la db sesiones.
   export let pacientes; // array que va a usarse para suscribirse a la db Pacientes.
   export let planes; // array que va a usarse para suscribirse a la db planes.
   export let planSeleccionado; //objeto que pasa el plan seleccionado en SelectPlan.svelte
-  
+
   import {
     idPacienteSeleccionado,
     apellidoSeleccionado,
@@ -34,9 +34,9 @@
   import VisualizarRegistros from "./assets/VisualizarRegistros.svelte";
   //import { mesSeleccionadoStore } from "./store";
 
-  let vistaCalculos = false;
-  let arrayParaLaVista;
-  let varSumaValorPagoPorPaciente;                        // variable para reflejar la suma por paciente por mes. Se pasa como prop a VisualizarRegistros
+  let vistaCalculos;
+  let arrayParaLaVista = []; //si no agrego esta definicion de array vacío, entonces no funciona de una el boton del componente ListadoSesionesPorMes porque no toma arrayParaLaVista como un array.
+  let varSumaValorPagoPorPaciente; // variable para reflejar la suma por paciente por mes. Se pasa como prop a VisualizarRegistros
   let totalAdeudado = 0;
 
   //obtiene la fecha actual
@@ -45,7 +45,7 @@
   // Obtiene el mes y año actual
   let mesActual = fechaActual.getMonth() + 1; // Los meses en JavaScript van de 0 a 11, por lo que se suma 1
   let anioActual = fechaActual.getFullYear();
-  let mesSeleccionado = mesActual;  // variable para hacer el bind:value en el select de meses
+  let mesSeleccionado = mesActual; // variable para hacer el bind:value en el select de meses
 
   //$: $mesSeleccionadoStore = mesSeleccionado;
   console.log(`mesSeleccionado ${mesSeleccionado}`);
@@ -289,7 +289,6 @@ Las variables de los inputs del formulario de sesiones:
   let fechaInicioMes = `${anioActualFormateado}-${mesActualFormateado}-01`;
   let fechaFinMes = `${anioActualFormateado}-${mesActualFormateado}-31`;
 
-
   let funcSumaValorPagoPorPaciente = (pacienteID) => {
     // obtiene la suma de los pagos de los valores por el paciente seleccionado
     // que está en el store.js, y filtrando tambien por mes actual
@@ -303,38 +302,45 @@ Las variables de los inputs del formulario de sesiones:
     return sesionesFiltradas.reduce((sum, pago) => sum + pago.valorSesion, 0);
   };
 
-  
   //esta funcion hace el listado de las sesiones por mes en un div al final de la pagina
   //falta darle estilos
-  const listarItemsPorMes = async (mesSeleccionado)=>{    
-    const arrayListadoItemsPorMes = await obtenerRegistrosMesActual(mesSeleccionado);    
-    arrayParaLaVista = arrayListadoItemsPorMes[1];    
+  const listarItemsPorMes = async (mesSeleccionado) => {
+    const arrayListadoItemsPorMes = await obtenerRegistrosMesActual(
+      mesSeleccionado
+    );
+    arrayParaLaVista = arrayListadoItemsPorMes[1];
+    console.log(Array.isArray(arrayListadoItemsPorMes[1]));
+    console.log(arrayListadoItemsPorMes[1]);
     vistaCalculos = true;
   };
 
   const obtenerRegistrosMesActual = async (mesSeleccionado) => {
-   
-    if (!mesSeleccionado) {           //si al principio no hay seleccion de select, lo calcula a la fecha de hoy, el mes actual
+    if (!mesSeleccionado) {
+      //si al principio no hay seleccion de select, lo calcula a la fecha de hoy, el mes actual
       mesSeleccionado = mesActual;
     }
     // esta funcion obtiene en la variable totalPagos, la suma de los pagos
     // de las sesiones del mes actual (el seleccionado en el select de meses)
     // mas los pagos que hace la OS por cada sesion
-    
+
     try {
       // Itera sobre los documentos y extrae los datos de las sesiones
-      const sesionesPorMesActual = await querySnapshotConsultaMesActual(mesSeleccionado);
+      const sesionesPorMesActual = await querySnapshotConsultaMesActual(
+        mesSeleccionado
+      );
       // Calcula la suma de los pagos
       totalPagos = 0;
       totalAdeudado = 0;
-      var arrayListadoItemsPorMes = [];
+      let arrayListadoItemsPorMes = [];
+      console.log(typeof arrayListadoItemsPorMes);
       sesionesPorMesActual.forEach((sesionMesActual) => {
         //  por cada sesion de la consulta de sesiones del mes actual:
         //  console.log(pacientes);
         let pacienteActualID = sesionMesActual.pacienteID; //  primero obtiene el ID del paciente de la sesion en la que está iterando
-        const pacienteActual = pacientes.find(             //  para poder obtener el objeto paciente corespondiente        
+        const pacienteActual = pacientes.find(
+          //  para poder obtener el objeto paciente corespondiente
           (paciente) => paciente.id == pacienteActualID
-        );        
+        );
         //console.log(`pacienteActual ${pacienteActual.apellido}, ${pacienteActual.nombre} - plan ${pacienteActual.plan.plan?pacienteActual.plan.plan:"particular"}`);
         var pagoSesion = sesionMesActual.valorPago; // toma el valor del pago de la sesion que está iterando
         if (pagoSesion == null) {
@@ -343,36 +349,41 @@ Las variables de los inputs del formulario de sesiones:
         }
         if (typeof pagoSesion === "number") {
           if (pacienteActual.plan == "particular") {
-                                      //si el paciente es particular
+            //si el paciente es particular
             totalPagos += pagoSesion; //usa ese valor para sumar al total que está calculando
             if (pagoSesion < valorSesion) {
               totalAdeudado += valorSesion - pagoSesion; //calcula deuda si corresponde
-            }            
-              var objetoParaPushearAlListado = {
-              diaSesion : sesionMesActual.diaSesion,
-              apellido : pacienteActual.apellido,
+            }
+            var objetoParaPushearAlListado = {
+              diaSesion: sesionMesActual.diaSesion,
+              apellido: pacienteActual.apellido,
               nombre: pacienteActual.nombre,
-              plan : pacienteActual.plan.plan?pacienteActual.plan.plan:"particular",
-              valorPago : pagoSesion,
-              valorSesion : sesionMesActual.valorSesion
-            }            
-            console.log (objetoParaPushearAlListado);
-            arrayListadoItemsPorMes.push(objetoParaPushearAlListado);            
+              plan: pacienteActual.plan.plan
+                ? pacienteActual.plan.plan
+                : "particular",
+              valorPago: pagoSesion,
+              valorSesion: sesionMesActual.valorSesion,
+            };
+            console.log(objetoParaPushearAlListado);
+            console.log(typeof arrayListadoItemsPorMes);
+            arrayListadoItemsPorMes.push(objetoParaPushearAlListado);
           } else {
-                                                    // si no es particular, hace la lógica del cálculo
+            // si no es particular, hace la lógica del cálculo
             const planActual = pacienteActual.plan; // primero, obtiene el plan del placiente por el que itera
 
             var objetoParaPushearAlListado = {
-              diaSesion : sesionMesActual.diaSesion,
-              apellido : pacienteActual.apellido,
+              diaSesion: sesionMesActual.diaSesion,
+              apellido: pacienteActual.apellido,
               nombre: pacienteActual.nombre,
-              plan : pacienteActual.plan.plan?pacienteActual.plan.plan:"particular",
-              valorPago : pagoSesion,
-              valorSesion : sesionMesActual.valorSesion
-            } 
+              plan: pacienteActual.plan.plan
+                ? pacienteActual.plan.plan
+                : "particular",
+              valorPago: pagoSesion,
+              valorSesion: sesionMesActual.valorSesion,
+            };
 
             console.log(objetoParaPushearAlListado);
-
+            console.log(typeof arrayListadoItemsPorMes);
             arrayListadoItemsPorMes.push(objetoParaPushearAlListado);
 
             if (pagoSesion < planActual.valorCoseguro) {
@@ -394,20 +405,24 @@ Las variables de los inputs del formulario de sesiones:
 
       console.log("Total pagos mes actual: ", totalPagos);
       console.log("Total adeudado mes actual: ", totalAdeudado);
-      varSumaValorPagoPorPaciente = funcSumaValorPagoPorPaciente($idPacienteSeleccionado);
-
+      varSumaValorPagoPorPaciente = funcSumaValorPagoPorPaciente(
+        $idPacienteSeleccionado
+      );
 
       // Retorna las sesiones obtenidas y el total de los pagos
+      console.log(typeof arrayListadoItemsPorMes);
       return [totalPagos, arrayListadoItemsPorMes];
     } catch (error) {
       console.error("Error al obtener las sesiones y los pagos:", error);
       return [];
     }
-  };  
+  };
 
-  $: obtenerRegistrosMesActual();  
+  $: obtenerRegistrosMesActual();
 
-  $: varSumaValorPagoPorPaciente = funcSumaValorPagoPorPaciente($idPacienteSeleccionado);  
+  $: varSumaValorPagoPorPaciente = funcSumaValorPagoPorPaciente(
+    $idPacienteSeleccionado
+  );
 
   var valorUltimaSesion = (pacientex) => {
     console.log("valorUltimaSesion");
@@ -437,7 +452,7 @@ Las variables de los inputs del formulario de sesiones:
   const actualizaValoresSesionesPorUnicaVez = () => {
     sesiones.forEach((sesion) => {
       //console.log(sesion);
-      
+
       if (sesion.diaSesion >= "2023-06-01") {
         // buscar plan del paciente de la sesion iterada:
         console.log(`sesion ${sesion.pacienteID} ${sesion.diaSesion}`);
@@ -498,7 +513,7 @@ Las variables de los inputs del formulario de sesiones:
 
       <VisualizarRegistros
         registrosMesActual={totalPagos}
-        {varSumaValorPagoPorPaciente}        
+        {varSumaValorPagoPorPaciente}
       />
     </div>
     <!-- Si editStatus está en true, deja ver el formulario para editar/agregar sesiones -->
@@ -577,24 +592,14 @@ Las variables de los inputs del formulario de sesiones:
           </div>
         </form>
       </div>
-    {/if}    
-    <ListadoSesionesPorMes on:vistaPulsado={(e)=>listarItemsPorMes(e.detail.mesSeleccionado)} {vistaCalculos} {arrayParaLaVista} {totalPagos} {mesSeleccionado}/>  
-    <!-- <ListadoSesionesPorMes on:vistaPulsado={(e)=>obtenerRegistrosMesActual(e.detail.mesSeleccionado)} {vistaCalculos} {arrayParaLaVista} {totalPagos} {mesSeleccionado}/> -->
-    <!-- <div class="listadoSesionesPorMes">
-      {#if vistaCalculos}
-      <h1>Listado sesiones por mes</h1>
-      <ul>
-        {#each arrayParaLaVista as item, indice }
-          <li>
-            {`${indice+1}-${item.diaSesion} - ${item.apellido}, ${item.nombre} - ${item.plan} - pago: $ ${item.valorPago} - valor sesion: $${item.valorSesion} `}
-          </li>
-      {/each}
-      </ul>  
-  
-      <button on:click={()=>vistaCalculos=false}>ocultar</button>
-      {/if}
-    </div> -->
-    
+    {/if}
+    <ListadoSesionesPorMes
+      on:vistaPulsado={() => listarItemsPorMes(mesSeleccionado)}
+      {vistaCalculos}
+      {arrayParaLaVista}
+      {totalPagos}
+      {mesSeleccionado}
+    />
   </body>
 </main>
 
@@ -715,5 +720,5 @@ Las variables de los inputs del formulario de sesiones:
 
   #mesRegistro {
     width: 100px;
-  }  
+  }
 </style>

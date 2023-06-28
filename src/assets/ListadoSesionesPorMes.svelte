@@ -22,9 +22,8 @@
     };
 
     const handleMostrarVista = () => {
-        if (!vistaCalculos) {
-            dispatch("vistaPulsado", mesSeleccionado); 
-            querySnapshotPacientes();
+        if (vistaCalculos == false) {
+            dispatch("vistaPulsado", mesSeleccionado);         
         }
         vistaCalculos = !vistaCalculos;
     };
@@ -33,7 +32,7 @@
 <div class="listadoSesionesPorMes">
     {#if vistaCalculos}        
         <ol>
-            {#each arrayParaLaVista as item}
+            {#each arrayParaLaVista as item}   
                 <li>
                     {`${formatear(item.diaSesion.slice(8,10), 2, false)}
                     -${formatear((item.apellido+","+item.nombre), 10, false)}
