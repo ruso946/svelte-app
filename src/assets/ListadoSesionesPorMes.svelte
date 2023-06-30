@@ -30,6 +30,7 @@
 </script>
 <button on:click={handleMostrarVista}>Ver Listado de Sesiones Mes {mesSeleccionado}</button>
 <div class="listadoSesionesPorMes">
+    
     {#if vistaCalculos}        
         <ol>
             {#each arrayParaLaVista as item}   

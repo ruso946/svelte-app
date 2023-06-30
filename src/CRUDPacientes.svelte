@@ -48,7 +48,11 @@
 
   let planSelect = "particular";
 
-  let i;
+  let i=0; // se inicializa como cero para que haya un paciente seleccionado
+           // que se pasa a CRUDSesiones a traves de i=0,
+           // que genera un selected=pacientesFiltrada[i],
+           // que pasa al store por $pacienteSeleccionado = selected,
+           // y de ahí es leído por CRUDSesiones para mostrar las sesiones del pacienteSeleccionado           
 
   let SelectPlanVisible; //prop o estado de SelectPlan. Se va a usar para controlar el cambio de paciente sicnronizado con la vista del SelectPlan
 
@@ -62,6 +66,7 @@
     pacientes.forEach((paciente) => {
       actualizaPaciente(paciente); // agrega las claves que faltan a la base de datos firestore
     });
+    console.log($apellidoSeleccionado); //da empty string
   }); // fin de onMount
 
   let prefix = "";
@@ -73,7 +78,8 @@
   let pacientesFiltrada = [];
   let textoLabelPlan = "plan";
 
-  $: pacientesFiltrada = prefix // bloque reactivo que de acuerdo a si hay prefix,
+  $: {
+    pacientesFiltrada = prefix // bloque reactivo que de acuerdo a si hay prefix,
     ? pacientes.filter((person) => {
         // filtra por apellido el array de pacientes y lo asigna al array pacientesFiltrada
         const name = `${person.apellido}, ${person.nombre}`;
@@ -89,8 +95,10 @@
           id: persona.id,
         };
       });
-
-  $: selected = pacientesFiltrada[i];
+      
+    }
+      
+      $: selected = pacientesFiltrada[i];
 
   //el siguiente bloque reactivo if, aporta al store los valores necesarios
   //del paciente seleccionado en el Select de este componente:
