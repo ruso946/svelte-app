@@ -492,8 +492,12 @@ Las variables de los inputs del formulario de sesiones:
 
 <main>
   <body>
-    <h4>Paciente: {$apellidoSeleccionado}, {$nombreSeleccionado}</h4>
+    {#if $apellidoSeleccionado && $nombreSeleccionado}
+      <h4>Paciente: {$apellidoSeleccionado}, {$nombreSeleccionado}</h4>
+    {/if}
+
     <!-- Este Select va a elegir la sesion por ID de paciente -->
+    {#if sesiones.length >0}
     <div id="select">
       <select
         id="select-sesiones"
@@ -515,7 +519,9 @@ Las variables de los inputs del formulario de sesiones:
         registrosMesActual={totalPagos}
         {varSumaValorPagoPorPaciente}
       />
-    </div>
+    </div>  
+    {/if}
+    
     <!-- Si editStatus está en true, deja ver el formulario para editar/agregar sesiones -->
     {#if editStatus}
       <div id="contenedor-form-sesiones">
@@ -562,7 +568,7 @@ Las variables de los inputs del formulario de sesiones:
               >
               <button on:click={addSesion}>Agregar sesión</button>
               <select
-                on:change={(e) => listarItemsPorMes(e.target.value)}
+                on:change={async (e) => listarItemsPorMes(e.target.value)}
                 bind:value={mesSeleccionado}
                 name="mes"
                 id="mesRegistro"
@@ -575,18 +581,12 @@ Las variables de los inputs del formulario de sesiones:
                   >
                 {/each}
               </select>
-              <button on:click={() => listarItemsPorMes(mesSeleccionado)}
+              <button on:click={async () => listarItemsPorMes(mesSeleccionado)}
                 >listar mes {mesSeleccionado}</button
-              >
-              <!-- <button on:click={() => obtenerRegistrosMesActual(mesSeleccionado)}
-                >registros mes {mesSeleccionado}</button
-              >
-              cambiar este boton a que controle la vista de la lista de items de los pagos
-               -->
+              >              
               <!-- este boton de depurar sesiones solo se debe activar en casos extremos. Borra sesiones de pacientes inexistentes directamente de la base de datos -->
               <!-- deberia reemplazarse por la opcion de actvar/desactivar un paciente con un campo, y sus respectivas sesiones -->
               <!-- <button on:click={depurarSesiones}>Depurar sesiones</button> -->
-
               <!-- <button on:click={actualizaValoresSesionesPorUnicaVez} /> -->
             </div>
           </div>
@@ -594,7 +594,7 @@ Las variables de los inputs del formulario de sesiones:
       </div>
     {/if}
     <ListadoSesionesPorMes
-      on:vistaPulsado={() => listarItemsPorMes(mesSeleccionado)}
+      on:vistaPulsado={async () => listarItemsPorMes(mesSeleccionado)}
       {vistaCalculos}
       {arrayParaLaVista}
       {totalPagos}
