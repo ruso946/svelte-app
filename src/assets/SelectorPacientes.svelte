@@ -2,7 +2,7 @@
   import { createEventDispatcher } from "svelte";
   export let pacientesFiltrada;
   export let planSelect;// estado que tambien va a pasarse en el evento cambioSelectPaciente
-  let i;                // indice que se entrega con el evento cambioSelectPaciente
+  let i=0;                // indice que se entrega con el evento cambioSelectPaciente
   let pacienteId;       // id del paciente seleccionado que se entrega con el evento cambioSelectPaciente
   const dispatch = createEventDispatcher();
 
@@ -22,7 +22,7 @@
     */
   };
 </script>
-
+{#if  (pacientesFiltrada.length > 0)}  
 <select
   name="select-pacientes"
   class="select-Pacientes"
@@ -47,6 +47,8 @@
     {/each}
   {/if}
 </select>
+{/if}
+
 
 <style>
   select {

@@ -70,7 +70,7 @@
   let nroSocio = "";
   // let createdAt = new Date();
 
-  let pacientesFiltrada;
+  let pacientesFiltrada = [];
   let textoLabelPlan = "plan";
 
   $: pacientesFiltrada = prefix // bloque reactivo que de acuerdo a si hay prefix,
