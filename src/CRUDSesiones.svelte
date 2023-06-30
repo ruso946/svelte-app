@@ -583,16 +583,10 @@ Las variables de los inputs del formulario de sesiones:
               </select>
               <button on:click={async () => listarItemsPorMes(mesSeleccionado)}
                 >listar mes {mesSeleccionado}</button
-              >
-              <!-- <button on:click={() => obtenerRegistrosMesActual(mesSeleccionado)}
-                >registros mes {mesSeleccionado}</button
-              >
-              cambiar este boton a que controle la vista de la lista de items de los pagos
-               -->
+              >              
               <!-- este boton de depurar sesiones solo se debe activar en casos extremos. Borra sesiones de pacientes inexistentes directamente de la base de datos -->
               <!-- deberia reemplazarse por la opcion de actvar/desactivar un paciente con un campo, y sus respectivas sesiones -->
               <!-- <button on:click={depurarSesiones}>Depurar sesiones</button> -->
-
               <!-- <button on:click={actualizaValoresSesionesPorUnicaVez} /> -->
             </div>
           </div>
