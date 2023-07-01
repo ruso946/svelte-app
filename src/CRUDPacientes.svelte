@@ -343,6 +343,7 @@
   <div id="filter">
     <label for="filterPrefix">filtrar por apellido</label><input
       name="filterPrefix"
+      id="filterPrefix"
       placeholder="filter prefix"
       bind:value={prefix}
     />
@@ -361,18 +362,20 @@
   <div id="formInputsI">
     <label for="nombre">nombre</label><input
       name="nombre"
+      id="nombre"
       bind:value={nombre}
       placeholder="nombre"
     />
     <label for="apellido">apellido</label><input
       name="apellido"
+      id="apellido"
       bind:value={apellido}
       placeholder="apellido"
     />
   </div>
 
   <div id="formInputsD">
-    <label for="nroSocio">nº socio</label>
+    <label for="inputNroSocio">nº socio</label>
     <div class="formRow">
       <input
         id="inputNroSocio"
