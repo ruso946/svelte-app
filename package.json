@@ -11,7 +11,7 @@
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.0.2",
     "@types/toastify-js": "^1.11.1",
-    "gh-pages": "^5.0.0",
+    "gh-pages": "^3.0.0",
     "sass": "^1.59.3",
     "svelte": "^3.55.1",
     "vite": "^4.1.0"
@@ -19,9 +19,10 @@
   "dependencies": {
     "bootstrap": "^5.2.3",
     "bootswatch": "^5.2.3",
+    "boxicons": "^2.1.4",
     "firebase": "^9.17.2",
     "firebase-admin": "^11.9.0",
-    "firebase-tools": "^12.4.0",
+    "firebase-tools": "^1.2.0",
     "g": "^2.0.1",
     "material-icons": "^1.13.2",
     "sweetalert2": "^11.4.8",
