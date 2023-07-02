@@ -46,7 +46,14 @@
     align-items: center;
     justify-content: center;
     border: solid, 1px;
+    border-color: #3E5947;
     height: 100vh;
+    background-color: #404040;
+    color: #8C8C8C;
+  }
+
+  h1{
+    color: #EFF3F5;
   }
   /* body.dark-theme {
   --main-color       : #404040;

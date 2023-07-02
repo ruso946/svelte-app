@@ -33,6 +33,7 @@
     nombreSeleccionado,
   } from "./store";
   import VisualizarRegistros from "./assets/VisualizarRegistros.svelte";
+  import SelectorSesiones from "./assets/SelectorSesiones.svelte";
 
   let vistaCalculos = false;
   let arrayParaLaVista = []; //si no agrego esta definicion de array vacío, entonces no funciona de una el boton del componente ListadoSesionesPorMes porque no toma arrayParaLaVista como un array.
@@ -95,7 +96,8 @@ Funciones del formulario:
  -handle_onchange_select_sesiones
 */
   const handle_onChange_select_sesiones = (e) => {
-    selectedSessionId = e.target.value; // está tomando el valor del select al cambiar, que es el Id de sesion seleccionado
+    console.log(e);
+    selectedSessionId = e.detail; // está tomando el valor del select al cambiar, que es el Id de sesion seleccionado
     console.log(sesiones);
     selectedSession = sesiones.find(
       (sesion) => sesion.id === selectedSessionId //está tomando la sesion seleccionada como objeto a partir de la id de sesion seleccionada en el select
@@ -442,29 +444,8 @@ Las variables de los inputs del formulario de sesiones:
         {/if}
       </div>
       <div class="selectorSesiones">
-        <ul class="sinPunto">
-          {#each sesiones as sesion}
-            {#if Object.values(sesion).includes($idPacienteSeleccionado) && parseInt(sesion.diaSesion.slice(5, 7)) == mesSeleccionado}
-              <li>
-                <input
-                  type="radio"
-                  id={sesion.id}
-                  on:change={handle_onChange_select_sesiones}
-                  bind:group={selectedSessionId}
-                  name="sesiones"
-                  value={sesion.id}
-                />
-                <label for={sesion.id}
-                  >{`${sesion.diaSesion.slice(8, 10)} -sesion: $${
-                    sesion.valorSesion
-                  }-pago: ${sesion.fechaPago.slice(5, 10)} $${
-                    sesion.valorPago
-                  }`}</label
-                >
-              </li>
-            {/if}
-          {/each}
-        </ul>
+        <SelectorSesiones on:cambioSelectorSesion={handle_onChange_select_sesiones} {mesSeleccionado} {sesiones}/>
+        
         <VisualizarRegistros          
           {varSumaValorPagoPorPaciente}
         />
@@ -683,15 +664,13 @@ Las variables de los inputs del formulario de sesiones:
     padding: 3px 1em;
   }
 
-  #select-sesiones {
+  /* #select-sesiones {
     max-width: 100%;
     min-width: 100%;
     font-size: x-small;
-  }  
+  }   */
 
-  .sinPunto {
-    list-style: none;
-  }
+  
 
   input{
     background-color: rgb(58, 78, 78);

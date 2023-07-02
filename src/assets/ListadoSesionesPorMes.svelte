@@ -181,7 +181,7 @@
     font-family: "Courier New", Courier, monospace;
     font-size: x-small;
     text-align: left;
-    color: antiquewhite;
+    color: #8C8C8C;
     background-color: rgb(50, 47, 47);
   }
 
@@ -210,6 +210,7 @@
   td {
     border: 1px solid;
     border-collapse: collapse;
+    border-color: #3E5947;
   }
   th {
     text-align: center;
@@ -226,4 +227,16 @@
   /* tr:nth-child(even) {
         background-color: #131313;
     } */
+/* body.dark-theme {
+  --main-color       : #404040;
+  --title-color      : #EFF3F5;
+  --text-color       : #8C8C8C;
+  --light-text-color : #A0A7AC;
+  --border-color     : #3E5947;
+  --container-color  : #368F51;
+  --body-color       : #192229;
+}   */
 </style>
+
+
+

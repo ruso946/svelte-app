@@ -75,3 +75,12 @@
     >
   {/each}
 </select>
+
+<style>
+  
+  select{
+    background-color: rgb(42, 40, 40);
+    color: #8C8C8C;
+  }
+  
+</style>
