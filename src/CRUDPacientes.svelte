@@ -423,7 +423,7 @@
     padding: 3px;
     justify-items: center;
     align-items: center;
-    background-color: cadetblue;
+    background-color: rgb(58, 78, 78);
   }
 
   #filter input {
@@ -441,7 +441,7 @@
     flex-direction: row;
     justify-content: center;
     align-items: baseline;
-    background-color: cadetblue;
+    background-color: rgb(58, 78, 78);
   }
 
   #selectPacientes {
@@ -450,7 +450,7 @@
     padding: 3px;
     justify-items: center;
     align-items: start;
-    background-color: cadetblue;
+    background-color: rgb(58, 78, 78);
   }
 
   #formInputsD {
@@ -472,7 +472,7 @@
     align-items: center;
     justify-content: start;
     padding: 0.5em;
-    background-color: cadetblue;
+    background-color: rgb(58, 78, 78);
     padding: 3px;
   }
 
@@ -499,6 +499,8 @@
     margin: 0;
     width: 80%;
     font-size: medium;
+    background-color: rgb(58, 78, 78);
+    color: blanchedalmond;
   }
 
   .buttons {

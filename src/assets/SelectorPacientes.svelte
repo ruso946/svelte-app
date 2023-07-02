@@ -82,7 +82,7 @@
     text-align: start;
     height: 6em;
     overflow-y: auto;
-    background-color: black;
+    background-color: rgb(28, 27, 27);
     color: blanchedalmond;
     max-width: 100%;
     width: 100%;

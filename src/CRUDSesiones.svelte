@@ -579,7 +579,7 @@ Las variables de los inputs del formulario de sesiones:
   .tituloSelectorSesiones {
     font-family: "Courier New", Courier, monospace;
     text-align: start;
-    background-color: black;
+    background-color: rgb(28, 27, 27);
     color: blanchedalmond;
     max-width: 100%;
     width: 100%;
@@ -593,7 +593,7 @@ Las variables de los inputs del formulario de sesiones:
     text-align: start;
     height: 10em;
     overflow-y: auto;
-    background-color: black;
+    background-color: rgb(28, 27, 27);    
     color: blanchedalmond;
     max-width: 100%;
     width: 100%;
@@ -605,7 +605,7 @@ Las variables de los inputs del formulario de sesiones:
   h4 {
     grid-area: titulo;
     padding: 2px;
-    background-color: cadetblue;
+    background-color: rgb(28, 27, 27);;
     color: aliceblue;
     text-shadow: 1px 1px #999;
     transition: all 0.2s ease-in-out;
@@ -624,7 +624,7 @@ Las variables de los inputs del formulario de sesiones:
     padding: 3px;
     justify-items: center;
     align-items: start;
-    background-color: cadetblue;
+    background-color: rgb(28, 27, 27);
   }
 
   #contenedor-form-sesiones {
@@ -634,7 +634,7 @@ Las variables de los inputs del formulario de sesiones:
     padding: 2px;
     justify-items: center;
     align-items: start;
-    background-color: cadetblue;
+    background-color: rgb(58, 78, 78);
   }
 
   #form-Sesiones {
@@ -701,4 +701,10 @@ Las variables de los inputs del formulario de sesiones:
   .sinPunto {
     list-style: none;
   }
+
+  input{
+    background-color: rgb(58, 78, 78);
+    color: blanchedalmond;
+  }
+  
 </style>
