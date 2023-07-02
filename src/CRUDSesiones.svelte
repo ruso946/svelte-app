@@ -261,6 +261,7 @@ Las variables de los inputs del formulario de sesiones:
       mesSeleccionado
     );
     arrayParaLaVista = arrayListadoItemsPorMes[1];
+    arrayParaLaVista.push({apellido: "ultimo", diaSesion: "ultimo", nombre: "ultimo", plan: "ultimo", valorPago: 0, valorSesion: 0})
     console.log(Array.isArray(arrayListadoItemsPorMes[1]));
     console.log(arrayListadoItemsPorMes[1]);
     vistaCalculos = true;
@@ -444,21 +445,22 @@ Las variables de los inputs del formulario de sesiones:
         {/if}
       </div>
       <div class="selectorSesiones">
-        <SelectorSesiones on:cambioSelectorSesion={handle_onChange_select_sesiones} {mesSeleccionado} {sesiones}/>
-        
-        <VisualizarRegistros          
-          {varSumaValorPagoPorPaciente}
+        <SelectorSesiones
+          on:cambioSelectorSesion={handle_onChange_select_sesiones}
+          {mesSeleccionado}
+          {sesiones}
         />
+
+        <VisualizarRegistros {varSumaValorPagoPorPaciente} />
       </div>
       <div>
         <ListadoSesionesPorMes
-        on:vistaPulsado={async (e) => listarItemsPorMes(e.detail)}
-        {vistaCalculos}
-        {arrayParaLaVista}
-        {mesSeleccionado}
-      />
+          on:vistaPulsado={async (e) => listarItemsPorMes(e.detail)}
+          {vistaCalculos}
+          {arrayParaLaVista}
+          {mesSeleccionado}
+        />
       </div>
-      
     {/if}
 
     <div id="contenedor-form-sesiones">
@@ -574,7 +576,7 @@ Las variables de los inputs del formulario de sesiones:
     text-align: start;
     height: 10em;
     overflow-y: auto;
-    background-color: rgb(28, 27, 27);    
+    background-color: rgb(28, 27, 27);
     color: blanchedalmond;
     max-width: 100%;
     width: 100%;
@@ -586,12 +588,12 @@ Las variables de los inputs del formulario de sesiones:
   h5 {
     grid-area: titulo;
     padding: 2px;
-    background-color: rgb(28, 27, 27);;
+    background-color: rgb(28, 27, 27);
     color: aliceblue;
     text-shadow: 1px 1px #999;
     transition: all 0.2s ease-in-out;
     cursor: pointer;
-  }  
+  }
 
   #select {
     display: grid;
@@ -670,11 +672,8 @@ Las variables de los inputs del formulario de sesiones:
     font-size: x-small;
   }   */
 
-  
-
-  input{
+  input {
     background-color: rgb(58, 78, 78);
     color: blanchedalmond;
   }
-  
 </style>

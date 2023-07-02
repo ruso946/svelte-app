@@ -55,6 +55,7 @@
   h1{
     color: #EFF3F5;
   }
+  
   /* body.dark-theme {
   --main-color       : #404040;
   --title-color      : #EFF3F5;
