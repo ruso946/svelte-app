@@ -602,7 +602,7 @@ Las variables de los inputs del formulario de sesiones:
     white-space: pre;
   }
 
-  h4 {
+  h5 {
     grid-area: titulo;
     padding: 2px;
     background-color: rgb(28, 27, 27);;
@@ -610,12 +610,7 @@ Las variables de los inputs del formulario de sesiones:
     text-shadow: 1px 1px #999;
     transition: all 0.2s ease-in-out;
     cursor: pointer;
-  }
-
-  h4:hover {
-    text-shadow: 2px 2px #ccc;
-    background-color: rgb(67, 113, 115);
-  }
+  }  
 
   #select {
     display: grid;
@@ -692,11 +687,7 @@ Las variables de los inputs del formulario de sesiones:
     max-width: 100%;
     min-width: 100%;
     font-size: x-small;
-  }
-
-  option {
-    font-size: x-small;
-  }
+  }  
 
   .sinPunto {
     list-style: none;
