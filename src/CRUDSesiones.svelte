@@ -17,6 +17,7 @@
     updateDoc,
     where,
     getDocs,
+    enableMultiTabIndexedDbPersistence,
   } from "firebase/firestore";
 
   import { querySnapshotConsultaMesActual } from "./modulos/moduloConsultasBBDD";
@@ -32,9 +33,8 @@
     nombreSeleccionado,
   } from "./store";
   import VisualizarRegistros from "./assets/VisualizarRegistros.svelte";
-  //import { mesSeleccionadoStore } from "./store";
 
-  let vistaCalculos;
+  let vistaCalculos = false;
   let arrayParaLaVista = []; //si no agrego esta definicion de array vacío, entonces no funciona de una el boton del componente ListadoSesionesPorMes porque no toma arrayParaLaVista como un array.
   let varSumaValorPagoPorPaciente; // variable para reflejar la suma por paciente por mes. Se pasa como prop a VisualizarRegistros
   let totalAdeudado = 0;
@@ -47,58 +47,7 @@
   let anioActual = fechaActual.getFullYear();
   let mesSeleccionado = mesActual; // variable para hacer el bind:value en el select de meses
 
-  //$: $mesSeleccionadoStore = mesSeleccionado;
   console.log(`mesSeleccionado ${mesSeleccionado}`);
-  let meses = [
-    {
-      nro: 1,
-      nombre: "enero",
-    },
-    {
-      nro: 2,
-      nombre: "febrero",
-    },
-    {
-      nro: 3,
-      nombre: "marzo",
-    },
-    {
-      nro: 4,
-      nombre: "abri",
-    },
-    {
-      nro: 5,
-      nombre: "mayo",
-    },
-    {
-      nro: 6,
-      nombre: "junio",
-    },
-    {
-      nro: 7,
-      nombre: "julio",
-    },
-    {
-      nro: 8,
-      nombre: "agosto",
-    },
-    {
-      nro: 9,
-      nombre: "setiembre",
-    },
-    {
-      nro: 10,
-      nombre: "octubre",
-    },
-    {
-      nro: 11,
-      nombre: "noviembre",
-    },
-    {
-      nro: 12,
-      nombre: "diciembre",
-    },
-  ];
 
   let selectedSessionId;
   let selectedSession;
@@ -304,7 +253,8 @@ Las variables de los inputs del formulario de sesiones:
 
   //esta funcion hace el listado de las sesiones por mes en un div al final de la pagina
   //falta darle estilos
-  const listarItemsPorMes = async (mesSeleccionado) => {
+  const listarItemsPorMes = async (mes) => {
+    mesSeleccionado = mes;
     const arrayListadoItemsPorMes = await obtenerRegistrosMesActual(
       mesSeleccionado
     );
@@ -332,7 +282,6 @@ Las variables de los inputs del formulario de sesiones:
       totalPagos = 0;
       totalAdeudado = 0;
       let arrayListadoItemsPorMes = [];
-      console.log(typeof arrayListadoItemsPorMes);
       sesionesPorMesActual.forEach((sesionMesActual) => {
         //  por cada sesion de la consulta de sesiones del mes actual:
         //  console.log(pacientes);
@@ -364,8 +313,7 @@ Las variables de los inputs del formulario de sesiones:
               valorPago: pagoSesion,
               valorSesion: sesionMesActual.valorSesion,
             };
-            console.log(objetoParaPushearAlListado);
-            console.log(typeof arrayListadoItemsPorMes);
+            //console.log(objetoParaPushearAlListado);
             arrayListadoItemsPorMes.push(objetoParaPushearAlListado);
           } else {
             // si no es particular, hace la lógica del cálculo
@@ -382,35 +330,33 @@ Las variables de los inputs del formulario de sesiones:
               valorSesion: sesionMesActual.valorSesion,
             };
 
-            console.log(objetoParaPushearAlListado);
-            console.log(typeof arrayListadoItemsPorMes);
+            //console.log(objetoParaPushearAlListado);
             arrayListadoItemsPorMes.push(objetoParaPushearAlListado);
 
             if (pagoSesion < planActual.valorCoseguro) {
               // si el pago es menor al coseguro, calcula la deuda
               totalAdeudado += planActual.valorCoseguro - pagoSesion;
-              console.log(`totalAdeudado: ${totalAdeudado}`);
+              //console.log(`totalAdeudado: ${totalAdeudado}`);
             }
             totalPagos += planActual.valorOs + pagoSesion; // suma el valor del pago mas el valor que paga la Os
-            console.log(
-              `paciente ${pacienteActual.apellido}, fechaSesion: ${
-                sesionMesActual.diaSesion
-              }, valor Os + Coseguro$${
-                planActual.valorOs + planActual.valorCoseguro
-              }, total acumulado ${totalPagos}`
-            );
+            // console.log(
+            //   `paciente ${pacienteActual.apellido}, fechaSesion: ${
+            //     sesionMesActual.diaSesion
+            //   }, valor Os + Coseguro$${
+            //     planActual.valorOs + planActual.valorCoseguro
+            //   }, total acumulado ${totalPagos}`
+            // );
           }
         }
       });
 
-      console.log("Total pagos mes actual: ", totalPagos);
-      console.log("Total adeudado mes actual: ", totalAdeudado);
+      // console.log("Total pagos mes actual: ", totalPagos);
+      // console.log("Total adeudado mes actual: ", totalAdeudado);
       varSumaValorPagoPorPaciente = funcSumaValorPagoPorPaciente(
         $idPacienteSeleccionado
       );
 
       // Retorna las sesiones obtenidas y el total de los pagos
-      console.log(typeof arrayListadoItemsPorMes);
       return [totalPagos, arrayListadoItemsPorMes];
     } catch (error) {
       console.error("Error al obtener las sesiones y los pagos:", error);
@@ -423,10 +369,6 @@ Las variables de los inputs del formulario de sesiones:
   $: varSumaValorPagoPorPaciente = funcSumaValorPagoPorPaciente(
     $idPacienteSeleccionado
   );
-
-  var valorUltimaSesion = (pacientex) => {
-    console.log("valorUltimaSesion");
-  };
 
   /////////////////////////////////////////////////////////////////////////
   const updateSesionPorUnicaVez = async (sesionAmodificar, valorSesionPUV) => {
@@ -445,7 +387,7 @@ Las variables de los inputs del formulario de sesiones:
         },
       }).showToast();
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -492,82 +434,101 @@ Las variables de los inputs del formulario de sesiones:
 
 <main>
   <body>
-    {#if $apellidoSeleccionado && $nombreSeleccionado}
-      <h4>Paciente: {$apellidoSeleccionado}, {$nombreSeleccionado}</h4>
-    {/if}
-
-    <!-- Este Select va a elegir la sesion por ID de paciente -->
-    {#if sesiones.length >0}
-    <div id="select">
-      <select
-        id="select-sesiones"
-        on:change={handle_onChange_select_sesiones}
-        bind:value={selectedSessionId}
-        size={5}
-      >
-        {#each sesiones as sesion}
-          {#if Object.values(sesion).includes($idPacienteSeleccionado) && sesion.diaSesion.slice(5, 7) == mesSeleccionado}
-            <option class="" value={sesion.id}
-              >dia sesion: {sesion.diaSesion} - valor sesion: {sesion.valorSesion}
-              - dia pago {sesion.fechaPago} - valor pago {sesion.valorPago}
-            </option>
-          {/if}
-        {/each}
-      </select>
-
-      <VisualizarRegistros
-        registrosMesActual={totalPagos}
-        {varSumaValorPagoPorPaciente}
+    {#if sesiones.length > 0}
+      <div class="tituloSelectorSesiones">
+        <h5>{`Mes: ${mesSeleccionado}`}</h5>
+        {#if $apellidoSeleccionado && $nombreSeleccionado}
+          <p>Paciente: {$apellidoSeleccionado}, {$nombreSeleccionado}</p>
+        {/if}
+      </div>
+      <div class="selectorSesiones">
+        <ul class="sinPunto">
+          {#each sesiones as sesion}
+            {#if Object.values(sesion).includes($idPacienteSeleccionado) && parseInt(sesion.diaSesion.slice(5, 7)) == mesSeleccionado}
+              <li>
+                <input
+                  type="radio"
+                  id={sesion.id}
+                  on:change={handle_onChange_select_sesiones}
+                  bind:group={selectedSessionId}
+                  name="sesiones"
+                  value={sesion.id}
+                />
+                <label for={sesion.id}
+                  >{`${sesion.diaSesion.slice(8, 10)} -sesion: $${
+                    sesion.valorSesion
+                  }-pago: ${sesion.fechaPago.slice(5, 10)} $${
+                    sesion.valorPago
+                  }`}</label
+                >
+              </li>
+            {/if}
+          {/each}
+        </ul>
+        <VisualizarRegistros          
+          {varSumaValorPagoPorPaciente}
+        />
+      </div>
+      <div>
+        <ListadoSesionesPorMes
+        on:vistaPulsado={async (e) => listarItemsPorMes(e.detail)}
+        {vistaCalculos}
+        {arrayParaLaVista}
+        {mesSeleccionado}
       />
-    </div>  
+      </div>
+      
     {/if}
-    
-    <!-- Si editStatus está en true, deja ver el formulario para editar/agregar sesiones -->
-    {#if editStatus}
-      <div id="contenedor-form-sesiones">
-        <form on:submit|preventDefault>
-          <div id="form-Sesiones">
-            <div id="inputsFormSesionesI">
-              <label for="valorPago">pago</label><input
-                name="valorPago"
-                type="number"
-                step="100"
-                min="0"
-                bind:value={valorPago}
-                placeholder="Valor pago"
-              />
-              <label for="valorSesion">valor sesion</label><input
-                name="valorSesion"
-                type="number"
-                step="100"
-                min="0"
-                bind:value={valorSesion}
-                placeholder="Valor sesión"
-              />
-            </div>
-            <div id="inputsFormSesionesD">
-              <label for="diaSesion">Dia Sesion</label><input
-                name="diaSesion"
-                type="date"
-                bind:value={diaSesion}
-                placeholder="Día sesión"
-              />
-              <label for="fechaPago">Fecha Pago</label><input
-                name="fechaPago"
-                type="date"
-                bind:value={fechaPago}
-                placeholder="Fecha pago"
-              />
-            </div>
-            <div id="botonesFormSesiones" class="buttons">
-              <button on:click={() => updateSesion(selectedSession)}
-                >update</button
-              >
-              <button on:click={() => deleteSesion(selectedSession)}
-                >delete</button
-              >
-              <button on:click={addSesion}>Agregar sesión</button>
-              <select
+
+    <div id="contenedor-form-sesiones">
+      <form on:submit|preventDefault>
+        <div id="form-Sesiones">
+          <div id="inputsFormSesionesI">
+            <label for="valorPago">pago</label><input
+              name="valorPago"
+              id="valorPago"
+              type="number"
+              step="100"
+              min="0"
+              bind:value={valorPago}
+              placeholder="Valor pago"
+            />
+            <label for="valorSesion">valor sesion</label><input
+              name="valorSesion"
+              id="valorSesion"
+              type="number"
+              step="100"
+              min="0"
+              bind:value={valorSesion}
+              placeholder="Valor sesión"
+            />
+          </div>
+          <div id="inputsFormSesionesD">
+            <label for="diaSesion">Dia Sesion</label><input
+              name="diaSesion"
+              id="diaSesion"
+              type="date"
+              bind:value={diaSesion}
+              placeholder="Día sesión"
+            />
+            <label for="fechaPago">Fecha Pago</label><input
+              name="fechaPago"
+              id="fechaPago"
+              type="date"
+              bind:value={fechaPago}
+              placeholder="Fecha pago"
+            />
+          </div>
+          <div id="botonesFormSesiones" class="buttons">
+            <button on:click={() => updateSesion(selectedSession)}
+              >update</button
+            >
+            <button on:click={() => deleteSesion(selectedSession)}
+              >delete</button
+            >
+            <button on:click={addSesion}>Agregar sesión</button>
+          </div>
+          <!-- <select
                 on:change={async (e) => listarItemsPorMes(e.target.value)}
                 bind:value={mesSeleccionado}
                 name="mes"
@@ -575,31 +536,24 @@ Las variables de los inputs del formulario de sesiones:
               >
                 {#each meses as mes}
                   <option value={mes.nro}
-                    >{`${mes.nro.toString().padStart(2, "0")} - ${
+                    >{`listar mes de ${
                       mes.nombre
-                    }`}</option
+                    } - ${mes.nro.toString().padStart(2, "0")}`}</option
                   >
                 {/each}
-              </select>
-              <button on:click={async () => listarItemsPorMes(mesSeleccionado)}
+              </select> -->
+          <!-- <button on:click={async () => listarItemsPorMes(mesSeleccionado)}
                 >listar mes {mesSeleccionado}</button
-              >              
-              <!-- este boton de depurar sesiones solo se debe activar en casos extremos. Borra sesiones de pacientes inexistentes directamente de la base de datos -->
-              <!-- deberia reemplazarse por la opcion de actvar/desactivar un paciente con un campo, y sus respectivas sesiones -->
-              <!-- <button on:click={depurarSesiones}>Depurar sesiones</button> -->
-              <!-- <button on:click={actualizaValoresSesionesPorUnicaVez} /> -->
-            </div>
-          </div>
-        </form>
-      </div>
-    {/if}
-    <ListadoSesionesPorMes
-      on:vistaPulsado={async () => listarItemsPorMes(mesSeleccionado)}
-      {vistaCalculos}
-      {arrayParaLaVista}
-      {totalPagos}
-      {mesSeleccionado}
-    />
+              >               -->
+          <!-- este boton de depurar sesiones solo se debe activar en casos extremos. Borra sesiones de pacientes inexistentes directamente de la base de datos -->
+          <!-- deberia reemplazarse por la opcion de actvar/desactivar un paciente con un campo, y sus respectivas sesiones -->
+          <!-- <button on:click={depurarSesiones}>Depurar sesiones</button> -->
+          <!-- <button on:click={actualizaValoresSesionesPorUnicaVez} /> -->
+        </div>
+      </form>
+    </div>
+
+    <!-- on:vistaPulsado={async () => listarItemsPorMes(mesSeleccionado)} -->
   </body>
 </main>
 
@@ -620,6 +574,32 @@ Las variables de los inputs del formulario de sesiones:
       "contenedor-form-Sesiones ";
     margin: 0;
     padding: 3px;
+  }
+
+  .tituloSelectorSesiones {
+    font-family: "Courier New", Courier, monospace;
+    text-align: start;
+    background-color: black;
+    color: blanchedalmond;
+    max-width: 100%;
+    width: 100%;
+    margin: 0;
+    font-size: small;
+    white-space: pre;
+  }
+
+  .selectorSesiones {
+    font-family: "Courier New", Courier, monospace;
+    text-align: start;
+    height: 10em;
+    overflow-y: auto;
+    background-color: black;
+    color: blanchedalmond;
+    max-width: 100%;
+    width: 100%;
+    margin: 0;
+    font-size: small;
+    white-space: pre;
   }
 
   h4 {
@@ -718,7 +698,7 @@ Las variables de los inputs del formulario de sesiones:
     font-size: x-small;
   }
 
-  #mesRegistro {
-    width: 100px;
+  .sinPunto {
+    list-style: none;
   }
 </style>

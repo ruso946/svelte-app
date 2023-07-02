@@ -1,10 +1,10 @@
 <script>
     import { createEventDispatcher } from "svelte";
     import { querySnapshotPacientes } from "../modulos/moduloConsultasBBDD";
+    import SelectMeses from "./SelectMeses.svelte";
     export let mesSeleccionado;
     export let vistaCalculos;
-    export let arrayParaLaVista;
-    export let totalPagos;
+    export let arrayParaLaVista;    
 
     const dispatch = createEventDispatcher();
 
@@ -21,19 +21,37 @@
         return cadena;
     }
 
-    const handleMostrarVista = () => {
+    const calculaTotales = (arrayParaLaVista) => {
+        var totalColPagos = 0;
+        var totalColValorSesion = 0;
+        arrayParaLaVista.forEach(element => {
+            totalColPagos += element.valorPago;
+            totalColValorSesion += element.valorSesion;
+        });
+        return {totalColPagos: totalColPagos, totalColValorSesion: totalColValorSesion}
+    }
+
+    const handleMostrarVista = (mes) => {        
         if (vistaCalculos == false) {
-            dispatch("vistaPulsado", mesSeleccionado);
+            dispatch("vistaPulsado", mes);
+            mesSeleccionado = mes;            
+            vistaCalculos = !vistaCalculos;
+        } else { dispatch("vistaPulsado", mes);
+            mesSeleccionado = mes;
         }
-        vistaCalculos = !vistaCalculos;
+        console.log(calculaTotales(arrayParaLaVista), `mes: ${mesSeleccionado}, cant de sesiones: ${arrayParaLaVista.length}`);        
     };
+
+    const handleCambioMes = (mes) =>{
+        mesSeleccionado = mes;        
+        handleMostrarVista(mes);
+    }
 </script>
 
-<button on:click={handleMostrarVista}
-    >Ver Listado de Sesiones Mes {mesSeleccionado}</button
->
+<SelectMeses on:cambioMes={(e)=>handleCambioMes(e.detail)} />
 <div class="listadoSesionesPorMes">
     {#if vistaCalculos && arrayParaLaVista.length > 0}
+    <button on:click={() => (vistaCalculos = !vistaCalculos)}>Cerrar</button>
         <div id="tabla">
             <table>
                 <tr>
@@ -67,7 +85,8 @@
             </table>
         </div>
 
-        <p class="centrar">Total: ${totalPagos}</p>
+        <p class="centrar">Total pagos: ${calculaTotales(arrayParaLaVista).totalColPagos}</p>
+        <p class="centrar">Total valor sesion: ${calculaTotales(arrayParaLaVista).totalColValorSesion}</p>
 
         <button on:click={() => (vistaCalculos = !vistaCalculos)}>Cerrar</button
         >

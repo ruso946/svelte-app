@@ -72,21 +72,20 @@
   let prefix = "";
   let nombre = "";
   let apellido = "";
-  let nroSocio = "";
-  // let createdAt = new Date();
+  let nroSocio = "";  
 
   let pacientesFiltrada = [];
   let textoLabelPlan = "plan";
 
   $: {
-    pacientesFiltrada = prefix // bloque reactivo que de acuerdo a si hay prefix,
+    pacientesFiltrada = prefix      // bloque reactivo que de acuerdo a si hay prefix,
     ? pacientes.filter((person) => {
-        // filtra por apellido el array de pacientes y lo asigna al array pacientesFiltrada
+                                    // filtra por apellido el array de pacientes y lo asigna al array pacientesFiltrada
         const name = `${person.apellido}, ${person.nombre}`;
         return name.toLowerCase().startsWith(prefix.toLowerCase());
       })
     : pacientes.map((persona) => {
-        // o mapea todo el array de pacientes para asignarlo al array pacientesFiltrada
+                                    // o mapea todo el array de pacientes para asignarlo al array pacientesFiltrada
         return {
           nombre: persona.nombre,
           apellido: persona.apellido,
@@ -343,6 +342,7 @@
   <div id="filter">
     <label for="filterPrefix">filtrar por apellido</label><input
       name="filterPrefix"
+      id="filterPrefix"
       placeholder="filter prefix"
       bind:value={prefix}
     />
@@ -361,18 +361,20 @@
   <div id="formInputsI">
     <label for="nombre">nombre</label><input
       name="nombre"
+      id="nombre"
       bind:value={nombre}
       placeholder="nombre"
     />
     <label for="apellido">apellido</label><input
       name="apellido"
+      id="apellido"
       bind:value={apellido}
       placeholder="apellido"
     />
   </div>
 
   <div id="formInputsD">
-    <label for="nroSocio">nº socio</label>
+    <label for="inputNroSocio">nº socio</label>
     <div class="formRow">
       <input
         id="inputNroSocio"
