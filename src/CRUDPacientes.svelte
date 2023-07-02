@@ -72,21 +72,20 @@
   let prefix = "";
   let nombre = "";
   let apellido = "";
-  let nroSocio = "";
-  // let createdAt = new Date();
+  let nroSocio = "";  
 
   let pacientesFiltrada = [];
   let textoLabelPlan = "plan";
 
   $: {
-    pacientesFiltrada = prefix // bloque reactivo que de acuerdo a si hay prefix,
+    pacientesFiltrada = prefix      // bloque reactivo que de acuerdo a si hay prefix,
     ? pacientes.filter((person) => {
-        // filtra por apellido el array de pacientes y lo asigna al array pacientesFiltrada
+                                    // filtra por apellido el array de pacientes y lo asigna al array pacientesFiltrada
         const name = `${person.apellido}, ${person.nombre}`;
         return name.toLowerCase().startsWith(prefix.toLowerCase());
       })
     : pacientes.map((persona) => {
-        // o mapea todo el array de pacientes para asignarlo al array pacientesFiltrada
+                                    // o mapea todo el array de pacientes para asignarlo al array pacientesFiltrada
         return {
           nombre: persona.nombre,
           apellido: persona.apellido,
