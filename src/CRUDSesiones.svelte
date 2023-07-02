@@ -440,7 +440,7 @@ Las variables de los inputs del formulario de sesiones:
 
     <!-- Este Select va a elegir la sesion por ID de paciente -->
     {#if sesiones.length >0}
-    <div id="select">{`mesSeleccionado ${mesSeleccionado} ${typeof mesSeleccionado} ${sesiones[1].diaSesion.slice(5, 7)}`}
+    <div id="select">
       <select
         id="select-sesiones"
         on:change={handle_onChange_select_sesiones}
