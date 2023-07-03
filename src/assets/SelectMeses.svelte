@@ -60,8 +60,8 @@
     dispatch("cambioMes", mes);
   };
 </script>
-
-<select
+<main>
+  <select
   on:change={(e)=>handleCambioMes(e.target.value)}
   bind:value={mesActual}
   name="mes"
@@ -75,10 +75,15 @@
     >
   {/each}
 </select>
-
+</main>
 <style>
-  
+  main{    
+    background-color: rgb(58, 78, 78);
+    padding: 5px;
+  }
+
   select{
+    padding: 3px;
     background-color: rgb(42, 40, 40);
     color: #8C8C8C;
   }
