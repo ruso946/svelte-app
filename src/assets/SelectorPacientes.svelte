@@ -80,9 +80,9 @@
   .listadoPacientes {
     font-family: 'Courier New', Courier, monospace;
     text-align: start;
-    height: 6em;
+    height: 10em;
     overflow-y: auto;
-    background-color: black;
+    background-color: rgb(28, 27, 27);
     color: blanchedalmond;
     max-width: 100%;
     width: 100%;
@@ -94,4 +94,47 @@
   .sinPunto {
     list-style: none;
   }
+
+  input[type="radio"] {
+    display: none;
+  }
+
+  /* Estilos personalizados para los botones de opción */
+  input[type="radio"] + label {
+    display: inline-block;
+    padding: 5px 10px;
+    border: 1px solid  rgb(9, 63, 45);
+    border-radius: 4px;
+    
+    cursor: pointer;
+    width: 95%;
+  }
+
+  /* Estilo para el botón seleccionado */
+  input[type="radio"]:checked + label {
+    background-color: rgb(61, 30, 44) ;
+    color: #ebdada;
+  }
+
+  /* Cambiar el estilo de la barra de desplazamiento */
+  ::-webkit-scrollbar {
+    width: 3px; /* Ancho de la barra de desplazamiento */
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgb(
+      41,
+      39,
+      39
+    ); /* Color del fondo de la pista de la barra de desplazamiento */
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #888; /* Color del pulgar de la barra de desplazamiento */
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Color del pulgar de la barra de desplazamiento en estado de hover */
+  }
+
 </style>

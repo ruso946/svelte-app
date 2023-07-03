@@ -48,11 +48,11 @@
 
   let planSelect = "particular";
 
-  let i=0; // se inicializa como cero para que haya un paciente seleccionado
-           // que se pasa a CRUDSesiones a traves de i=0,
-           // que genera un selected=pacientesFiltrada[i],
-           // que pasa al store por $pacienteSeleccionado = selected,
-           // y de ahí es leído por CRUDSesiones para mostrar las sesiones del pacienteSeleccionado           
+  let i = 0; // se inicializa como cero para que haya un paciente seleccionado
+  // que se pasa a CRUDSesiones a traves de i=0,
+  // que genera un selected=pacientesFiltrada[i],
+  // que pasa al store por $pacienteSeleccionado = selected,
+  // y de ahí es leído por CRUDSesiones para mostrar las sesiones del pacienteSeleccionado
 
   let SelectPlanVisible; //prop o estado de SelectPlan. Se va a usar para controlar el cambio de paciente sicnronizado con la vista del SelectPlan
 
@@ -72,32 +72,31 @@
   let prefix = "";
   let nombre = "";
   let apellido = "";
-  let nroSocio = "";  
+  let nroSocio = "";
 
   let pacientesFiltrada = [];
   let textoLabelPlan = "plan";
 
   $: {
-    pacientesFiltrada = prefix      // bloque reactivo que de acuerdo a si hay prefix,
-    ? pacientes.filter((person) => {
-                                    // filtra por apellido el array de pacientes y lo asigna al array pacientesFiltrada
-        const name = `${person.apellido}, ${person.nombre}`;
-        return name.toLowerCase().startsWith(prefix.toLowerCase());
-      })
-    : pacientes.map((persona) => {
-                                    // o mapea todo el array de pacientes para asignarlo al array pacientesFiltrada
-        return {
-          nombre: persona.nombre,
-          apellido: persona.apellido,
-          plan: persona.plan,
-          nroSocio: persona.nroSocio,
-          id: persona.id,
-        };
-      });
-      
-    }
-      
-      $: selected = pacientesFiltrada[i];
+    pacientesFiltrada = prefix // bloque reactivo que de acuerdo a si hay prefix,
+      ? pacientes.filter((person) => {
+          // filtra por apellido el array de pacientes y lo asigna al array pacientesFiltrada
+          const name = `${person.apellido}, ${person.nombre}`;
+          return name.toLowerCase().startsWith(prefix.toLowerCase());
+        })
+      : pacientes.map((persona) => {
+          // o mapea todo el array de pacientes para asignarlo al array pacientesFiltrada
+          return {
+            nombre: persona.nombre,
+            apellido: persona.apellido,
+            plan: persona.plan,
+            nroSocio: persona.nroSocio,
+            id: persona.id,
+          };
+        });
+  }
+
+  $: selected = pacientesFiltrada[i];
 
   //el siguiente bloque reactivo if, aporta al store los valores necesarios
   //del paciente seleccionado en el Select de este componente:
@@ -269,7 +268,7 @@
     //funcion que trae del evento personalizado del componente SelectorPacientes
     i = event.detail[0]; //el valor de i, que es el indice de la lista de pacientes filtrada que se
     const planSelect = event.detail[1]; //actualiza al seleccionar un paciente en el select del componente
-    $idPacienteSeleccionado = event.detail[2]; //actualiza el id de paciente seleccionado en el store    
+    $idPacienteSeleccionado = event.detail[2]; //actualiza el id de paciente seleccionado en el store
     const planSelectNombrePlan =
       typeof planSelect == "string" ? "particular" : planSelect.plan; //planSelect es un objeto
     console.log(`i ${i}, planSelect ${planSelectNombrePlan}`);
@@ -336,7 +335,7 @@
           !selected}>update</button
       >
       <button on:click={remove} disabled={!selected}>delete</button>
-    </div>    
+    </div>
   </div>
 
   <div id="filter">
@@ -423,7 +422,7 @@
     padding: 3px;
     justify-items: center;
     align-items: center;
-    background-color: cadetblue;
+    background-color: rgb(58, 78, 78);
   }
 
   #filter input {
@@ -441,7 +440,7 @@
     flex-direction: row;
     justify-content: center;
     align-items: baseline;
-    background-color: cadetblue;
+    background-color: rgb(58, 78, 78);
   }
 
   #selectPacientes {
@@ -450,7 +449,7 @@
     padding: 3px;
     justify-items: center;
     align-items: start;
-    background-color: cadetblue;
+    background-color: rgb(58, 78, 78);
   }
 
   #formInputsD {
@@ -472,7 +471,7 @@
     align-items: center;
     justify-content: start;
     padding: 0.5em;
-    background-color: cadetblue;
+    background-color: rgb(58, 78, 78);
     padding: 3px;
   }
 
@@ -499,6 +498,8 @@
     margin: 0;
     width: 80%;
     font-size: medium;
+    background-color: rgb(58, 78, 78);
+    color: blanchedalmond;
   }
 
   .buttons {
@@ -506,5 +507,10 @@
     flex-direction: row;
     justify-content: flex-start;
     gap: 0.5em;
+  }
+  
+  button {
+    background-color: rgb(58, 49, 49);
+    color: rgb(193, 176, 150);
   }
 </style>

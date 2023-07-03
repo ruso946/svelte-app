@@ -33,6 +33,7 @@
     nombreSeleccionado,
   } from "./store";
   import VisualizarRegistros from "./assets/VisualizarRegistros.svelte";
+  import SelectorSesiones from "./assets/SelectorSesiones.svelte";
 
   let vistaCalculos = false;
   let arrayParaLaVista = []; //si no agrego esta definicion de array vacío, entonces no funciona de una el boton del componente ListadoSesionesPorMes porque no toma arrayParaLaVista como un array.
@@ -95,7 +96,8 @@ Funciones del formulario:
  -handle_onchange_select_sesiones
 */
   const handle_onChange_select_sesiones = (e) => {
-    selectedSessionId = e.target.value; // está tomando el valor del select al cambiar, que es el Id de sesion seleccionado
+    console.log(e);
+    selectedSessionId = e.detail; // está tomando el valor del select al cambiar, que es el Id de sesion seleccionado
     console.log(sesiones);
     selectedSession = sesiones.find(
       (sesion) => sesion.id === selectedSessionId //está tomando la sesion seleccionada como objeto a partir de la id de sesion seleccionada en el select
@@ -259,6 +261,7 @@ Las variables de los inputs del formulario de sesiones:
       mesSeleccionado
     );
     arrayParaLaVista = arrayListadoItemsPorMes[1];
+    arrayParaLaVista.push({apellido: "ultimo", diaSesion: "ultimo", nombre: "ultimo", plan: "ultimo", valorPago: 0, valorSesion: 0})
     console.log(Array.isArray(arrayListadoItemsPorMes[1]));
     console.log(arrayListadoItemsPorMes[1]);
     vistaCalculos = true;
@@ -442,42 +445,22 @@ Las variables de los inputs del formulario de sesiones:
         {/if}
       </div>
       <div class="selectorSesiones">
-        <ul class="sinPunto">
-          {#each sesiones as sesion}
-            {#if Object.values(sesion).includes($idPacienteSeleccionado) && parseInt(sesion.diaSesion.slice(5, 7)) == mesSeleccionado}
-              <li>
-                <input
-                  type="radio"
-                  id={sesion.id}
-                  on:change={handle_onChange_select_sesiones}
-                  bind:group={selectedSessionId}
-                  name="sesiones"
-                  value={sesion.id}
-                />
-                <label for={sesion.id}
-                  >{`${sesion.diaSesion.slice(8, 10)} -sesion: $${
-                    sesion.valorSesion
-                  }-pago: ${sesion.fechaPago.slice(5, 10)} $${
-                    sesion.valorPago
-                  }`}</label
-                >
-              </li>
-            {/if}
-          {/each}
-        </ul>
-        <VisualizarRegistros          
-          {varSumaValorPagoPorPaciente}
+        <SelectorSesiones
+          on:cambioSelectorSesion={handle_onChange_select_sesiones}
+          {mesSeleccionado}
+          {sesiones}
         />
+
+        <VisualizarRegistros {varSumaValorPagoPorPaciente} />
       </div>
       <div>
         <ListadoSesionesPorMes
-        on:vistaPulsado={async (e) => listarItemsPorMes(e.detail)}
-        {vistaCalculos}
-        {arrayParaLaVista}
-        {mesSeleccionado}
-      />
+          on:vistaPulsado={async (e) => listarItemsPorMes(e.detail)}
+          {vistaCalculos}
+          {arrayParaLaVista}
+          {mesSeleccionado}
+        />
       </div>
-      
     {/if}
 
     <div id="contenedor-form-sesiones">
@@ -564,7 +547,7 @@ Las variables de los inputs del formulario de sesiones:
     margin: 0;
   }
 
-  body {
+  body {    
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: 0.5fr 1fr 2fr;
@@ -577,9 +560,10 @@ Las variables de los inputs del formulario de sesiones:
   }
 
   .tituloSelectorSesiones {
+    padding: 1em;
     font-family: "Courier New", Courier, monospace;
     text-align: start;
-    background-color: black;
+    background-color: rgb(28, 27, 27);
     color: blanchedalmond;
     max-width: 100%;
     width: 100%;
@@ -592,8 +576,8 @@ Las variables de los inputs del formulario de sesiones:
     font-family: "Courier New", Courier, monospace;
     text-align: start;
     height: 10em;
-    overflow-y: auto;
-    background-color: black;
+    /* overflow-y: auto; */
+    background-color: rgb(28, 27, 27);
     color: blanchedalmond;
     max-width: 100%;
     width: 100%;
@@ -602,30 +586,36 @@ Las variables de los inputs del formulario de sesiones:
     white-space: pre;
   }
 
-  h4 {
+  ::-webkit-scrollbar-track {
+    background: rgb(
+      41,
+      39,
+      39
+    ); /* Color del fondo de la pista de la barra de desplazamiento */
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #888; /* Color del pulgar de la barra de desplazamiento */
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Color del pulgar de la barra de desplazamiento en estado de hover */
+  }
+
+  h5 {
     grid-area: titulo;
     padding: 2px;
-    background-color: cadetblue;
+    background-color: rgb(28, 27, 27);
     color: aliceblue;
     text-shadow: 1px 1px #999;
     transition: all 0.2s ease-in-out;
     cursor: pointer;
   }
 
-  h4:hover {
-    text-shadow: 2px 2px #ccc;
-    background-color: rgb(67, 113, 115);
-  }
-
-  #select {
-    display: grid;
-    grid-area: select;
-    place-items: start;
-    padding: 3px;
-    justify-items: center;
-    align-items: start;
-    background-color: cadetblue;
-  }
+  button{
+    background-color: rgb(58, 49, 49);
+    color: rgb(193, 176, 150);
+  }  
 
   #contenedor-form-sesiones {
     display: grid;
@@ -634,7 +624,8 @@ Las variables de los inputs del formulario de sesiones:
     padding: 2px;
     justify-items: center;
     align-items: start;
-    background-color: cadetblue;
+    background-color: rgb(58, 78, 78);
+    /* margin-bottom: 5px; */
   }
 
   #form-Sesiones {
@@ -688,17 +679,14 @@ Las variables de los inputs del formulario de sesiones:
     padding: 3px 1em;
   }
 
-  #select-sesiones {
+  /* #select-sesiones {
     max-width: 100%;
     min-width: 100%;
     font-size: x-small;
-  }
+  }   */
 
-  option {
-    font-size: x-small;
-  }
-
-  .sinPunto {
-    list-style: none;
+  input {
+    background-color: rgb(58, 78, 78);
+    color: blanchedalmond;
   }
 </style>

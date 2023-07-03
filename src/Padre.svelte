@@ -171,8 +171,12 @@
     flex-direction: column;
     border: 0.2em solid black;
     padding: 3px;
-    background-color: cadetblue;
+    background-color: rgb(58, 78, 78);
     margin-bottom: 3px;
     text-align: center;
+  }
+
+  h5{
+    color: blanchedalmond;
   }
 </style>
