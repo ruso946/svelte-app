@@ -5,9 +5,9 @@
   export let mesSeleccionado;
   export let vistaCalculos;
   export let arrayParaLaVista;
-  import 'boxicons/css/boxicons.min.css';
-  
-  let vistaTotales= false;
+  import "boxicons/css/boxicons.min.css";
+
+  let vistaTotales = false;
 
   const dispatch = createEventDispatcher();
 
@@ -172,7 +172,7 @@
 
         <tbody>
           {#each arrayParaLaVista as item, indice}
-            {#if indice > 1 && arrayParaLaVista[indice - 1][orden] != item[orden]}
+            {#if (indice > 1 && arrayParaLaVista[indice - 1][orden] != item[orden]) || indice === arrayParaLaVista.length}
               <tr class="subtotalRow">
                 <td /><td /><td
                   >{`cant sesiones: ${
@@ -180,17 +180,6 @@
                   }`}</td
                 ><td>subtotales</td><td
                   >{calcularSubtotales(orden, indice).subtotalPagos}</td
-                ><td>{calcularSubtotales(orden, indice).subtotalValorSesion}</td
-                >
-              </tr>
-            {:else if indice === arrayParaLaVista.length}
-              <tr class="subtotalRow">
-                <td /><td /><td
-                  >{`cant sesiones: ${
-                    calcularSubtotales(orden, indice).cantSesiones
-                  }`}</td
-                ><td>subtotales</td><td
-                  >{calcularSubtotales(orden, indice).subTotalPagos}</td
                 ><td>{calcularSubtotales(orden, indice).subtotalValorSesion}</td
                 >
               </tr>
@@ -215,28 +204,30 @@
 
     <div class="row">
       <div class="col col-2 px-2 mt-3">
-        <button class="m-2" on:click={() => (vistaCalculos = !vistaCalculos)}
+        <button class="" on:click={() => (vistaCalculos = !vistaCalculos)}
           >Cerrar</button
         >
       </div>
       <div class="col col-1 px-2 mt-3">
-        <button class="transparente" on:click={()=>vistaTotales = !vistaTotales}>
-          <i class='bx bx-show'></i> <!-- Icono del ojo cerrado -->
-        </button>          
+        <button
+          class="transparente"
+          on:click={() => (vistaTotales = !vistaTotales)}
+        >
+          <i class="bx bx-show" />
+          <!-- Icono del ojo cerrado -->
+        </button>
       </div>
       {#if vistaTotales}
-      <div class="bordeTotales col col-8 m-3 p-2">
-        
-        <h6 class="row px-2">
-          Total pagos: ${calculaTotales(arrayParaLaVista).totalColPagos}
-        </h6>
-        <h6 class="row px-2">
-          Total valor sesion: ${calculaTotales(arrayParaLaVista)
-            .totalColValorSesion}
-        </h6>
-      </div>  
+        <div class="bordeTotales col col-8 m-3 p-2">
+          <h6 class="row px-2">
+            Total pagos: ${calculaTotales(arrayParaLaVista).totalColPagos}
+          </h6>
+          <h6 class="row px-2">
+            Total valor sesion: ${calculaTotales(arrayParaLaVista)
+              .totalColValorSesion}
+          </h6>
+        </div>
       {/if}
-      
     </div>
   {/if}
 </div>
@@ -250,29 +241,30 @@
     background-color: rgb(50, 47, 47);
   }
 
-  .transparente{
+  .transparente {
     background: transparent;
     border: none;
     padding: 0;
     cursor: pointer;
-  }
-  
-
-  .centrar {
-    text-align: center;
-  }
-
-  .derecha {
-    text-align: right;
-    justify-content: end;
   }
 
   .bordeTotales {
     border-style: solid;
     border-width: 3px;
     border-color: #3e5947;
+    color: rgb(151, 36, 36);
+    background-color: rgb(42, 18, 9);
   }
 
+  h6 {
+    color: rgb(151, 36, 36);
+  }
+
+  button {
+    background-color: #0d2411; /* Color de fondo en rojo */
+    color: #0a8056;
+  } 
+ 
   #tabla {
     overflow-x: auto;
     text-align: right;
@@ -307,11 +299,12 @@
   }
 
   tr:hover {
-    background-color: rgb(51, 24, 14);
+    background-color: rgb(42, 18, 9);
   }
 
   .subtotalRow {
     color: rgb(151, 36, 36);
+    background-color: rgb(42, 18, 9);
   }
 
   /* .listadoSesionesPorMes { */
@@ -325,9 +318,9 @@
     position: sticky;
     top: 0;
     background-color: rgb(
-      51,
-      24,
-      14
+      42,
+      18,
+      9
     ); /* Cambia el color de fondo de la cabecera si es necesario */
     z-index: 1;
   }

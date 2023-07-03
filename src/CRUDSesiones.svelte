@@ -547,7 +547,7 @@ Las variables de los inputs del formulario de sesiones:
     margin: 0;
   }
 
-  body {
+  body {    
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: 0.5fr 1fr 2fr;
@@ -560,6 +560,7 @@ Las variables de los inputs del formulario de sesiones:
   }
 
   .tituloSelectorSesiones {
+    padding: 1em;
     font-family: "Courier New", Courier, monospace;
     text-align: start;
     background-color: rgb(28, 27, 27);
@@ -575,7 +576,7 @@ Las variables de los inputs del formulario de sesiones:
     font-family: "Courier New", Courier, monospace;
     text-align: start;
     height: 10em;
-    overflow-y: auto;
+    /* overflow-y: auto; */
     background-color: rgb(28, 27, 27);
     color: blanchedalmond;
     max-width: 100%;
@@ -583,6 +584,22 @@ Las variables de los inputs del formulario de sesiones:
     margin: 0;
     font-size: small;
     white-space: pre;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgb(
+      41,
+      39,
+      39
+    ); /* Color del fondo de la pista de la barra de desplazamiento */
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #888; /* Color del pulgar de la barra de desplazamiento */
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Color del pulgar de la barra de desplazamiento en estado de hover */
   }
 
   h5 {
@@ -595,15 +612,10 @@ Las variables de los inputs del formulario de sesiones:
     cursor: pointer;
   }
 
-  #select {
-    display: grid;
-    grid-area: select;
-    place-items: start;
-    padding: 3px;
-    justify-items: center;
-    align-items: start;
-    background-color: rgb(28, 27, 27);
-  }
+  button{
+    background-color: rgb(58, 49, 49);
+    color: rgb(193, 176, 150);
+  }  
 
   #contenedor-form-sesiones {
     display: grid;
@@ -613,6 +625,7 @@ Las variables de los inputs del formulario de sesiones:
     justify-items: center;
     align-items: start;
     background-color: rgb(58, 78, 78);
+    /* margin-bottom: 5px; */
   }
 
   #form-Sesiones {
