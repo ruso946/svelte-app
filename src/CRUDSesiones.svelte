@@ -449,18 +449,9 @@ Las variables de los inputs del formulario de sesiones:
           on:cambioSelectorSesion={handle_onChange_select_sesiones}
           {mesSeleccionado}
           {sesiones}
-        />
-
-        <VisualizarRegistros {varSumaValorPagoPorPaciente} />
+        />       
       </div>
-      <div>
-        <ListadoSesionesPorMes
-          on:vistaPulsado={async (e) => listarItemsPorMes(e.detail)}
-          {vistaCalculos}
-          {arrayParaLaVista}
-          {mesSeleccionado}
-        />
-      </div>
+      
     {/if}
 
     <div id="contenedor-form-sesiones">
@@ -534,6 +525,14 @@ Las variables de los inputs del formulario de sesiones:
           <!-- <button on:click={actualizaValoresSesionesPorUnicaVez} /> -->
         </div>
       </form>
+      <div>
+        <ListadoSesionesPorMes
+          on:vistaPulsado={async (e) => listarItemsPorMes(e.detail)}
+          {vistaCalculos}
+          {arrayParaLaVista}
+          {mesSeleccionado}
+        />
+      </div>
     </div>
 
     <!-- on:vistaPulsado={async () => listarItemsPorMes(mesSeleccionado)} -->

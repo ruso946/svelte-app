@@ -7,10 +7,12 @@ Lo que hay que traer:
  - funcion handle_onChange_select_sesiones ==> se usa en el on:change ///Hay que generar un evento que burbujee a CRUDSesiones para que dispare esa funcion
  - selectedSessionId ==> se usa en el bind:group 
 */
+import VisualizarRegistros from "./VisualizarRegistros.svelte";
   import { createEventDispatcher } from "svelte";
   import { idPacienteSeleccionado } from "../store";
   export let mesSeleccionado;
   export let sesiones;
+  export let varSumaValorPagoPorPaciente;
   const dispatch = createEventDispatcher();
   let selectedSessionId;
 
@@ -44,6 +46,7 @@ Lo que hay que traer:
       {/if}
     {/each}
   </ul>
+  <VisualizarRegistros {varSumaValorPagoPorPaciente} />
 </div>
 
 <style>

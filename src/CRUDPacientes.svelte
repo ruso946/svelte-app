@@ -381,7 +381,7 @@
         bind:value={nroSocio}
         placeholder="nro de Socio"
       />
-      <button on:click={copyToClipboard}>✎</button>
+      <button class="transparenteSinBordes" on:click={copyToClipboard}>📋</button>
     </div>
     <label id="labelPlan" for="plan">{textoLabelPlan}</label>
     <SelectPlan
@@ -512,5 +512,10 @@
   button {
     background-color: rgb(58, 49, 49);
     color: rgb(193, 176, 150);
+  }
+
+  .transparenteSinBordes{
+    background-color: transparent;
+    border: none;
   }
 </style>
