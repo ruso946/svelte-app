@@ -43,7 +43,7 @@
       dispatch("vistaPulsado", mes);
       mesSeleccionado = mes;
       vistaCalculos = !vistaCalculos;
-    } else {
+    } else if (vistaCalculos == true) {
       dispatch("vistaPulsado", mes);
       mesSeleccionado = mes;
     }

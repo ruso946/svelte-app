@@ -63,6 +63,7 @@
 <main>
   <select
   on:change={(e)=>handleCambioMes(e.target.value)}
+  on:dblclick={(e)=>handleCambioMes(e.target.value)}
   bind:value={mesActual}
   name="mes"
   id="mesRegistro"
