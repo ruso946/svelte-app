@@ -36,7 +36,8 @@
   import SelectorSesiones from "./assets/SelectorSesiones.svelte";
 
   let vistaCalculos = false;
-  let arrayParaLaVista = []; //si no agrego esta definicion de array vacío, entonces no funciona de una el boton del componente ListadoSesionesPorMes porque no toma arrayParaLaVista como un array.
+  //let arrayParaLaVista = []; //si no agrego esta definicion de array vacío, entonces no funciona de una el boton del componente ListadoSesionesPorMes porque no toma arrayParaLaVista como un array.
+  
   let varSumaValorPagoPorPaciente; // variable para reflejar la suma por paciente por mes. Se pasa como prop a VisualizarRegistros
   let totalAdeudado = 0;
 
@@ -53,6 +54,108 @@
   let selectedSessionId;
   let selectedSession;
   let totalPagos = 0;
+  const obtenerRegistrosMesActual = async (mesSeleccionado) => {
+    if (!mesSeleccionado) {
+      //si al principio no hay seleccion de select, lo calcula a la fecha de hoy, el mes actual
+      mesSeleccionado = mesActual;
+    }
+    // esta funcion obtiene en la variable totalPagos, la suma de los pagos
+    // de las sesiones del mes actual (el seleccionado en el select de meses)
+    // mas los pagos que hace la OS por cada sesion
+
+    try {
+      // Itera sobre los documentos y extrae los datos de las sesiones
+      const sesionesPorMesActual = await querySnapshotConsultaMesActual(
+        mesSeleccionado
+      );
+      // Calcula la suma de los pagos
+      totalPagos = 0;
+      totalAdeudado = 0;
+      let arrayListadoItemsPorMes = [];
+      sesionesPorMesActual.forEach((sesionMesActual) => {
+        //  por cada sesion de la consulta de sesiones del mes actual:
+        //  console.log(pacientes);
+        let pacienteActualID = sesionMesActual.pacienteID; //  primero obtiene el ID del paciente de la sesion en la que está iterando
+        const pacienteActual = pacientes.find(
+          //  para poder obtener el objeto paciente corespondiente
+          (paciente) => paciente.id == pacienteActualID
+        );
+        //console.log(`pacienteActual ${pacienteActual.apellido}, ${pacienteActual.nombre} - plan ${pacienteActual.plan.plan?pacienteActual.plan.plan:"particular"}`);
+        var pagoSesion = sesionMesActual.valorPago; // toma el valor del pago de la sesion que está iterando
+        if (pagoSesion == null) {
+          // lo pasa a valor cero si es null
+          pagoSesion = 0;
+        }
+        if (typeof pagoSesion === "number") {
+          if (pacienteActual.plan == "particular") {
+            //si el paciente es particular
+            totalPagos += pagoSesion; //usa ese valor para sumar al total que está calculando
+            if (pagoSesion < valorSesion) {
+              totalAdeudado += valorSesion - pagoSesion; //calcula deuda si corresponde
+            }
+            var objetoParaPushearAlListado = {
+              diaSesion: sesionMesActual.diaSesion,
+              apellido: pacienteActual.apellido,
+              nombre: pacienteActual.nombre,
+              plan: pacienteActual.plan.plan
+                ? pacienteActual.plan.plan
+                : "particular",
+              valorPago: pagoSesion,
+              valorSesion: sesionMesActual.valorSesion,
+            };
+            //console.log(objetoParaPushearAlListado);
+            arrayListadoItemsPorMes.push(objetoParaPushearAlListado);
+          } else {
+            // si no es particular, hace la lógica del cálculo
+            const planActual = pacienteActual.plan; // primero, obtiene el plan del placiente por el que itera
+
+            var objetoParaPushearAlListado = {
+              diaSesion: sesionMesActual.diaSesion,
+              apellido: pacienteActual.apellido,
+              nombre: pacienteActual.nombre,
+              plan: pacienteActual.plan.plan
+                ? pacienteActual.plan.plan
+                : "particular",
+              valorPago: pagoSesion,
+              valorSesion: sesionMesActual.valorSesion,
+            };
+
+            //console.log(objetoParaPushearAlListado);
+            arrayListadoItemsPorMes.push(objetoParaPushearAlListado);
+
+            if (pagoSesion < planActual.valorCoseguro) {
+              // si el pago es menor al coseguro, calcula la deuda
+              totalAdeudado += planActual.valorCoseguro - pagoSesion;
+              //console.log(`totalAdeudado: ${totalAdeudado}`);
+            }
+            totalPagos += planActual.valorOs + pagoSesion; // suma el valor del pago mas el valor que paga la Os
+            // console.log(
+            //   `paciente ${pacienteActual.apellido}, fechaSesion: ${
+            //     sesionMesActual.diaSesion
+            //   }, valor Os + Coseguro$${
+            //     planActual.valorOs + planActual.valorCoseguro
+            //   }, total acumulado ${totalPagos}`
+            // );
+          }
+        }
+      });
+
+      // console.log("Total pagos mes actual: ", totalPagos);
+      // console.log("Total adeudado mes actual: ", totalAdeudado);
+      varSumaValorPagoPorPaciente = funcSumaValorPagoPorPaciente(
+        $idPacienteSeleccionado
+      );
+
+      // Retorna las sesiones obtenidas y el total de los pagos
+      return [totalPagos, arrayListadoItemsPorMes];
+    } catch (error) {
+      console.error("Error al obtener las sesiones y los pagos:", error);
+      return [];
+    }
+  };
+  let arrayParaLaVista = obtenerRegistrosMesActual(mesSeleccionado);
+  console.log("arrayParaLaVista y vistaCalculos");
+  console.log(arrayParaLaVista, vistaCalculos);
 
   $: console.log(
     "luego de las subscripciones a pacientes, planes y sesiones: sesiones>",
@@ -267,105 +370,7 @@ Las variables de los inputs del formulario de sesiones:
     vistaCalculos = true;
   };
 
-  const obtenerRegistrosMesActual = async (mesSeleccionado) => {
-    if (!mesSeleccionado) {
-      //si al principio no hay seleccion de select, lo calcula a la fecha de hoy, el mes actual
-      mesSeleccionado = mesActual;
-    }
-    // esta funcion obtiene en la variable totalPagos, la suma de los pagos
-    // de las sesiones del mes actual (el seleccionado en el select de meses)
-    // mas los pagos que hace la OS por cada sesion
-
-    try {
-      // Itera sobre los documentos y extrae los datos de las sesiones
-      const sesionesPorMesActual = await querySnapshotConsultaMesActual(
-        mesSeleccionado
-      );
-      // Calcula la suma de los pagos
-      totalPagos = 0;
-      totalAdeudado = 0;
-      let arrayListadoItemsPorMes = [];
-      sesionesPorMesActual.forEach((sesionMesActual) => {
-        //  por cada sesion de la consulta de sesiones del mes actual:
-        //  console.log(pacientes);
-        let pacienteActualID = sesionMesActual.pacienteID; //  primero obtiene el ID del paciente de la sesion en la que está iterando
-        const pacienteActual = pacientes.find(
-          //  para poder obtener el objeto paciente corespondiente
-          (paciente) => paciente.id == pacienteActualID
-        );
-        //console.log(`pacienteActual ${pacienteActual.apellido}, ${pacienteActual.nombre} - plan ${pacienteActual.plan.plan?pacienteActual.plan.plan:"particular"}`);
-        var pagoSesion = sesionMesActual.valorPago; // toma el valor del pago de la sesion que está iterando
-        if (pagoSesion == null) {
-          // lo pasa a valor cero si es null
-          pagoSesion = 0;
-        }
-        if (typeof pagoSesion === "number") {
-          if (pacienteActual.plan == "particular") {
-            //si el paciente es particular
-            totalPagos += pagoSesion; //usa ese valor para sumar al total que está calculando
-            if (pagoSesion < valorSesion) {
-              totalAdeudado += valorSesion - pagoSesion; //calcula deuda si corresponde
-            }
-            var objetoParaPushearAlListado = {
-              diaSesion: sesionMesActual.diaSesion,
-              apellido: pacienteActual.apellido,
-              nombre: pacienteActual.nombre,
-              plan: pacienteActual.plan.plan
-                ? pacienteActual.plan.plan
-                : "particular",
-              valorPago: pagoSesion,
-              valorSesion: sesionMesActual.valorSesion,
-            };
-            //console.log(objetoParaPushearAlListado);
-            arrayListadoItemsPorMes.push(objetoParaPushearAlListado);
-          } else {
-            // si no es particular, hace la lógica del cálculo
-            const planActual = pacienteActual.plan; // primero, obtiene el plan del placiente por el que itera
-
-            var objetoParaPushearAlListado = {
-              diaSesion: sesionMesActual.diaSesion,
-              apellido: pacienteActual.apellido,
-              nombre: pacienteActual.nombre,
-              plan: pacienteActual.plan.plan
-                ? pacienteActual.plan.plan
-                : "particular",
-              valorPago: pagoSesion,
-              valorSesion: sesionMesActual.valorSesion,
-            };
-
-            //console.log(objetoParaPushearAlListado);
-            arrayListadoItemsPorMes.push(objetoParaPushearAlListado);
-
-            if (pagoSesion < planActual.valorCoseguro) {
-              // si el pago es menor al coseguro, calcula la deuda
-              totalAdeudado += planActual.valorCoseguro - pagoSesion;
-              //console.log(`totalAdeudado: ${totalAdeudado}`);
-            }
-            totalPagos += planActual.valorOs + pagoSesion; // suma el valor del pago mas el valor que paga la Os
-            // console.log(
-            //   `paciente ${pacienteActual.apellido}, fechaSesion: ${
-            //     sesionMesActual.diaSesion
-            //   }, valor Os + Coseguro$${
-            //     planActual.valorOs + planActual.valorCoseguro
-            //   }, total acumulado ${totalPagos}`
-            // );
-          }
-        }
-      });
-
-      // console.log("Total pagos mes actual: ", totalPagos);
-      // console.log("Total adeudado mes actual: ", totalAdeudado);
-      varSumaValorPagoPorPaciente = funcSumaValorPagoPorPaciente(
-        $idPacienteSeleccionado
-      );
-
-      // Retorna las sesiones obtenidas y el total de los pagos
-      return [totalPagos, arrayListadoItemsPorMes];
-    } catch (error) {
-      console.error("Error al obtener las sesiones y los pagos:", error);
-      return [];
-    }
-  };
+  
 
   $: obtenerRegistrosMesActual();
 
@@ -451,10 +456,8 @@ Las variables de los inputs del formulario de sesiones:
           {sesiones}
           {varSumaValorPagoPorPaciente}
         />       
-      </div>
-      
+      </div>      
     {/if}
-
     <div id="contenedor-form-sesiones">
       <form on:submit|preventDefault>
         <div id="form-Sesiones">
@@ -550,7 +553,7 @@ Las variables de los inputs del formulario de sesiones:
   body {    
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: 0.5fr 1fr 2fr;
+    grid-template-rows: 0.5fr 0,5fr 2fr;
     grid-template-areas:
       "titulo "
       "select "
@@ -569,7 +572,7 @@ Las variables de los inputs del formulario de sesiones:
     width: 100%;
     margin: 0;
     font-size: small;
-    white-space: pre;
+    /* white-space: pre; */
   }
 
   .selectorSesiones {
@@ -618,7 +621,7 @@ Las variables de los inputs del formulario de sesiones:
   }  
 
   #contenedor-form-sesiones {
-    display: grid;
+    /* display: grid; */    
     grid-area: contenedor-form-Sesiones;
     place-items: start;
     padding: 2px;

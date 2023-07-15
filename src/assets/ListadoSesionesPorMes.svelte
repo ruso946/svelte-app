@@ -7,6 +7,7 @@
   export let arrayParaLaVista;
   import "boxicons/css/boxicons.min.css";
 
+  let botonMostrar = true;
   let vistaTotales = false;
 
   const dispatch = createEventDispatcher();
@@ -150,15 +151,38 @@
 
     return { subtotalPagos, subtotalValorSesion, cantSesiones };
   }
-</script>
 
-<SelectMeses on:cambioMes={(e) => handleCambioMes(e.detail)} />
+  const handleBotonMostrar = ()=>{
+    botonMostrar = false;
+    vistaCalculos = !vistaCalculos;
+    handleCambioMes(mesSeleccionado);
+    // console.log(arrayParaLaVista, vistaCalculos)
+  }
+
+  const handleCerrar = () =>{
+    botonMostrar=true;
+    vistaCalculos = !vistaCalculos;
+  }
+</script>
+<div class="row">
+  <div class="col-5 mx-2 p-2 my-0">
+    <SelectMeses on:cambioMes={(e) => handleCambioMes(e.detail)} />
+  </div>
+  <div class="col-5 mx-2 p-2 my-0">
+    {#if (botonMostrar)}
+    <button class=""  on:click={()=>handleBotonMostrar()}>mostrar vista</button>
+    {/if}
+    
+  </div>
+    
+</div>
+  
 <div class="listadoSesionesPorMes">
   {#if vistaCalculos && arrayParaLaVista.length > 0}
-    <button on:click={() => (vistaCalculos = !vistaCalculos)}>Cerrar</button>
-    <button on:click={ordenaPorApellido}>ordena por nombre</button>
-    <button on:click={ordenaPorPlan}>ordena por OS</button>
-    <button on:click={ordenaPorDiaSesion}>ordena por fecha sesion</button>
+    <button class="botonesListado" on:click={() => handleCerrar()}>Cerrar</button>
+    <button class="botonesListado" on:click={ordenaPorApellido}>ordena por nombre</button>
+    <button class="botonesListado" on:click={ordenaPorPlan}>ordena por OS</button>
+    <button class="botonesListado" on:click={ordenaPorDiaSesion}>ordena por fecha sesion</button>
     <div id="tabla">
       <table>
         <tr class="cabecera">
@@ -260,10 +284,15 @@
     color: rgb(151, 36, 36);
   }
 
-  button {
+  .botonesListado {
     background-color: #0d2411; /* Color de fondo en rojo */
     color: #0a8056;
   } 
+
+  button {
+    background-color: rgb(58, 49, 49);
+    color: rgb(193, 176, 150);
+  }
  
   #tabla {
     overflow-x: auto;
