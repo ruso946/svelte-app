@@ -70,9 +70,7 @@
 >
   {#each meses as mes}
     <option value={mes.nro}
-      >{`listar mes de ${mes.nombre} - ${mes.nro
-        .toString()
-        .padStart(2, "0")}`}</option
+      >{`listar ${mes.nombre}`}</option
     >
   {/each}
 </select>
