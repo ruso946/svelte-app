@@ -286,6 +286,7 @@
     const esParticular = planSelectNombrePlan == "particular" ? true : false;
 
     modificaLabelPlan(esParticular);
+    // agregar aca el evento que hace que se dispare la funcion obtenerRegistrosMesActual para que se actualice el total Sesiones en el visualizaRegistrosS
   };
 
   const clickCheckPlan = (event) => {

@@ -38,7 +38,8 @@
   let vistaCalculos = false;
   //let arrayParaLaVista = []; //si no agrego esta definicion de array vacío, entonces no funciona de una el boton del componente ListadoSesionesPorMes porque no toma arrayParaLaVista como un array.
   
-  let varSumaValorPagoPorPaciente; // variable para reflejar la suma por paciente por mes. Se pasa como prop a VisualizarRegistros
+  let varSumaValorPagoPorPaciente=0; // variable para reflejar la suma por paciente por mes. Se pasa como prop a VisualizarRegistros
+  let varSumaValorSesionPorPaciente=0; // variable para reflejar la suma por paciente por mes. Se pasa como prop a VisualizarRegistros
   let totalAdeudado = 0;
 
   //obtiene la fecha actual
@@ -144,7 +145,10 @@
       // console.log("Total adeudado mes actual: ", totalAdeudado);
       varSumaValorPagoPorPaciente = funcSumaValorPagoPorPaciente(
         $idPacienteSeleccionado
-      );
+      )[1];
+      varSumaValorSesionPorPaciente = funcSumaValorPagoPorPaciente(
+        $idPacienteSeleccionado
+      )[0];
 
       // Retorna las sesiones obtenidas y el total de los pagos
       return [totalPagos, arrayListadoItemsPorMes];
@@ -353,7 +357,9 @@ Las variables de los inputs del formulario de sesiones:
         sesion.diaSesion.slice(5, 7) ===
           mesSeleccionado.toString().padStart(2, "0")
     );
-    return sesionesFiltradas.reduce((sum, pago) => sum + pago.valorSesion, 0);
+    const totalValorSesionPorPaciente = sesionesFiltradas.reduce((sum, pago) => sum + pago.valorSesion, 0);
+    const totalValorPagoPorPaciente = sesionesFiltradas.reduce((sum, pago) => sum + pago.valorPago, 0);
+    return [totalValorSesionPorPaciente, totalValorPagoPorPaciente];
   };
 
   //esta funcion hace el listado de las sesiones por mes en un div al final de la pagina
@@ -376,7 +382,7 @@ Las variables de los inputs del formulario de sesiones:
 
   $: varSumaValorPagoPorPaciente = funcSumaValorPagoPorPaciente(
     $idPacienteSeleccionado
-  );
+  )[1];
 
   /////////////////////////////////////////////////////////////////////////
   const updateSesionPorUnicaVez = async (sesionAmodificar, valorSesionPUV) => {
@@ -455,6 +461,7 @@ Las variables de los inputs del formulario de sesiones:
           {mesSeleccionado}
           {sesiones}
           {varSumaValorPagoPorPaciente}
+          {varSumaValorSesionPorPaciente}
         />       
       </div>      
     {/if}

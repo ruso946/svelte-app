@@ -13,6 +13,7 @@ import VisualizarRegistros from "./VisualizarRegistros.svelte";
   export let mesSeleccionado;
   export let sesiones;
   export let varSumaValorPagoPorPaciente;
+  export let varSumaValorSesionPorPaciente;
   const dispatch = createEventDispatcher();
   let selectedSessionId;
 
@@ -20,6 +21,24 @@ import VisualizarRegistros from "./VisualizarRegistros.svelte";
     console.log(selectedSessionId, e.target.value);
     dispatch("cambioSelectorSesion", e.target.value);
   };
+
+  const calcularValoresPorPaciente = (paciente)=>{
+    varSumaValorPagoPorPaciente = 0;
+    varSumaValorSesionPorPaciente = 0;
+    sesiones.forEach(sesion => {
+      if (Object.values(sesion).includes(paciente) && parseInt(sesion.diaSesion.slice(5, 7)) == mesSeleccionado){
+        varSumaValorPagoPorPaciente += sesion.valorPago;
+        varSumaValorSesionPorPaciente += sesion.valorSesion;
+      }      
+    });
+  };
+
+  $: {$idPacienteSeleccionado;
+    console.log(`cambio id paciente ${$idPacienteSeleccionado}`);
+    calcularValoresPorPaciente($idPacienteSeleccionado);
+  };
+    
+  
 </script>
 
 <div class="selectorSesiones">
@@ -46,7 +65,7 @@ import VisualizarRegistros from "./VisualizarRegistros.svelte";
       {/if}
     {/each}
   </ul>
-  <VisualizarRegistros {varSumaValorPagoPorPaciente} />
+  <VisualizarRegistros {varSumaValorPagoPorPaciente} {varSumaValorSesionPorPaciente} />
 </div>
 
 <style>
@@ -57,6 +76,7 @@ import VisualizarRegistros from "./VisualizarRegistros.svelte";
   }
   .sinPunto {
     list-style: none;
+    overflow-x: hidden;
   }
 
   .selectorSesiones {
@@ -71,6 +91,7 @@ import VisualizarRegistros from "./VisualizarRegistros.svelte";
     margin: 0;
     font-size: small;
     white-space: pre;
+    overflow-x: hidden;
   }
 
   input[type="radio"] {
