@@ -34,7 +34,7 @@
   } from "./store";
   import VisualizarRegistros from "./assets/VisualizarRegistros.svelte";
   import SelectorSesiones from "./assets/SelectorSesiones.svelte";
-
+  import {devuelveFechaActual} from "./modulos/moduloSesiones";
   let vistaCalculos = false;
   //let arrayParaLaVista = []; //si no agrego esta definicion de array vacío, entonces no funciona de una el boton del componente ListadoSesionesPorMes porque no toma arrayParaLaVista como un array.
   
@@ -239,10 +239,33 @@ Funciones del formulario:
         valorPago: valorPago,
         valorSesion: valorSesion,
         diaSesion: diaSesion,
-        fechaPago: fechaPago,
-        // pacienteID: selectedSession.pacienteID,
+        fechaPago: fechaPago,        
         pacienteID: $idPacienteSeleccionado,
       });
+      console.log("sesion agregada");
+      Toastify({
+        text: "Nueva sesion agregada",
+      }).showToast();
+      selectedSessionId = docRef.id;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const addSesionPlus = async () => {
+    console.log("Add sesion", selectedSession);
+    //hay que hacer que los datos del formulario carguen una nueva sesion en firestore sesiones
+    console.log(mesActual, "mes actual");
+    const fechaActual = devuelveFechaActual(mesActual).fechaActual.slice(0,10);
+    try {
+      const docRef = await addDoc(collection(db, "sesiones"), {
+        valorPago: valorPago,
+        valorSesion: valorSesion,
+        diaSesion: fechaActual,
+        fechaPago: fechaActual,        
+        pacienteID: $idPacienteSeleccionado,
+      });
+      console.log(valorPago, valorSesion, diaSesion, fechaPago, fechaActual)
       console.log("sesion agregada");
       Toastify({
         text: "Nueva sesion agregada",
@@ -449,7 +472,7 @@ Las variables de los inputs del formulario de sesiones:
 <main>
   <body>
     {#if sesiones.length > 0}
-      <div class="tituloSelectorSesiones">
+      <div class="tituloSelectorSesiones" id="tituloSesiones">
         <h5>{`Mes: ${mesSeleccionado}`}</h5>
         {#if $apellidoSeleccionado && $nombreSeleccionado}
           <p>Paciente: {$apellidoSeleccionado}, {$nombreSeleccionado}</p>
@@ -511,7 +534,8 @@ Las variables de los inputs del formulario de sesiones:
             <button on:click={() => deleteSesion(selectedSession)}
               >delete</button
             >
-            <button on:click={addSesion}>Agregar sesión</button>
+            <button class="text-sm" on:click={addSesionPlus}>misma sesión fecha actual</button>          
+            <button on:click={addSesion}>Agrega sesión</button>
           </div>
           <!-- <select
                 on:change={async (e) => listarItemsPorMes(e.target.value)}
@@ -698,5 +722,9 @@ Las variables de los inputs del formulario de sesiones:
   input {
     background-color: rgb(58, 78, 78);
     color: blanchedalmond;
+  }
+
+  .text-sm{
+    font-size: x-small;
   }
 </style>

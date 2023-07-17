@@ -172,13 +172,15 @@
   const handleBotonMostrar = ()=>{
     botonMostrar = false;
     vistaCalculos = !vistaCalculos;
-    handleCambioMes(mesSeleccionado);    
-    // console.log(arrayParaLaVista, vistaCalculos)
+    handleCambioMes(mesSeleccionado);        
   }
 
   const handleCerrar = () =>{
-    botonMostrar=true;
-    vistaCalculos = !vistaCalculos;
+    botonMostrar=true;    
+    const divToScroll = document.getElementById('contenedorPacientes');
+    console.log(divToScroll);
+    scrollToDiv(divToScroll);
+    vistaCalculos = !vistaCalculos;    
   }
 
   const handleVistaTotales = (e) =>{
@@ -205,7 +207,7 @@
     <button class="botonesListado" on:click={() => handleCerrar()}>Cerrar</button>
     <button class="botonesListado" on:click={ordenaPorApellido}>ordena por nombre</button>
     <button class="botonesListado" on:click={ordenaPorPlan}>ordena por OS</button>
-    <button class="botonesListado" on:click={ordenaPorDiaSesion}>ordena por fecha sesion</button>
+    <button class="botonesListado" on:click={ordenaPorDiaSesion}>ordena por fecha sesion</button>    
     <div id="tabla">
       <table>
         <tr class="cabecera">

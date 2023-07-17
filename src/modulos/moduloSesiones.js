@@ -24,7 +24,7 @@ export let devuelveFechaActual = (mesSeleccionado) => {
   let mesActualFormateado = mesActual.toString().padStart(2, "0");
   let anioActual = fechaActual.getFullYear();  
   let anioActualFormateado = anioActual.toString();
-  const fechaActualString = `${anioActualFormateado}_${mesActualFormateado}_${dia}_${hora}${minutos}`;
+  const fechaActualString = `${anioActualFormateado}-${mesActualFormateado}-${dia}-${hora}${minutos}`;
   
   // Crea las fechas de inicio y fin del mes actual o seleccionado
   let fechaInicioMes = `${anioActualFormateado}-${mesActualFormateado}-01`;

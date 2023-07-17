@@ -142,7 +142,7 @@
 
 <body>
   <button on:click={backupColeccionesFirestore}>generar backup firestore</button>  
-  <div class="contenedor-pacientes">
+  <div class="contenedor-pacientes" id="contenedorPacientes">
     <h5>Listados de Pacientes</h5>
     <CRUDPacientes
       {sesiones}
