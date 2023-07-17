@@ -40,6 +40,20 @@
     };
   };
 
+  function scrollToDiv(divToScroll) {    
+    setTimeout(() => {
+      divToScroll.scrollIntoView({ behavior: 'smooth' });
+    }, 50);
+    // Ajustamos el desplazamiento manualmente para dejar el div justo en la parte superior de la pantalla
+    const rect = divToScroll.getBoundingClientRect();
+    const offsetTop = window.scrollY + rect.top;
+
+    window.scrollTo({
+      top: offsetTop,
+      behavior: 'smooth',
+    });
+  }
+
   const handleMostrarVista = (mes) => {
     if (vistaCalculos == false) {
       dispatch("vistaPulsado", mes);
@@ -49,8 +63,8 @@
       dispatch("vistaPulsado", mes);
       mesSeleccionado = mes;
     }
-    const divToScroll = document.getElementById('listadoSesionesPorMes1');
-    divToScroll.scrollIntoView({ behavior: 'auto', block: 'start' });
+    const divToScroll = document.getElementById('listadoSesionesPorMes1');    
+    scrollToDiv(divToScroll);
     console.log(
       calculaTotales(arrayParaLaVista),
       `mes: ${mesSeleccionado}, cant de sesiones: ${arrayParaLaVista.length}`
@@ -166,6 +180,11 @@
     botonMostrar=true;
     vistaCalculos = !vistaCalculos;
   }
+
+  const handleVistaTotales = (e) =>{
+    vistaTotales = !vistaTotales;
+    scrollToDiv(e.target);
+  }
 </script>
 <div class="row">
   <div class="col-5 mx-2 p-2 my-0">
@@ -237,7 +256,7 @@
       <div class="col col-1 px-2 mt-3">
         <button
           class="transparente"
-          on:click={() => (vistaTotales = !vistaTotales)}
+          on:click={(e)=>handleVistaTotales(e)}
         >
           <i class="bx bx-show" />
           <!-- Icono del ojo cerrado -->
