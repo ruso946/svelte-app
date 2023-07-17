@@ -1,5 +1,6 @@
 <script>
   import { createEventDispatcher } from "svelte";
+  import { fade } from "svelte/transition";
   import { querySnapshotPacientes } from "../modulos/moduloConsultasBBDD";
   import SelectMeses from "./SelectMeses.svelte";
   export let mesSeleccionado;
@@ -48,6 +49,8 @@
       dispatch("vistaPulsado", mes);
       mesSeleccionado = mes;
     }
+    const divToScroll = document.getElementById('listadoSesionesPorMes1');
+    divToScroll.scrollIntoView({ behavior: 'auto', block: 'start' });
     console.log(
       calculaTotales(arrayParaLaVista),
       `mes: ${mesSeleccionado}, cant de sesiones: ${arrayParaLaVista.length}`
@@ -155,7 +158,7 @@
   const handleBotonMostrar = ()=>{
     botonMostrar = false;
     vistaCalculos = !vistaCalculos;
-    handleCambioMes(mesSeleccionado);
+    handleCambioMes(mesSeleccionado);    
     // console.log(arrayParaLaVista, vistaCalculos)
   }
 
@@ -170,15 +173,16 @@
   </div>
   <div class="col-5 mx-2 p-2 my-0">
     {#if (botonMostrar)}
-    <button class=""  on:click={()=>handleBotonMostrar()}>mostrar vista</button>
+    <button transition:fade class=""  on:click={()=>handleBotonMostrar()}>mostrar vista</button>
     {/if}
     
   </div>
     
 </div>
   
-<div class="listadoSesionesPorMes">
+<div class="listadoSesionesPorMes" id="listadoSesionesPorMes1">
   {#if vistaCalculos && arrayParaLaVista.length > 0}
+  <div transition:fade>  
     <button class="botonesListado" on:click={() => handleCerrar()}>Cerrar</button>
     <button class="botonesListado" on:click={ordenaPorApellido}>ordena por nombre</button>
     <button class="botonesListado" on:click={ordenaPorPlan}>ordena por OS</button>
@@ -227,10 +231,8 @@
     </div>
 
     <div class="row">
-      <div class="col col-2 px-2 mt-3">
-        <button class="" on:click={() => (vistaCalculos = !vistaCalculos)}
-          >Cerrar</button
-        >
+      <div class="col col-2 m-2">
+        <button class="botonesListado" on:click={() => handleCerrar()}>Cerrar</button>       
       </div>
       <div class="col col-1 px-2 mt-3">
         <button
@@ -242,7 +244,7 @@
         </button>
       </div>
       {#if vistaTotales}
-        <div class="bordeTotales col col-8 m-3 p-2">
+        <div transition:fade class="bordeTotales col col-7 m-3 p-2">
           <h6 class="row px-2">
             Total pagos: ${calculaTotales(arrayParaLaVista).totalColPagos}
           </h6>
@@ -253,7 +255,9 @@
         </div>
       {/if}
     </div>
+  </div>
   {/if}
+  
 </div>
 
 <style>
