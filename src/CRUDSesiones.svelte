@@ -232,8 +232,6 @@ Funciones del formulario:
 
   const addSesion = async () => {
     console.log("Add sesion", selectedSession);
-    //hay que hacer que los datos del formulario carguen una nueva sesion en firestore sesiones
-
     try {
       const docRef = await addDoc(collection(db, "sesiones"), {
         valorPago: valorPago,
@@ -253,8 +251,7 @@ Funciones del formulario:
   };
 
   const addSesionPlus = async () => {
-    console.log("Add sesion", selectedSession);
-    //hay que hacer que los datos del formulario carguen una nueva sesion en firestore sesiones
+    console.log("Add sesion", selectedSession);    
     console.log(mesActual, "mes actual");
     const fechaActual = devuelveFechaActual(mesActual).fechaActual.slice(0,10);
     try {
@@ -298,6 +295,7 @@ Funciones del formulario:
 
   const deleteSesion = async (selectedSession) => {
     console.log("Delete sesion", selectedSession);
+    const pacienteID = selectedSession.pacienteID;
     try {
       await deleteDoc(doc(db, "sesiones", selectedSession.id));
       Toastify({
@@ -309,6 +307,13 @@ Funciones del formulario:
     } catch (error) {
       console.error(error);
     }
+
+    console.log(selectedSession, selectedSession.diaSesion.slice(5,7), mesSeleccionado.toString().padStart(2,"0"));
+    selectedSession = sesiones.find(
+      (sesion) => (sesion.pacienteID === pacienteID && sesion.diaSesion.slice(5,7)===mesSeleccionado.toString().padStart(2,"0"))  //está tomando la sesion seleccionada como objeto a partir de la id de sesion seleccionada en el select
+    );
+    console.log(selectedSession);
+    selectedSessionId = selectedSession.id;
   };
 
   const depurarSesiones = () => {
@@ -485,6 +490,7 @@ Las variables de los inputs del formulario de sesiones:
           {sesiones}
           {varSumaValorPagoPorPaciente}
           {varSumaValorSesionPorPaciente}
+          {selectedSessionId}
         />       
       </div>      
     {/if}

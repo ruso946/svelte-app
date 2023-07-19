@@ -15,7 +15,7 @@ import VisualizarRegistros from "./VisualizarRegistros.svelte";
   export let varSumaValorPagoPorPaciente;
   export let varSumaValorSesionPorPaciente;
   const dispatch = createEventDispatcher();
-  let selectedSessionId;
+  export let selectedSessionId;
 
   const handle_onChange_select_sesiones = (e) => {
     console.log(selectedSessionId, e.target.value);
