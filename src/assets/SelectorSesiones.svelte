@@ -12,8 +12,8 @@ import VisualizarRegistros from "./VisualizarRegistros.svelte";
   import { idPacienteSeleccionado } from "../store";
   export let mesSeleccionado;
   export let sesiones;
-  export let varSumaValorPagoPorPaciente;
-  export let varSumaValorSesionPorPaciente;
+  let varSumaValorPagoPorPaciente;
+  let varSumaValorSesionPorPaciente;
   const dispatch = createEventDispatcher();
   export let selectedSessionId;
 

@@ -487,11 +487,9 @@ Las variables de los inputs del formulario de sesiones:
         <SelectorSesiones
           on:cambioSelectorSesion={handle_onChange_select_sesiones}
           {mesSeleccionado}
-          {sesiones}
-          {varSumaValorPagoPorPaciente}
-          {varSumaValorSesionPorPaciente}
+          {sesiones}          
           {selectedSessionId}
-        />       
+        />              
       </div>      
     {/if}
     <div id="contenedor-form-sesiones">
