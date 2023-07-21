@@ -17,6 +17,10 @@
     where,
     getDocs,
   } from "firebase/firestore";
+  let mesActual = new Date().getMonth() + 1; // Los meses en JavaScript van de 0 a 11, por lo que se suma 1
+  let mesSeleccionado = mesActual;
+  let selectedSession;
+  let selectedSessionId;
   let sesiones = [];
   let pacientes = [];
   let planes = [];
@@ -150,11 +154,14 @@
       {planes}
       {optionsPlan}
       {planSeleccionado}
+      {selectedSession}
+      {selectedSessionId}
+      {mesSeleccionado}
     />
   </div>
 
   <div class="contenedor-sesiones">
-    <CRUDSesiones {sesiones} {pacientes} {planes} {planSeleccionado} />
+    <CRUDSesiones {sesiones} {pacientes} {planes} {planSeleccionado} {selectedSession} {mesSeleccionado} {selectedSessionId}/>
   </div>
 </body>
 

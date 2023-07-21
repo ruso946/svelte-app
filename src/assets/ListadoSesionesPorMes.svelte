@@ -30,10 +30,12 @@
     var totalColPagos = 0;
     var totalColValorSesion = 0;
     console.log(arrayParaLaVista);
-    arrayParaLaVista.forEach((element) => {
+    if (arrayParaLaVista.length > 0){
+      arrayParaLaVista.forEach((element) => {
       totalColPagos += element.valorPago;
       totalColValorSesion += element.valorSesion;
     });
+    }    
     return {
       totalColPagos: totalColPagos,
       totalColValorSesion: totalColValorSesion,

@@ -34,3 +34,18 @@ export let devuelveFechaActual = (mesSeleccionado) => {
 
   return objetoFecha;
 };
+
+export let funcSumaValorPagoPorPaciente = (pacienteID, sesiones, mesSeleccionado) => {
+  // obtiene la suma de los pagos de los valores por el paciente seleccionado
+  // que está en el store.js, y filtrando tambien por mes actual
+  //console.log("sesiones[0][diaSesion].slice(5,7)",sesiones[0][diaSesion].slice(5, 7), "mesActual",mesActual.toString().padStart(2, "0"));
+  const sesionesFiltradas = sesiones.filter(
+    (sesion) =>
+      sesion.pacienteID === pacienteID &&
+      sesion.diaSesion.slice(5, 7) ===
+        mesSeleccionado.toString().padStart(2, "0")
+  );
+  const totalValorSesionPorPaciente = sesionesFiltradas.reduce((sum, pago) => sum + pago.valorSesion, 0);
+  const totalValorPagoPorPaciente = sesionesFiltradas.reduce((sum, pago) => sum + pago.valorPago, 0);
+  return [totalValorSesionPorPaciente, totalValorPagoPorPaciente];
+};

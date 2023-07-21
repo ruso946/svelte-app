@@ -9,17 +9,20 @@ Lo que hay que traer:
 */
 import VisualizarRegistros from "./VisualizarRegistros.svelte";
   import { createEventDispatcher } from "svelte";
-  import { idPacienteSeleccionado } from "../store";
+  import { idPacienteSeleccionado, selectedSessionId } from "../store";
   export let mesSeleccionado;
   export let sesiones;
   let varSumaValorPagoPorPaciente;
   let varSumaValorSesionPorPaciente;
   const dispatch = createEventDispatcher();
-  export let selectedSessionId;
+  //export let selectedSessionId;
+  export let cambioEnSesiones;
+  
 
   const handle_onChange_select_sesiones = (e) => {
     console.log(selectedSessionId, e.target.value);
     dispatch("cambioSelectorSesion", e.target.value);
+    //$selectedSessionId = e.target.value;
   };
 
   const calcularValoresPorPaciente = (paciente)=>{
@@ -37,6 +40,16 @@ import VisualizarRegistros from "./VisualizarRegistros.svelte";
     console.log(`cambio id paciente ${$idPacienteSeleccionado}`);
     calcularValoresPorPaciente($idPacienteSeleccionado);
   };
+
+  $: {
+    console.log(`cambioEnSesiones ${cambioEnSesiones}`);      
+      calcularValoresPorPaciente($idPacienteSeleccionado);
+    }
+
+  $: {
+    $selectedSessionId;
+    dispatch("cambioSelectorSesion", $selectedSessionId);
+  }
     
   
 </script>
@@ -50,7 +63,7 @@ import VisualizarRegistros from "./VisualizarRegistros.svelte";
             type="radio"
             id={sesion.id}
             on:change={handle_onChange_select_sesiones}
-            bind:group={selectedSessionId}
+            bind:group={$selectedSessionId}
             name="sesiones"
             value={sesion.id}
           />

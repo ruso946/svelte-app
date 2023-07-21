@@ -19,3 +19,5 @@ export const sesionSeleccionada = writable({
     valorSesion:0,
     valorPago:0
 });
+
+export const selectedSessionId = writable("");

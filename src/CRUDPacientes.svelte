@@ -22,6 +22,7 @@
     apellidoSeleccionado,
     idPacienteSeleccionado,
     nombreSeleccionado,
+    selectedSessionId,
   } from "./store";
   import {
     agregarClavesFaltantes,
@@ -31,8 +32,12 @@
 
   export let pacientes = []; //array que viene del unsub de Padre.svelte que trae toda la db pacientes
   export let sesiones;
+  export let selectedSession;
+  //export let selectedSessionId;
+  export let mesSeleccionado;
   export let planes;
   export let planSeleccionado;
+
   let arrayDeNombresDeClaves = [
     // usado para hacer que todos los campos de la base de datos y el array pacientes tengan todas las claves
     "nombre",
@@ -286,7 +291,18 @@
     const esParticular = planSelectNombrePlan == "particular" ? true : false;
 
     modificaLabelPlan(esParticular);
-    // agregar aca el evento que hace que se dispare la funcion obtenerRegistrosMesActual para que se actualice el total Sesiones en el visualizaRegistrosS
+    // tomar el id paciente seleccionado para obtener una id de sesion del mes actual y pasarlsela a selectedSessionId
+    console.log(`mesSeleccionado ${mesSeleccionado.toString().padStart(2,"0")} - $idPacienteSeleccionado ${$idPacienteSeleccionado}`)    
+    selectedSession = sesiones.find(
+      (sesion) => (sesion.pacienteID === $idPacienteSeleccionado && sesion.diaSesion.slice(5,7) === mesSeleccionado.toString().padStart(2,"0"))  //está tomando la sesion seleccionada como objeto a partir de la id de sesion seleccionada en el select
+    );
+    if (selectedSession){
+      $selectedSessionId = selectedSession.id;
+      console.log(selectedSession, $selectedSessionId);
+    } else {
+      console.log("no hay sesion a seleccionar");
+    }
+    
   };
 
   const clickCheckPlan = (event) => {

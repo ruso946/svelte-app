@@ -16,8 +16,7 @@
     orderBy,
     updateDoc,
     where,
-    getDocs,
-    enableMultiTabIndexedDbPersistence,
+    getDocs,    
   } from "firebase/firestore";
 
   import { querySnapshotConsultaMesActual } from "./modulos/moduloConsultasBBDD";
@@ -31,15 +30,18 @@
     idPacienteSeleccionado,
     apellidoSeleccionado,
     nombreSeleccionado,
-  } from "./store";
-  import VisualizarRegistros from "./assets/VisualizarRegistros.svelte";
+  } from "./store";  
   import SelectorSesiones from "./assets/SelectorSesiones.svelte";
   import {devuelveFechaActual} from "./modulos/moduloSesiones";
   let vistaCalculos = false;
-  //let arrayParaLaVista = []; //si no agrego esta definicion de array vacío, entonces no funciona de una el boton del componente ListadoSesionesPorMes porque no toma arrayParaLaVista como un array.
   
-  let varSumaValorPagoPorPaciente=0; // variable para reflejar la suma por paciente por mes. Se pasa como prop a VisualizarRegistros
-  let varSumaValorSesionPorPaciente=0; // variable para reflejar la suma por paciente por mes. Se pasa como prop a VisualizarRegistros
+  
+  let cambioEnSesiones = false;
+  const eventoCambioSesion = () => cambioEnSesiones = !cambioEnSesiones;
+  
+  
+  let arrayParaLaVista = []; //si no agrego esta definicion de array vacío, entonces no funciona de una el boton del componente ListadoSesionesPorMes porque no toma arrayParaLaVista como un array.  
+  
   let totalAdeudado = 0;
 
   //obtiene la fecha actual
@@ -48,12 +50,12 @@
   // Obtiene el mes y año actual
   let mesActual = fechaActual.getMonth() + 1; // Los meses en JavaScript van de 0 a 11, por lo que se suma 1
   let anioActual = fechaActual.getFullYear();
-  let mesSeleccionado = mesActual; // variable para hacer el bind:value en el select de meses
+  export let mesSeleccionado = mesActual; // variable para hacer el bind:value en el select de meses
 
   console.log(`mesSeleccionado ${mesSeleccionado}`);
 
-  let selectedSessionId;
-  let selectedSession;
+  export let selectedSession;  
+  export let selectedSessionId;
   let totalPagos = 0;
   const obtenerRegistrosMesActual = async (mesSeleccionado) => {
     if (!mesSeleccionado) {
@@ -143,13 +145,6 @@
 
       // console.log("Total pagos mes actual: ", totalPagos);
       // console.log("Total adeudado mes actual: ", totalAdeudado);
-      varSumaValorPagoPorPaciente = funcSumaValorPagoPorPaciente(
-        $idPacienteSeleccionado
-      )[1];
-      varSumaValorSesionPorPaciente = funcSumaValorPagoPorPaciente(
-        $idPacienteSeleccionado
-      )[0];
-
       // Retorna las sesiones obtenidas y el total de los pagos
       return [totalPagos, arrayListadoItemsPorMes];
     } catch (error) {
@@ -157,7 +152,7 @@
       return [];
     }
   };
-  let arrayParaLaVista = obtenerRegistrosMesActual(mesSeleccionado);
+  arrayParaLaVista = obtenerRegistrosMesActual(mesSeleccionado);
   console.log("arrayParaLaVista y vistaCalculos");
   console.log(arrayParaLaVista, vistaCalculos);
 
@@ -188,19 +183,15 @@
 
   let editStatus = true;
 
-  /* nombreCompletoSeleccionado > variable que toma el nombre y apellido del paciente seleccionado en 
- el componente de CRUD Pacientes, que está en el store.js
-*/
-
-  /*
-Funciones del formulario:
- las que invocan los clicks en los botones:
--addSesion
--updateSesion
--deleteSesion
-
- las que dependen de eventos:
- -handle_onchange_select_sesiones
+/*  nombreCompletoSeleccionado > variable que toma el nombre y apellido del paciente seleccionado en 
+    el componente de CRUD Pacientes, que está en el store.js
+    Funciones del formulario:
+      las que invocan los clicks en los botones:
+        -addSesion
+        -updateSesion
+        -deleteSesion
+      las que dependen de eventos:
+        -handle_onchange_select_sesiones
 */
   const handle_onChange_select_sesiones = (e) => {
     console.log(e);
@@ -219,8 +210,7 @@ Funciones del formulario:
     ) {
       valorSesion = selectedSession.valorSesion;
       console.log("particular", valorSesion);
-    } else {
-      //valorSesion = planSeleccionado.valorCoseguro + planSeleccionado.valorOs;
+    } else {      
       var planActual = planes.find((plan) => plan.plan == planSeleccionado);
       console.log(planActual);
       console.log("OS", valorSesion);
@@ -244,7 +234,9 @@ Funciones del formulario:
       Toastify({
         text: "Nueva sesion agregada",
       }).showToast();
-      selectedSessionId = docRef.id;
+      selectedSessionId = docRef.id;      
+      //aca hay que llamar a una funcion que actualice el calculo por mes y por paciente que se hace en SelectorSesiones.svelte      
+      eventoCambioSesion();
     } catch (error) {
       console.error(error);
     }
@@ -268,6 +260,7 @@ Funciones del formulario:
         text: "Nueva sesion agregada",
       }).showToast();
       selectedSessionId = docRef.id;
+      eventoCambioSesion();
     } catch (error) {
       console.error(error);
     }
@@ -288,6 +281,7 @@ Funciones del formulario:
           background: "linear-gradient(to right, #00b09b, #96c93d)",
         },
       }).showToast();
+      eventoCambioSesion();
     } catch (error) {
       console.log(error);
     }
@@ -304,6 +298,7 @@ Funciones del formulario:
           background: "red",
         },
       }).showToast();
+      eventoCambioSesion();
     } catch (error) {
       console.error(error);
     }
@@ -367,28 +362,11 @@ Las variables de los inputs del formulario de sesiones:
 
   // Formatea el mes y año actual en el formato "aaaa-mm"
   let mesActualFormateado = mesActual.toString().padStart(2, "0");
-  let anioActualFormateado = anioActual.toString();
-
-  //$: mesActualFormateado = mesActual.toString().padStart(2, "0");
+  let anioActualFormateado = anioActual.toString(); 
 
   // Crea las fechas de inicio y fin del mes actual
   let fechaInicioMes = `${anioActualFormateado}-${mesActualFormateado}-01`;
-  let fechaFinMes = `${anioActualFormateado}-${mesActualFormateado}-31`;
-
-  let funcSumaValorPagoPorPaciente = (pacienteID) => {
-    // obtiene la suma de los pagos de los valores por el paciente seleccionado
-    // que está en el store.js, y filtrando tambien por mes actual
-    //console.log("sesiones[0][diaSesion].slice(5,7)",sesiones[0][diaSesion].slice(5, 7), "mesActual",mesActual.toString().padStart(2, "0"));
-    const sesionesFiltradas = sesiones.filter(
-      (sesion) =>
-        sesion.pacienteID === pacienteID &&
-        sesion.diaSesion.slice(5, 7) ===
-          mesSeleccionado.toString().padStart(2, "0")
-    );
-    const totalValorSesionPorPaciente = sesionesFiltradas.reduce((sum, pago) => sum + pago.valorSesion, 0);
-    const totalValorPagoPorPaciente = sesionesFiltradas.reduce((sum, pago) => sum + pago.valorPago, 0);
-    return [totalValorSesionPorPaciente, totalValorPagoPorPaciente];
-  };
+  let fechaFinMes = `${anioActualFormateado}-${mesActualFormateado}-31`;  
 
   //esta funcion hace el listado de las sesiones por mes en un div al final de la pagina
   //falta darle estilos
@@ -402,17 +380,10 @@ Las variables de los inputs del formulario de sesiones:
     console.log(Array.isArray(arrayListadoItemsPorMes[1]));
     console.log(arrayListadoItemsPorMes[1]);
     vistaCalculos = true;
-  };
-
-  
+  };  
 
   $: obtenerRegistrosMesActual();
 
-  $: varSumaValorPagoPorPaciente = funcSumaValorPagoPorPaciente(
-    $idPacienteSeleccionado
-  )[1];
-
-  /////////////////////////////////////////////////////////////////////////
   const updateSesionPorUnicaVez = async (sesionAmodificar, valorSesionPUV) => {
     console.log("Update sesion", sesionAmodificar, valorSesionPUV);
     try {
@@ -487,8 +458,8 @@ Las variables de los inputs del formulario de sesiones:
         <SelectorSesiones
           on:cambioSelectorSesion={handle_onChange_select_sesiones}
           {mesSeleccionado}
-          {sesiones}          
-          {selectedSessionId}
+          {sesiones}                    
+          {cambioEnSesiones}
         />              
       </div>      
     {/if}
@@ -540,24 +511,7 @@ Las variables de los inputs del formulario de sesiones:
             >
             <button class="text-sm" on:click={addSesionPlus}>misma sesión fecha actual</button>          
             <button on:click={addSesion}>Agrega sesión</button>
-          </div>
-          <!-- <select
-                on:change={async (e) => listarItemsPorMes(e.target.value)}
-                bind:value={mesSeleccionado}
-                name="mes"
-                id="mesRegistro"
-              >
-                {#each meses as mes}
-                  <option value={mes.nro}
-                    >{`listar mes de ${
-                      mes.nombre
-                    } - ${mes.nro.toString().padStart(2, "0")}`}</option
-                  >
-                {/each}
-              </select> -->
-          <!-- <button on:click={async () => listarItemsPorMes(mesSeleccionado)}
-                >listar mes {mesSeleccionado}</button
-              >               -->
+          </div>          
           <!-- este boton de depurar sesiones solo se debe activar en casos extremos. Borra sesiones de pacientes inexistentes directamente de la base de datos -->
           <!-- deberia reemplazarse por la opcion de actvar/desactivar un paciente con un campo, y sus respectivas sesiones -->
           <!-- <button on:click={depurarSesiones}>Depurar sesiones</button> -->
@@ -572,9 +526,7 @@ Las variables de los inputs del formulario de sesiones:
           {mesSeleccionado}
         />
       </div>
-    </div>
-
-    <!-- on:vistaPulsado={async () => listarItemsPorMes(mesSeleccionado)} -->
+    </div>    
   </body>
 </main>
 
@@ -613,8 +565,7 @@ Las variables de los inputs del formulario de sesiones:
   .selectorSesiones {
     font-family: "Courier New", Courier, monospace;
     text-align: start;
-    height: 10em;
-    /* overflow-y: auto; */
+    height: 10em;    
     background-color: rgb(28, 27, 27);
     color: blanchedalmond;
     max-width: 100%;
@@ -655,15 +606,13 @@ Las variables de los inputs del formulario de sesiones:
     color: rgb(193, 176, 150);
   }  
 
-  #contenedor-form-sesiones {
-    /* display: grid; */    
+  #contenedor-form-sesiones {    
     grid-area: contenedor-form-Sesiones;
     place-items: start;
     padding: 2px;
     justify-items: center;
     align-items: start;
-    background-color: rgb(58, 78, 78);
-    /* margin-bottom: 5px; */
+    background-color: rgb(58, 78, 78);    
   }
 
   #form-Sesiones {
@@ -716,12 +665,6 @@ Las variables de los inputs del formulario de sesiones:
     align-items: flex-end;
     padding: 3px 1em;
   }
-
-  /* #select-sesiones {
-    max-width: 100%;
-    min-width: 100%;
-    font-size: x-small;
-  }   */
 
   input {
     background-color: rgb(58, 78, 78);
