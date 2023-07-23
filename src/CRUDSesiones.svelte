@@ -7,16 +7,11 @@
   // } from "./modulos/moduloSesiones";
 
   import {
-    collection,
-    query,
-    onSnapshot,
+    collection,    
     addDoc,
     deleteDoc,
-    doc,
-    orderBy,
-    updateDoc,
-    where,
-    getDocs,    
+    doc,    
+    updateDoc,    
   } from "firebase/firestore";
 
   import { querySnapshotConsultaMesActual } from "./modulos/moduloConsultasBBDD";
@@ -30,32 +25,23 @@
     idPacienteSeleccionado,
     apellidoSeleccionado,
     nombreSeleccionado,
+    selectedSessionId,
   } from "./store";  
   import SelectorSesiones from "./assets/SelectorSesiones.svelte";
   import {devuelveFechaActual} from "./modulos/moduloSesiones";
   let vistaCalculos = false;
-  
-  
   let cambioEnSesiones = false;
   const eventoCambioSesion = () => cambioEnSesiones = !cambioEnSesiones;
-  
-  
-  let arrayParaLaVista = []; //si no agrego esta definicion de array vacío, entonces no funciona de una el boton del componente ListadoSesionesPorMes porque no toma arrayParaLaVista como un array.  
-  
+  let arrayParaLaVista = []; //si no agrego esta definicion de array vacío, entonces no funciona de una el boton del componente ListadoSesionesPorMes porque no toma arrayParaLaVista como un array.
   let totalAdeudado = 0;
-
   //obtiene la fecha actual
   const fechaActual = new Date();
-
   // Obtiene el mes y año actual
   let mesActual = fechaActual.getMonth() + 1; // Los meses en JavaScript van de 0 a 11, por lo que se suma 1
   let anioActual = fechaActual.getFullYear();
-  export let mesSeleccionado = mesActual; // variable para hacer el bind:value en el select de meses
-
-  console.log(`mesSeleccionado ${mesSeleccionado}`);
-
-  export let selectedSession;  
-  export let selectedSessionId;
+  let mesSeleccionado = mesActual; // variable para hacer el bind:value en el select de meses
+  let selectedSession;  
+  //let selectedSessionId;  
   let totalPagos = 0;
   const obtenerRegistrosMesActual = async (mesSeleccionado) => {
     if (!mesSeleccionado) {
@@ -167,7 +153,7 @@
 
   $: {
     selectedSession = sesiones.find(
-      (sesion) => sesion.id === selectedSessionId //está tomando la sesion seleccionada como objeto a partir de la id de sesion seleccionada en el select
+      (sesion) => sesion.id === $selectedSessionId //está tomando la sesion seleccionada como objeto a partir de la id de sesion seleccionada en el select
     );
     console.log(selectedSession ? selectedSession : "sin seleccion de sesion");
   }
@@ -195,10 +181,10 @@
 */
   const handle_onChange_select_sesiones = (e) => {
     console.log(e);
-    selectedSessionId = e.detail; // está tomando el valor del select al cambiar, que es el Id de sesion seleccionado
+    $selectedSessionId = e.detail; // está tomando el valor del select al cambiar, que es el Id de sesion seleccionado
     console.log(sesiones);
     selectedSession = sesiones.find(
-      (sesion) => sesion.id === selectedSessionId //está tomando la sesion seleccionada como objeto a partir de la id de sesion seleccionada en el select
+      (sesion) => sesion.id === $selectedSessionId //está tomando la sesion seleccionada como objeto a partir de la id de sesion seleccionada en el select
     );
     console.log("selectedSession", selectedSession); // es un objeto
     valorPago = selectedSession.valorPago;
@@ -234,7 +220,7 @@
       Toastify({
         text: "Nueva sesion agregada",
       }).showToast();
-      selectedSessionId = docRef.id;      
+      $selectedSessionId = docRef.id;      
       //aca hay que llamar a una funcion que actualice el calculo por mes y por paciente que se hace en SelectorSesiones.svelte      
       eventoCambioSesion();
     } catch (error) {
@@ -259,7 +245,7 @@
       Toastify({
         text: "Nueva sesion agregada",
       }).showToast();
-      selectedSessionId = docRef.id;
+      $selectedSessionId = docRef.id;
       eventoCambioSesion();
     } catch (error) {
       console.error(error);
@@ -299,16 +285,18 @@
         },
       }).showToast();
       eventoCambioSesion();
+      //seleccionar la sesion que quede despues de borrar
     } catch (error) {
       console.error(error);
-    }
-
-    console.log(selectedSession, selectedSession.diaSesion.slice(5,7), mesSeleccionado.toString().padStart(2,"0"));
+    }    
     selectedSession = sesiones.find(
       (sesion) => (sesion.pacienteID === pacienteID && sesion.diaSesion.slice(5,7)===mesSeleccionado.toString().padStart(2,"0"))  //está tomando la sesion seleccionada como objeto a partir de la id de sesion seleccionada en el select
     );
-    console.log(selectedSession);
-    selectedSessionId = selectedSession.id;
+    console.log(selectedSession?selectedSession:"no hay sesiones para mostrar");
+    if (selectedSession) {
+      $selectedSessionId = selectedSession.id;
+    }
+    
   };
 
   const depurarSesiones = () => {

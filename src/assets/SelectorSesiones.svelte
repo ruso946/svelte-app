@@ -7,24 +7,23 @@ Lo que hay que traer:
  - funcion handle_onChange_select_sesiones ==> se usa en el on:change ///Hay que generar un evento que burbujee a CRUDSesiones para que dispare esa funcion
  - selectedSessionId ==> se usa en el bind:group 
 */
-import VisualizarRegistros from "./VisualizarRegistros.svelte";
+  import VisualizarRegistros from "./VisualizarRegistros.svelte";
   import { createEventDispatcher } from "svelte";
   import { idPacienteSeleccionado, selectedSessionId } from "../store";
+  
   export let mesSeleccionado;
   export let sesiones;
+  export let cambioEnSesiones;
+
   let varSumaValorPagoPorPaciente;
   let varSumaValorSesionPorPaciente;
-  const dispatch = createEventDispatcher();
-  //export let selectedSessionId;
-  export let cambioEnSesiones;
-  
 
+  const dispatch = createEventDispatcher();
   const handle_onChange_select_sesiones = (e) => {
     console.log(selectedSessionId, e.target.value);
     dispatch("cambioSelectorSesion", e.target.value);
     //$selectedSessionId = e.target.value;
   };
-
   const calcularValoresPorPaciente = (paciente)=>{
     varSumaValorPagoPorPaciente = 0;
     varSumaValorSesionPorPaciente = 0;
@@ -48,10 +47,8 @@ import VisualizarRegistros from "./VisualizarRegistros.svelte";
 
   $: {
     $selectedSessionId;
-    dispatch("cambioSelectorSesion", $selectedSessionId);
+    dispatch("cambioSelectorSesion", $selectedSessionId);    
   }
-    
-  
 </script>
 
 <div class="selectorSesiones">

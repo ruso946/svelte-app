@@ -2,8 +2,7 @@
   import SelectPlan from "./assets/SelectPlan.svelte";
   import { onMount, onDestroy } from "svelte";
   import { db } from "./configFirebase/firebasePacientes";
-  import {
-    onSnapshot,
+  import {    
     collection,
     addDoc,
     doc,
@@ -11,8 +10,7 @@
     updateDoc,
     getDocs,
     query,
-    where,
-    orderBy,
+    where,    
   } from "firebase/firestore";
   import Toastify from "toastify-js";
   import Swal from "sweetalert2";
@@ -31,13 +29,12 @@
   import SelectorPacientes from "./assets/SelectorPacientes.svelte";
 
   export let pacientes = []; //array que viene del unsub de Padre.svelte que trae toda la db pacientes
-  export let sesiones;
-  export let selectedSession;
-  //export let selectedSessionId;
-  export let mesSeleccionado;
+  export let sesiones;    
   export let planes;
-  export let planSeleccionado;
-
+  export let planSeleccionado;  
+  
+  let mesSeleccionado = new Date().getMonth() + 1;
+  let selectedSession;
   let arrayDeNombresDeClaves = [
     // usado para hacer que todos los campos de la base de datos y el array pacientes tengan todas las claves
     "nombre",
@@ -46,8 +43,6 @@
     "plan",
     "createdAt",
   ];
-
-  export let optionsPlan;
 
   let indicePlan; //prop a pasar a SelectPlan para actualizar la vista al cambiar de paciente en el SelectorPacientes
 
@@ -293,9 +288,14 @@
     modificaLabelPlan(esParticular);
     // tomar el id paciente seleccionado para obtener una id de sesion del mes actual y pasarlsela a selectedSessionId
     console.log(`mesSeleccionado ${mesSeleccionado.toString().padStart(2,"0")} - $idPacienteSeleccionado ${$idPacienteSeleccionado}`)    
+    // selectedSession = sesiones.find(
+    //   (sesion) => (sesion.pacienteID === $idPacienteSeleccionado && sesion.diaSesion.slice(5,7) === mesSeleccionado.toString().padStart(2,"0"))  //está tomando la sesion seleccionada como objeto a partir de la id de sesion seleccionada en el select
+    // );
+
     selectedSession = sesiones.find(
-      (sesion) => (sesion.pacienteID === $idPacienteSeleccionado && sesion.diaSesion.slice(5,7) === mesSeleccionado.toString().padStart(2,"0"))  //está tomando la sesion seleccionada como objeto a partir de la id de sesion seleccionada en el select
-    );
+        (sesion) => (sesion.pacienteID === $idPacienteSeleccionado && sesion.diaSesion.slice(5,7) === mesSeleccionado.toString().padStart(2,"0"))  //está tomando la sesion seleccionada como objeto a partir de la id de sesion seleccionada en el select
+      );
+
     if (selectedSession){
       $selectedSessionId = selectedSession.id;
       console.log(selectedSession, $selectedSessionId);
@@ -496,11 +496,7 @@
     display: flex;
     align-items: center;
   }
-
-  .formRow label {
-    margin-right: 5px;
-  }
-
+  
   label {
     display: inline;
     margin: 0;
