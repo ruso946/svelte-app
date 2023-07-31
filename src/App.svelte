@@ -1,26 +1,16 @@
 <script>
-  import Padre from "./Padre.svelte";
-  let password = import.meta.env.VITE_PASSWORD;
-  let user = "nada";
-  let cntrsn;
-
-  const chequear = () => {
-    if (cntrsn === password) {
-      user = "Gonzalo";
-    }
-  };
+  import { authenticatedUser } from "./store";
+  import Auth from "./assets/Auth.svelte";
+  import Padre from "./Padre.svelte";  
 </script>
 
 <main>
-  {#if user === "nada"}
-    <div class="ingreso">
-      <h1>ingrese la contraseña:</h1>
-      <input type="password" bind:value={cntrsn} on:input={chequear} />
-    </div>
-  {:else if user === "Gonzalo"}
+  {#if $authenticatedUser}    
     <div class="contenedorPadre">
       <Padre />
     </div>
+  {:else}
+    <Auth />
   {/if}
 </main>
 
@@ -46,16 +36,16 @@
     align-items: center;
     justify-content: center;
     border: solid, 1px;
-    border-color: #3E5947;
+    border-color: #3e5947;
     height: 100vh;
     background-color: #404040;
-    color: #8C8C8C;
+    color: #8c8c8c;
   }
 
-  h1{
-    color: #EFF3F5;
+  h1 {
+    color: #eff3f5;
   }
-  
+
   /* body.dark-theme {
   --main-color       : #404040;
   --title-color      : #EFF3F5;
