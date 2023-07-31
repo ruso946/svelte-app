@@ -21,3 +21,4 @@ export const sesionSeleccionada = writable({
 });
 
 export const selectedSessionId = writable("");
+export const authenticatedUser = writable(null);

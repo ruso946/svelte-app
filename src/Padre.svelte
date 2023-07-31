@@ -8,11 +8,13 @@
     collection,
     query,
     onSnapshot,
-    setDoc,    
+    setDoc,
     doc,
-    orderBy,    
+    orderBy,
   } from "firebase/firestore";
-  
+  import { authenticatedUser } from "./store";
+  import Auth from "./assets/Auth.svelte";
+
   let sesiones = [];
   let pacientes = [];
   let planes = [];
@@ -79,10 +81,11 @@
   /// Para hacer un backup de sesiones, Pacientes y planes en firestore///
   ////////////////////////////////////////////////////////////////////////
 
-  const backupColeccionesFirestore = () => {
-    const SesionesfechaActual = "sesiones" + devuelveFechaActual().toString()+"BU";
+  const backupColeccionesFirestore = () => {    
+    const SesionesfechaActual =
+      "sesiones" + devuelveFechaActual().toString() + "BU";
     // Obtener una referencia a la colección sesionesBackup
-    const collectionSesionesBU = collection(db, (SesionesfechaActual));
+    const collectionSesionesBU = collection(db, SesionesfechaActual);
 
     // Iterar sobre los datos del objeto 'sesiones' y guardarlos en la colección
     sesiones.forEach(async (sesion) => {
@@ -98,7 +101,8 @@
       }
     });
 
-    const PlanesfechaActual = "planes" + devuelveFechaActual().toString()+"BU";
+    const PlanesfechaActual =
+      "planes" + devuelveFechaActual().toString() + "BU";
     // Obtener una referencia a la colección planesBackup
     const collectionPlanesBU = collection(db, PlanesfechaActual);
 
@@ -116,8 +120,9 @@
       }
     });
 
-    const PacientesfechaActual = "Pacientes" + devuelveFechaActual().toString()+"BU";
-    // Obtener una referencia a la colección PacientesBackup        
+    const PacientesfechaActual =
+      "Pacientes" + devuelveFechaActual().toString() + "BU";
+    // Obtener una referencia a la colección PacientesBackup
     const collectionPacientesBU = collection(db, PacientesfechaActual);
 
     // Iterar sobre los datos del objeto 'pacientes' y guardarlos en la colección
@@ -137,19 +142,26 @@
 </script>
 
 <body>
-  <button on:click={backupColeccionesFirestore}>generar backup firestore</button>  
+  <nav class="navbar">
+    <ul class="nav-bar nav">
+      <li class="nav-item">
+        <button on:click={backupColeccionesFirestore}
+          >generar backup firestore</button
+        >
+      </li>
+      <li class="nav-item">
+        <Auth />
+      </li>
+    </ul>
+  </nav>
+
   <div class="contenedor-pacientes" id="contenedorPacientes">
     <h5>Listados de Pacientes</h5>
-    <CRUDPacientes
-      {sesiones}
-      {pacientes}
-      {planes}      
-      {planSeleccionado}
-    />
+    <CRUDPacientes {sesiones} {pacientes} {planes} {planSeleccionado} />
   </div>
 
   <div class="contenedor-sesiones">
-    <CRUDSesiones {sesiones} {pacientes} {planes} {planSeleccionado}/>
+    <CRUDSesiones {sesiones} {pacientes} {planes} {planSeleccionado} />
   </div>
 </body>
 
@@ -171,7 +183,7 @@
     text-align: center;
   }
 
-  h5{
+  h5 {
     color: blanchedalmond;
   }
 </style>
