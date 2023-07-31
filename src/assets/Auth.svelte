@@ -10,7 +10,7 @@
   const dispatch = createEventDispatcher();
   let liemail = "";
   let lipassword = "";
-  
+
   let email = "";
   let password = "";
 
@@ -62,18 +62,14 @@
   }
 
   async function deleteUser() {
-  try {
-	await signInWithEmailAndPassword(
-        auth,
-        demail,
-        dpassword,
-      );
-    await auth.currentUser.delete();
-    console.log('Cuenta eliminada correctamente.');
-  } catch (error) {
-    console.error('Error al eliminar la cuenta:', error.message);
+    try {
+      await signInWithEmailAndPassword(auth, demail, dpassword);
+      await auth.currentUser.delete();
+      console.log("Cuenta eliminada correctamente.");
+    } catch (error) {
+      console.error("Error al eliminar la cuenta:", error.message);
+    }
   }
-}
 </script>
 
 <main>
@@ -81,49 +77,100 @@
     <button on:click={logout}>cerrar sesion</button>
     <p style="font-size: x-small">bienvenido {auth.currentUser.email}</p>
   {:else}
-    <h1>Iniciar sesión</h1>
-    <form on:submit|preventDefault={login}>
-      <label>
-        Correo electrónico:
-        <input type="email" bind:value={liemail} required />
-      </label>
-      <label>
-        Contraseña:
-        <input type="password" bind:value={lipassword} required />
-      </label>
-      <button type="submit">Iniciar sesión</button>
-    </form>
+    <div class="p-3 border">
+      <h5>Iniciar sesión</h5>
+      <form on:submit|preventDefault={login}>
+        <label class="form-label" for="liemail"> Correo electrónico: </label>
+        <input
+          class="form-control"
+          id="liemail"
+          type="email"
+          bind:value={liemail}
+          required
+        />
+        <label class="form-label" for="lipassword"> Contraseña: </label>
+        <input
+          class="form-control"
+          id="lipassword"
+          type="password"
+          bind:value={lipassword}
+          required
+        />
+        <div class="p-3 m-3">
+          <button type="submit">Iniciar sesión</button>
+        </div>
+      </form>
+      <div id="mensaje-error">{mensajeError}</div>
+    </div>
 
-    <div id="mensaje-error">{mensajeError}</div>
+    <div class="p-3 border">
+      <h5>Crear user</h5>
+      <form on:submit|preventDefault={createUser}>
+        <label class="form-label" for="cemail"> Correo electrónico: </label>
+        <input
+          class="form-control"
+          id="cemail"
+          type="email"
+          bind:value={email}
+          required
+        />
+        <label class="form-label" for="cpassword">Contraseña:</label>
+        <input
+          class="form-control"
+          id="cpassword"
+          type="password"
+          bind:value={password}
+          required
+        />
+        <div class="p-3 m-3">
+          <button type="submit">crear User</button>
+        </div>
+      </form>
+      <div id="mensaje-error">{mensajeError}</div>
+    </div>
 
-    <h1>Crear user</h1>
-    <form on:submit|preventDefault={createUser}>
-      <label>
-        Correo electrónico:
-        <input type="email" bind:value={email} required />
-      </label>
-      <label>
-        Contraseña:
-        <input type="password" bind:value={password} required />
-      </label>
-      <button type="submit">crear User</button>
-    </form>
-
-    <div id="mensaje-error">{mensajeError}</div>
-
-	<h1>Borrar cuenta</h1>
-    <form on:submit|preventDefault={deleteUser}>
-      <label>
-        Correo electrónico:
-        <input type="email" bind:value={demail} required />
-      </label>
-      <label>
-        Contraseña:
-        <input type="password" bind:value={dpassword} required />
-      </label>
-      <button type="submit">delete User</button>
-    </form>
-
-    <div id="mensaje-error">{mensajeError}</div>
+    <div class="p-3 border">
+      <h5>Borrar cuenta</h5>
+      <form on:submit|preventDefault={deleteUser}>
+        <label for="demail" class="form-label"> Correo electrónico: </label>
+        <input
+          class="form-control custom-input"
+          id="demail"
+          type="email"
+          bind:value={demail}
+          required
+        />
+        <label for="dpassword" class="form-label"> Contraseña: </label>
+        <input
+          class="form-control"
+          type="password"
+          bind:value={dpassword}
+          required
+        />
+        <div class="p-3 m-3">
+          <button type="submit">delete User</button>
+        </div>
+      </form>
+      <div id="mensaje-error">{mensajeError}</div>
+    </div>
   {/if}
 </main>
+
+<style>
+	main{
+		background-color: #3e5947;
+	}
+
+	input {
+    margin: 0;
+    width: 80%;
+    font-size: medium;
+    background-color: rgb(58, 78, 78);
+    color: blanchedalmond;
+  }
+
+  label{
+	color: blanchedalmond;
+
+  }
+</style>
