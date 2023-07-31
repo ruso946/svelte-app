@@ -35,12 +35,11 @@
         password,
       );
       $authenticatedUser = userCredential.user; // Actualizamos el estado de autenticación con el usuario autenticado
-      console.log(userCredential);
-	  console.log("authenticatedUser: ",$authenticatedUser.UserCredentialImpl);
+      console.log(userCredential);	  
       dispatch("loginSuccess", userCredential.user);
     } catch (error) {
       console.error("Error al iniciar sesión:", error.message);
-	  document.getElementById("mensaje-error").innerText = error.message;
+	  mensajeError = error.message;
     }
   }
 
