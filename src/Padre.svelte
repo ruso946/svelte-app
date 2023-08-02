@@ -142,7 +142,7 @@
 </script>
 
 <body>
-  <nav class="navbar">
+  <nav class="navbar fondo m-0 p-3">
     <ul class="nav-bar nav">
       <li class="nav-item">
         <button on:click={backupColeccionesFirestore}
@@ -155,12 +155,12 @@
     </ul>
   </nav>
 
-  <div class="contenedor-pacientes" id="contenedorPacientes">
+  <div class="contenedor-pacientes fondo" id="contenedorPacientes">
     <h5>Listados de Pacientes</h5>
     <CRUDPacientes {sesiones} {pacientes} {planes} {planSeleccionado} />
   </div>
 
-  <div class="contenedor-sesiones">
+  <div class="contenedor-sesiones fondo">
     <CRUDSesiones {sesiones} {pacientes} {planes} {planSeleccionado} />
   </div>
 </body>
@@ -177,13 +177,15 @@
     max-width: 100vh;
     flex-direction: column;
     border: 0.2em solid black;
-    padding: 3px;
-    background-color: rgb(58, 78, 78);
+    padding: 3px;    
     margin-bottom: 3px;
     text-align: center;
   }
 
   h5 {
     color: blanchedalmond;
+  }
+  .fondo{
+    background-color: rgb(58, 78, 78);
   }
 </style>

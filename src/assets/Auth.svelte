@@ -156,21 +156,23 @@
   {/if}
 </main>
 
-<style>
-	main{
-		background-color: #3e5947;
-	}
+<style>	
 
 	input {
     margin: 0;
     width: 80%;
-    font-size: medium;
-    background-color: rgb(58, 78, 78);
+    font-size: medium;    
     color: blanchedalmond;
+    background-color: rgb(58, 78, 78);
   }
 
   label{
 	color: blanchedalmond;
-
   }
+
+  main{
+    color: blanchedalmond;
+    background-color: rgb(58, 78, 78);
+  }
+  
 </style>
