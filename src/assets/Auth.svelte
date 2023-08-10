@@ -103,9 +103,9 @@
       <div id="mensaje-error">{mensajeError}</div>
     </div>
 
-    <div class="p-3 border">
+    <!--<div class="p-3 border">
       <h5>Crear user</h5>
-      <form on:submit|preventDefault={createUser}>
+       <form on:submit|preventDefault={createUser}>
         <label class="form-label" for="cemail"> Correo electrónico: </label>
         <input
           class="form-control"
@@ -125,9 +125,9 @@
         <div class="p-3 m-3">
           <button type="submit">crear User</button>
         </div>
-      </form>
+      </form> 
       <div id="mensaje-error">{mensajeError}</div>
-    </div>
+    </div>-->
 
     <div class="p-3 border">
       <h5>Borrar cuenta</h5>
